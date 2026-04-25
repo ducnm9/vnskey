@@ -67,6 +67,36 @@ pub struct Fcitx5Facts {
     pub input_methods_configured: Vec<String>,
 }
 
+/// Returns `true` if `id` is an engine identifier for a Vietnamese IME.
+///
+/// We recognise three stable shapes:
+///
+/// * The bare Bamboo/Unikey engine IDs (`bamboo`, `unikey`) used by IBus and
+///   Fcitx5 alike.
+/// * The `vietnamese-*` prefix Fcitx5 assigns to its built-in Vietnamese
+///   keymaps (telex, VNI, VIQR, simple).
+/// * Any ID containing `bamboo` or `unikey` as a substring — this covers
+///   forks and distro-renames like `fcitx5-bamboo-git` or `ibus-unikey-hg`
+///   that we still want to surface as Vietnamese input.
+///
+/// Case-insensitive. The match list is intentionally short — spec/01 §B.2
+/// pins this to the four shipping Vietnamese engines; if we ever ship more
+/// we add them here and in the test below.
+#[must_use]
+pub fn is_vietnamese_engine(id: &str) -> bool {
+    let n = id.to_ascii_lowercase();
+    matches!(
+        n.as_str(),
+        "bamboo"
+            | "unikey"
+            | "vietnamese-telex"
+            | "vietnamese-vni"
+            | "vietnamese-viqr"
+            | "vietnamese-simple"
+    ) || n.contains("bamboo")
+        || n.contains("unikey")
+}
+
 /// Classifies how a given application is packaged, since this drives how
 /// (and whether) it receives IM input.
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
@@ -92,4 +122,36 @@ pub struct AppFacts {
     pub uses_wayland: Option<bool>,
     /// Free-form notes captured during detection (e.g. "detected Ozone flags").
     pub detector_notes: Vec<String>,
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn recognises_canonical_vietnamese_engine_ids() {
+        assert!(is_vietnamese_engine("bamboo"));
+        assert!(is_vietnamese_engine("unikey"));
+        assert!(is_vietnamese_engine("vietnamese-telex"));
+        assert!(is_vietnamese_engine("vietnamese-vni"));
+        assert!(is_vietnamese_engine("vietnamese-viqr"));
+        assert!(is_vietnamese_engine("vietnamese-simple"));
+    }
+
+    #[test]
+    fn matches_case_insensitively_and_substring() {
+        // Case-folded exact match.
+        assert!(is_vietnamese_engine("Bamboo"));
+        // Substring match for distro-renamed forks.
+        assert!(is_vietnamese_engine("fcitx5-bamboo"));
+        assert!(is_vietnamese_engine("ibus-Unikey-hg"));
+    }
+
+    #[test]
+    fn rejects_non_vietnamese_ids() {
+        assert!(!is_vietnamese_engine("xkb:us::eng"));
+        assert!(!is_vietnamese_engine("mozc-jp"));
+        assert!(!is_vietnamese_engine("pinyin"));
+        assert!(!is_vietnamese_engine(""));
+    }
 }

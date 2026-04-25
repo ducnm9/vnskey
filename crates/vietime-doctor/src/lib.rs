@@ -13,10 +13,14 @@
 pub mod detector;
 pub mod detectors;
 pub mod orchestrator;
+pub mod process;
 pub mod render;
 
 pub use detector::{Detector, DetectorContext, DetectorOutput, PartialFacts};
 pub use orchestrator::{run_all, Orchestrator, OrchestratorConfig};
+pub use process::{
+    CommandRunner, DbusProbe, SharedDbus, SharedRunner, TokioCommandRunner, ZbusProbe,
+};
 pub use render::{render, render_json, RenderError, RenderOptions};
 
 /// Tool version used in every `Report` emitted by this binary.

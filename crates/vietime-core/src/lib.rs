@@ -30,7 +30,7 @@ pub mod session;
 
 pub use desktop::{detect_desktop_from_env, DesktopEnv};
 pub use distro::{detect_from_os_release, Distro, DistroFamily};
-pub use engine::{AppFacts, AppKind, EngineFact, Fcitx5Facts, IbusFacts};
+pub use engine::{is_vietnamese_engine, AppFacts, AppKind, EngineFact, Fcitx5Facts, IbusFacts};
 pub use env::{parse_etc_environment, EnvFacts, EnvSource, IM_ENV_KEYS};
 pub use im_framework::ImFramework;
 pub use issue::{Issue, Recommendation, Severity};

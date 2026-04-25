@@ -66,7 +66,15 @@ impl Orchestrator {
     /// build a `Report`. Always returns a report — even an empty detector
     /// list produces a valid (if featureless) report.
     pub async fn run(&self, ctx: &DetectorContext) -> Report {
-        let (partial, anomalies) = run_all(&self.detectors, self.config, ctx).await;
+        let (mut partial, anomalies) = run_all(&self.detectors, self.config, ctx).await;
+
+        // Week 3: second pass over the already-merged `PartialFacts` to
+        // cross-reference `EngineFact` rows against what the framework
+        // detectors observed. This is the 2-pass model promised in the
+        // `Detector` trait doc comment — detectors still don't call each
+        // other, they just leave enough breadcrumbs for the orchestrator
+        // to reconcile.
+        reconcile_engine_registration(&mut partial);
 
         let facts = Facts {
             system: SystemFacts {
@@ -83,7 +91,7 @@ impl Orchestrator {
                 active_framework: derive_active(partial.ibus.as_ref(), partial.fcitx5.as_ref()),
                 ibus: partial.ibus,
                 fcitx5: partial.fcitx5,
-                engines: Vec::new(),
+                engines: partial.engines,
             },
             env: partial.env.unwrap_or_default(),
             apps: partial.apps,
@@ -122,6 +130,63 @@ fn derive_active(
         (true, false) => ActiveFramework::Ibus,
         (false, true) => ActiveFramework::Fcitx5,
         (false, false) => ActiveFramework::None,
+    }
+}
+
+/// Second-pass reconciliation: flip `is_registered` on any engine that
+/// appears in `ibus.registered_engines` or `fcitx5.input_methods_configured`,
+/// and push IBus-side registered engines back into
+/// `ibus.registered_engines` (so a package detector row in `engines` that
+/// was confirmed registered also shows up on the framework facts).
+///
+/// The loop is intentionally simple — engines are O(dozens) on the most
+/// flamboyant desktops, so linear scans are fine and keep the ordering
+/// deterministic for snapshots.
+fn reconcile_engine_registration(partial: &mut PartialFacts) {
+    use vietime_core::ImFramework;
+
+    // Step 1: collect every (framework, name) pair confirmed by a
+    // framework-specific detector (DOC-21 / DOC-23) or flagged as
+    // registered on an engine row we've already got.
+    let mut registered: std::collections::HashSet<(ImFramework, String)> =
+        std::collections::HashSet::new();
+    if let Some(ibus) = partial.ibus.as_ref() {
+        for name in &ibus.registered_engines {
+            registered.insert((ImFramework::Ibus, name.clone()));
+        }
+    }
+    if let Some(f) = partial.fcitx5.as_ref() {
+        for im in &f.input_methods_configured {
+            registered.insert((ImFramework::Fcitx5, im.clone()));
+        }
+    }
+    for e in &partial.engines {
+        if e.is_registered {
+            registered.insert((e.framework, e.name.clone()));
+        }
+    }
+
+    // Step 2: flip the flag on any engine row (typically from DOC-24)
+    // that matches one of those confirmed pairs but came in with
+    // `is_registered = false`.
+    for e in &mut partial.engines {
+        if !e.is_registered && registered.contains(&(e.framework, e.name.clone())) {
+            e.is_registered = true;
+        }
+    }
+
+    // Step 3: fold IBus-registered engine names back into
+    // `ibus.registered_engines` so the framework facts remain the
+    // single source of truth for "what did IBus list".
+    if let Some(ibus) = partial.ibus.as_mut() {
+        for e in &partial.engines {
+            if e.framework == ImFramework::Ibus
+                && e.is_registered
+                && !ibus.registered_engines.contains(&e.name)
+            {
+                ibus.registered_engines.push(e.name.clone());
+            }
+        }
     }
 }
 
@@ -211,6 +276,7 @@ async fn collect(
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used, clippy::unwrap_used)]
 mod tests {
     use super::*;
     use crate::detector::DetectorOutput;
@@ -354,5 +420,104 @@ mod tests {
     #[test]
     fn active_framework_none_when_no_daemons() {
         assert_eq!(derive_active(None, None), ActiveFramework::None);
+    }
+
+    #[test]
+    fn reconcile_flips_registered_when_package_matches_ibus_listing() {
+        use std::path::PathBuf;
+        use vietime_core::{EngineFact, ImFramework};
+
+        // DOC-21 says ibus listed bamboo.
+        let ibus = vietime_core::IbusFacts {
+            version: None,
+            daemon_running: true,
+            daemon_pid: None,
+            config_dir: Some(PathBuf::from("/home/a/.config/ibus")),
+            registered_engines: vec!["bamboo".to_owned()],
+        };
+        // DOC-24 reported two installed packages, neither marked registered.
+        let engines = vec![
+            EngineFact {
+                name: "bamboo".to_owned(),
+                package: Some("ibus-bamboo".to_owned()),
+                version: Some("0.8.2".to_owned()),
+                framework: ImFramework::Ibus,
+                is_vietnamese: true,
+                is_registered: false,
+            },
+            EngineFact {
+                name: "unikey".to_owned(),
+                package: Some("ibus-unikey".to_owned()),
+                version: Some("0.6.1".to_owned()),
+                framework: ImFramework::Ibus,
+                is_vietnamese: true,
+                is_registered: false,
+            },
+        ];
+
+        let mut partial = PartialFacts { ibus: Some(ibus), engines, ..PartialFacts::default() };
+        reconcile_engine_registration(&mut partial);
+
+        // bamboo → confirmed registered; unikey stays unregistered (classic VD005 signal).
+        assert!(partial.engines[0].is_registered);
+        assert!(!partial.engines[1].is_registered);
+        // `registered_engines` is unchanged (bamboo was already there).
+        assert_eq!(partial.ibus.as_ref().expect("ibus set").registered_engines, vec!["bamboo"]);
+    }
+
+    #[test]
+    fn reconcile_pushes_new_engines_into_ibus_registered_list() {
+        use std::path::PathBuf;
+        use vietime_core::{EngineFact, ImFramework};
+
+        // DOC-20 produced a daemon-only IbusFacts (no engines listed).
+        let ibus = vietime_core::IbusFacts {
+            version: Some("1.5.29".to_owned()),
+            daemon_running: true,
+            daemon_pid: Some(1),
+            config_dir: Some(PathBuf::from("/home/a/.config/ibus")),
+            registered_engines: vec![],
+        };
+        // DOC-21 already marked bamboo as registered via its own EngineFact.
+        let engines = vec![EngineFact {
+            name: "bamboo".to_owned(),
+            package: None,
+            version: None,
+            framework: ImFramework::Ibus,
+            is_vietnamese: true,
+            is_registered: true,
+        }];
+
+        let mut partial = PartialFacts { ibus: Some(ibus), engines, ..PartialFacts::default() };
+        reconcile_engine_registration(&mut partial);
+
+        // After reconciliation the framework facts learn about the engine.
+        assert_eq!(partial.ibus.as_ref().expect("ibus set").registered_engines, vec!["bamboo"]);
+    }
+
+    #[test]
+    fn reconcile_uses_fcitx5_profile_to_flip_package_engine_flag() {
+        use std::path::PathBuf;
+        use vietime_core::{EngineFact, ImFramework};
+
+        let fcitx5 = vietime_core::Fcitx5Facts {
+            version: None,
+            daemon_running: true,
+            daemon_pid: None,
+            config_dir: Some(PathBuf::from("/home/a/.config/fcitx5")),
+            addons_enabled: vec![],
+            input_methods_configured: vec!["bamboo".to_owned(), "keyboard-us".to_owned()],
+        };
+        let engines = vec![EngineFact {
+            name: "bamboo".to_owned(),
+            package: Some("fcitx5-bamboo".to_owned()),
+            version: None,
+            framework: ImFramework::Fcitx5,
+            is_vietnamese: true,
+            is_registered: false,
+        }];
+        let mut partial = PartialFacts { fcitx5: Some(fcitx5), engines, ..PartialFacts::default() };
+        reconcile_engine_registration(&mut partial);
+        assert!(partial.engines[0].is_registered);
     }
 }

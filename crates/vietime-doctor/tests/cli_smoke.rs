@@ -70,6 +70,11 @@ fn list_subcommand_mentions_all_registered_detectors() {
         "env.home_profile",
         "env.etc_profile_d",
         "env.systemd",
+        "im.ibus.daemon",
+        "im.ibus.engines",
+        "im.fcitx5.daemon",
+        "im.fcitx5.config",
+        "im.engines.packages",
     ] {
         assert!(
             stdout.contains(id),

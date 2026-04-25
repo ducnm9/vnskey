@@ -18,7 +18,9 @@ use tracing::info;
 use vietime_doctor::detector::{Detector, DetectorContext};
 use vietime_doctor::detectors::{
     DesktopDetector, DistroDetector, EtcEnvironmentDetector, EtcProfileDDetector,
-    HomeProfileDetector, ProcessEnvDetector, SessionDetector, SystemdEnvDetector,
+    Fcitx5ConfigDetector, Fcitx5DaemonDetector, HomeProfileDetector, IbusDaemonDetector,
+    IbusEnginesDetector, PackageEnginesDetector, ProcessEnvDetector, SessionDetector,
+    SystemdEnvDetector,
 };
 use vietime_doctor::render::{render, render_json, RenderOptions};
 use vietime_doctor::{Orchestrator, OrchestratorConfig};
@@ -205,6 +207,11 @@ fn build_orchestrator() -> Orchestrator {
         Arc::new(HomeProfileDetector::new()),
         Arc::new(EtcProfileDDetector::new()),
         Arc::new(SystemdEnvDetector::new()),
+        Arc::new(IbusDaemonDetector::new()),
+        Arc::new(IbusEnginesDetector::new()),
+        Arc::new(Fcitx5DaemonDetector::new()),
+        Arc::new(Fcitx5ConfigDetector::new()),
+        Arc::new(PackageEnginesDetector::new()),
     ];
     for d in detectors {
         orch.add(d);

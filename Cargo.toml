@@ -49,6 +49,11 @@ tokio = { version = "1.40", features = ["rt", "rt-multi-thread", "macros", "time
 async-trait = "0.1"
 futures = "0.3"
 
+# D-Bus (pure-Rust, tokio-async). Used by Doctor's IBus / Fcitx5 daemon
+# detectors to check `NameHasOwner` on the session bus without shelling
+# out. `default-features = false` drops the blocking API we don't use.
+zbus = { version = "4", default-features = false, features = ["tokio"] }
+
 # Testing
 insta = { version = "1.40", features = ["yaml", "json"] }
 rstest = "0.22"
