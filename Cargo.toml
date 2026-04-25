@@ -37,6 +37,9 @@ toml = "0.8"
 # CLI
 clap = { version = "4.5", features = ["derive", "env"] }
 
+# Templating — used by Doctor's Markdown renderer (DOC-14).
+minijinja = { version = "2", default-features = false, features = ["builtins", "serde"] }
+
 # Time / ID
 chrono = { version = "0.4", default-features = false, features = ["serde", "clock"] }
 uuid = { version = "1.10", features = ["v4", "serde"] }

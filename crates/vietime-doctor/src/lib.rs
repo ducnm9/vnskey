@@ -13,9 +13,11 @@
 pub mod detector;
 pub mod detectors;
 pub mod orchestrator;
+pub mod render;
 
 pub use detector::{Detector, DetectorContext, DetectorOutput, PartialFacts};
 pub use orchestrator::{run_all, Orchestrator, OrchestratorConfig};
+pub use render::{render, render_json, RenderError, RenderOptions};
 
 /// Tool version used in every `Report` emitted by this binary.
 pub const TOOL_VERSION: &str = env!("CARGO_PKG_VERSION");

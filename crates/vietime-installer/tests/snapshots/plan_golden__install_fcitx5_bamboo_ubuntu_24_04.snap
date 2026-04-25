@@ -32,7 +32,7 @@ id_like = ["debian"]
 [pre_state.desktop]
 kind = "gnome"
 
-[pre_state.env]
+[pre_state.env.sources]
 
 [[steps]]
 kind = "backup_file"

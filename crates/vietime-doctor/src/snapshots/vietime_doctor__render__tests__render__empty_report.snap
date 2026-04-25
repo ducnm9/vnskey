@@ -1,0 +1,20 @@
+---
+source: crates/vietime-doctor/src/render.rs
+expression: out
+---
+# VietIME Doctor Report
+Generated: 2026-04-25T10:23:11+00:00
+vietime-doctor v0.0.1
+
+## Environment
+- (no system facts collected)
+
+## IM Framework
+- Active: none
+
+## Environment Variables
+
+- (no IM env vars set)
+
+## Checks
+- (no checks run — checker engine lands in Week 5)

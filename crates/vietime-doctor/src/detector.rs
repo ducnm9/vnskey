@@ -138,14 +138,20 @@ impl PartialFacts {
         if other.fcitx5.is_some() {
             self.fcitx5 = other.fcitx5;
         }
-        if other.env.is_some() {
-            self.env = other.env;
+        // Env facts merge by per-field source priority — `Process` always
+        // wins over `EtcEnvironment` regardless of which detector
+        // completed first in the JoinSet.
+        match (self.env.as_mut(), other.env) {
+            (None, Some(incoming)) => self.env = Some(incoming),
+            (Some(current), Some(incoming)) => current.merge_by_priority(&incoming),
+            _ => {}
         }
         self.apps.extend(other.apps);
     }
 }
 
 #[cfg(test)]
+#[allow(clippy::expect_used, clippy::unwrap_used)]
 mod tests {
     use super::*;
     use vietime_core::DistroFamily;
@@ -195,6 +201,44 @@ mod tests {
         assert_eq!(base.apps.len(), 2);
         assert_eq!(base.apps[0].app_id, "vscode");
         assert_eq!(base.apps[1].app_id, "chrome");
+    }
+
+    #[test]
+    fn merge_env_preserves_higher_priority_source() {
+        use vietime_core::{EnvFacts, EnvSource};
+        let mut process_env = HashMap::new();
+        process_env.insert("GTK_IM_MODULE".to_owned(), "ibus".to_owned());
+        let high = EnvFacts::from_env_with_source(&process_env, EnvSource::Process);
+
+        let mut etc_env = HashMap::new();
+        etc_env.insert("GTK_IM_MODULE".to_owned(), "fcitx".to_owned());
+        let low = EnvFacts::from_env_with_source(&etc_env, EnvSource::EtcEnvironment);
+
+        // Process-sourced value lands first...
+        let mut base = PartialFacts { env: Some(high), ..PartialFacts::default() };
+        // ...and is NOT overwritten by the lower-priority etc/environment value
+        // even though `other` is last in merge order.
+        let later = PartialFacts { env: Some(low), ..PartialFacts::default() };
+        base.merge_from(later);
+
+        let env = base.env.expect("env survived the merge");
+        assert_eq!(env.gtk_im_module.as_deref(), Some("ibus"));
+        assert_eq!(env.sources.get("GTK_IM_MODULE"), Some(&EnvSource::Process));
+    }
+
+    #[test]
+    fn merge_env_takes_incoming_when_base_has_none() {
+        use vietime_core::{EnvFacts, EnvSource};
+        let mut etc_env = HashMap::new();
+        etc_env.insert("GTK_IM_MODULE".to_owned(), "fcitx".to_owned());
+        let incoming = EnvFacts::from_env_with_source(&etc_env, EnvSource::EtcEnvironment);
+
+        let mut base = PartialFacts::default();
+        base.merge_from(PartialFacts { env: Some(incoming), ..PartialFacts::default() });
+
+        let env = base.env.expect("env now set");
+        assert_eq!(env.gtk_im_module.as_deref(), Some("fcitx"));
+        assert_eq!(env.sources.get("GTK_IM_MODULE"), Some(&EnvSource::EtcEnvironment));
     }
 
     #[test]

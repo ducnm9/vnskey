@@ -57,11 +57,20 @@ fn hello_subcommand_prints_core_greeting() {
 }
 
 #[test]
-fn list_subcommand_mentions_three_detectors() {
+fn list_subcommand_mentions_all_registered_detectors() {
     let out = Command::new(binary_path()).arg("list").output().expect("spawn vietime-doctor list");
     assert!(out.status.success(), "expected `list` to exit 0");
     let stdout = String::from_utf8_lossy(&out.stdout);
-    for id in ["sys.distro", "sys.session", "sys.desktop"] {
+    for id in [
+        "sys.distro",
+        "sys.session",
+        "sys.desktop",
+        "env.process",
+        "env.etc_environment",
+        "env.home_profile",
+        "env.etc_profile_d",
+        "env.systemd",
+    ] {
         assert!(
             stdout.contains(id),
             "expected list output to include detector id `{id}`, got:\n{stdout}"

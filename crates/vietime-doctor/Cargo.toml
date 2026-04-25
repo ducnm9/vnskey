@@ -31,7 +31,9 @@ async-trait = { workspace = true }
 futures = { workspace = true }
 chrono = { workspace = true }
 thiserror = { workspace = true }
+minijinja = { workspace = true }
 
 [dev-dependencies]
 rstest = { workspace = true }
 tokio-test = { workspace = true }
+insta = { workspace = true }

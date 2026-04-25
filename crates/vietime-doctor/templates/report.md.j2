@@ -1,0 +1,93 @@
+# VietIME Doctor Report
+Generated: {{ generated_at }}
+vietime-doctor v{{ tool_version }}
+
+## Environment
+{%- if system.distro %}
+- Distro: {{ system.distro_display }}
+{%- endif %}
+{%- if system.desktop %}
+- Desktop: {{ system.desktop }}
+{%- endif %}
+{%- if system.session %}
+- Session: {{ system.session }}
+{%- endif %}
+{%- if system.kernel %}
+- Kernel: {{ system.kernel }}
+{%- endif %}
+{%- if system.shell %}
+- Shell: {{ system.shell }}
+{%- endif %}
+{%- if not system.distro and not system.desktop and not system.session %}
+- (no system facts collected)
+{%- endif %}
+
+## IM Framework
+- Active: {{ im.active }}
+{%- if im.ibus %}
+- IBus: {{ im.ibus }}
+{%- endif %}
+{%- if im.fcitx5 %}
+- Fcitx5: {{ im.fcitx5 }}
+{%- endif %}
+{%- if im.engines %}
+
+### Engines
+{%- for e in im.engines %}
+- {{ e }}
+{%- endfor %}
+{%- endif %}
+
+## Environment Variables
+{%- if env_rows %}
+
+| Var | Value | Source |
+|---|---|---|
+{%- for row in env_rows %}
+| {{ row.name }} | {{ row.value }} | {{ row.source }} |
+{%- endfor %}
+{%- else %}
+
+- (no IM env vars set)
+{%- endif %}
+
+## Checks
+{%- if issues %}
+{%- for issue in issues %}
+- [{{ issue.severity_badge }}] {{ issue.title }}{% if issue.detail %} — {{ issue.detail }}{% endif %}
+{%- endfor %}
+{%- else %}
+- (no checks run — checker engine lands in Week 5)
+{%- endif %}
+
+{%- if recommendations %}
+
+## Recommendations
+{%- for rec in recommendations %}
+
+### {{ rec.id }}: {{ rec.title }}
+{{ rec.description }}
+{%- if rec.commands %}
+
+```
+{%- for cmd in rec.commands %}
+{{ cmd }}
+{%- endfor %}
+```
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
+{%- if anomalies %}
+
+## Detector anomalies
+{%- for a in anomalies %}
+- `{{ a.detector }}`: {{ a.reason }}
+{%- endfor %}
+{%- endif %}
+
+{%- if verbose %}
+
+---
+_verbose: schema_version={{ schema_version }}, issues={{ issues | length }}, recommendations={{ recommendations | length }}, anomalies={{ anomalies | length }}_
+{%- endif %}

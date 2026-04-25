@@ -16,7 +16,11 @@ use clap::{Parser, Subcommand};
 use tracing::info;
 
 use vietime_doctor::detector::{Detector, DetectorContext};
-use vietime_doctor::detectors::{DesktopDetector, DistroDetector, SessionDetector};
+use vietime_doctor::detectors::{
+    DesktopDetector, DistroDetector, EtcEnvironmentDetector, EtcProfileDDetector,
+    HomeProfileDetector, ProcessEnvDetector, SessionDetector, SystemdEnvDetector,
+};
+use vietime_doctor::render::{render, render_json, RenderOptions};
 use vietime_doctor::{Orchestrator, OrchestratorConfig};
 
 /// Exit codes per `spec/01` §A.4. Non-zero severity codes (1 / 2) flow
@@ -154,7 +158,7 @@ async fn dispatch(cli: Cli) -> ExitCode {
             let report = orch.run(&ctx).await;
 
             let rendered = if cli.json {
-                match serde_json::to_string_pretty(&report).context("serialise report as JSON") {
+                match render_json(&report).context("serialise report as JSON") {
                     Ok(s) => s,
                     Err(err) => {
                         eprintln!("vietime-doctor: {err:?}");
@@ -162,7 +166,15 @@ async fn dispatch(cli: Cli) -> ExitCode {
                     }
                 }
             } else {
-                render_plain(&report, cli.verbose)
+                match render(&report, &RenderOptions { plain: cli.plain, verbose: cli.verbose })
+                    .context("render report")
+                {
+                    Ok(s) => s,
+                    Err(err) => {
+                        eprintln!("vietime-doctor: {err:?}");
+                        return ExitCode::from(exit::INTERNAL_ERROR);
+                    }
+                }
             };
 
             let write_res = if let Some(path) = output {
@@ -188,66 +200,16 @@ fn build_orchestrator() -> Orchestrator {
         Arc::new(DistroDetector::new()),
         Arc::new(SessionDetector::new()),
         Arc::new(DesktopDetector::new()),
+        Arc::new(ProcessEnvDetector::new()),
+        Arc::new(EtcEnvironmentDetector::new()),
+        Arc::new(HomeProfileDetector::new()),
+        Arc::new(EtcProfileDDetector::new()),
+        Arc::new(SystemdEnvDetector::new()),
     ];
     for d in detectors {
         orch.add(d);
     }
     orch
-}
-
-/// Minimal plain-text rendering used until the `minijinja` renderer lands
-/// in Week 2 (DOC-14). Keeping the logic small means the Report data model
-/// can evolve without fighting a template.
-fn render_plain(report: &vietime_core::Report, verbose: bool) -> String {
-    use std::fmt::Write;
-
-    let mut out = String::new();
-    let _ = writeln!(
-        out,
-        "# VietIME Doctor Report\nGenerated: {}\nvietime-doctor v{}\n",
-        report.generated_at.to_rfc3339(),
-        report.tool_version
-    );
-
-    let _ = writeln!(out, "## Environment");
-    if let Some(d) = &report.facts.system.distro {
-        let pretty = d
-            .pretty
-            .clone()
-            .unwrap_or_else(|| format!("{} {}", d.id, d.version_id.clone().unwrap_or_default()));
-        let _ = writeln!(out, "- Distro: {pretty}");
-    }
-    if let Some(de) = &report.facts.system.desktop {
-        let _ = writeln!(out, "- Desktop: {}", de.display_name());
-    }
-    if let Some(s) = report.facts.system.session {
-        let _ = writeln!(out, "- Session: {}", s.as_str());
-    }
-    let _ = writeln!(out);
-
-    let _ = writeln!(out, "## IM Framework");
-    let _ = writeln!(out, "- Active: {:?}", report.facts.im.active_framework);
-    let _ = writeln!(out);
-
-    if !report.anomalies.is_empty() {
-        let _ = writeln!(out, "## Detector anomalies");
-        for a in &report.anomalies {
-            let _ = writeln!(out, "- {}: {}", a.detector, a.reason);
-        }
-        let _ = writeln!(out);
-    }
-
-    if verbose {
-        let _ = writeln!(
-            out,
-            "(verbose) schema_version={}, issues={}, recommendations={}",
-            report.schema_version,
-            report.issues.len(),
-            report.recommendations.len()
-        );
-    }
-
-    out
 }
 
 fn init_tracing() {

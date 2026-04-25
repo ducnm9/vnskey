@@ -1,0 +1,40 @@
+---
+source: crates/vietime-doctor/src/render.rs
+expression: out
+---
+# VietIME Doctor Report
+Generated: 2026-04-25T10:23:11+00:00
+vietime-doctor v0.0.1
+
+## Environment
+- Distro: Fedora Linux 40
+- Desktop: KDE Plasma 6.0
+- Session: x11
+
+## IM Framework
+- Active: conflict (both IBus and Fcitx5 active)
+- IBus: running, version 1.5.30
+- Fcitx5: running, version 5.1.12
+
+## Environment Variables
+
+| Var | Value | Source |
+|---|---|---|
+| GTK_IM_MODULE | fcitx | process |
+| QT_IM_MODULE | ibus | /etc/environment |
+| XMODIFIERS | @im=ibus | /etc/environment |
+
+## Checks
+- [critical] Both IBus and Fcitx5 daemons running — Only one IM framework should be active at a time.
+
+## Recommendations
+
+### VR001: Pick one IM framework
+Disable whichever framework you are not using.
+
+```
+systemctl --user disable --now fcitx5.service
+```
+
+## Detector anomalies
+- `env.systemd`: systemctl --user show-environment failed: timeout
