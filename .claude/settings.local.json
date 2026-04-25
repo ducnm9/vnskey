@@ -13,7 +13,8 @@
       "Bash(/Users/nguyenduc/.cargo/bin/cargo-deny check *)",
       "Bash(bash scripts/check-spdx.sh)",
       "Bash(cargo deny *)",
-      "Bash(cargo check *)"
+      "Bash(cargo check *)",
+      "Bash(awk '{passed += $4; ignored += $8} END {print \"Total passed:\", passed; print \"Total ignored:\", ignored}')"
     ]
   }
 }

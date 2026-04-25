@@ -1075,13 +1075,20 @@ name = "vietime-bench"
 version = "0.0.1"
 dependencies = [
  "anyhow",
+ "async-trait",
+ "chrono",
  "clap",
+ "rstest",
  "serde",
  "serde_json",
+ "thiserror",
+ "tokio",
  "toml",
  "tracing",
  "tracing-subscriber",
+ "uuid",
  "vietime-core",
+ "vietime-installer",
 ]
 
 [[package]]
