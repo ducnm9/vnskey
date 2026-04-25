@@ -76,6 +76,11 @@ impl Orchestrator {
         // to reconcile.
         reconcile_engine_registration(&mut partial);
 
+        // Week 4: collapse the two independent `AppFacts` rows that DOC-31
+        // (`GenericAppDetector`) and DOC-32 (`ElectronAppDetector`) emit
+        // for the same `--app <X>` target into a single row per app_id.
+        reconcile_app_facts(&mut partial);
+
         let facts = Facts {
             system: SystemFacts {
                 distro: partial.distro,
@@ -188,6 +193,59 @@ fn reconcile_engine_registration(partial: &mut PartialFacts) {
             }
         }
     }
+}
+
+/// Second-pass: collapse multiple `AppFacts` rows with the same `app_id`
+/// into one. DOC-31 and DOC-32 both emit a row for the target app (the
+/// first via `--version` / `file`, the second via binary-strings /
+/// `/proc`); merge them preferring the non-empty / `Some` side on each
+/// field.
+///
+/// Kept deterministic by iterating in input order and only flipping a
+/// previously-set value when the incoming one is strictly more specific
+/// (a non-empty path beats an empty one; `Electron` / `Chromium` beats
+/// `Native` / hint-level kinds).
+fn reconcile_app_facts(partial: &mut PartialFacts) {
+    use vietime_core::AppKind;
+
+    let incoming = std::mem::take(&mut partial.apps);
+    let mut merged: Vec<vietime_core::AppFacts> = Vec::new();
+    for item in incoming {
+        if let Some(existing) = merged.iter_mut().find(|a| a.app_id == item.app_id) {
+            if existing.binary_path.as_os_str().is_empty()
+                && !item.binary_path.as_os_str().is_empty()
+            {
+                existing.binary_path = item.binary_path;
+            }
+            if existing.version.is_none() && item.version.is_some() {
+                existing.version = item.version;
+            }
+            if existing.electron_version.is_none() && item.electron_version.is_some() {
+                existing.electron_version = item.electron_version;
+            }
+            if existing.uses_wayland.is_none() && item.uses_wayland.is_some() {
+                existing.uses_wayland = item.uses_wayland;
+            }
+            // A more specific Electron/Chromium/AppImage answer beats a
+            // generic Native hint; AppImage also beats Electron (an
+            // Electron-wrapped AppImage is still an AppImage to us). If
+            // both sides already disagree above Native level and neither
+            // upgrade rule fires, leave the earlier one alone —
+            // deterministic wins over "whichever happened to land second".
+            let upgrade = matches!(
+                (&existing.kind, &item.kind),
+                (AppKind::Native, AppKind::Electron | AppKind::Chromium | AppKind::AppImage)
+                    | (AppKind::Electron, AppKind::AppImage)
+            );
+            if upgrade {
+                existing.kind = item.kind;
+            }
+            existing.detector_notes.extend(item.detector_notes);
+        } else {
+            merged.push(item);
+        }
+    }
+    partial.apps = merged;
 }
 
 /// Lower-level entry point. Runs every detector in parallel, enforces
@@ -493,6 +551,61 @@ mod tests {
 
         // After reconciliation the framework facts learn about the engine.
         assert_eq!(partial.ibus.as_ref().expect("ibus set").registered_engines, vec!["bamboo"]);
+    }
+
+    #[test]
+    fn reconcile_app_facts_merges_two_rows_for_same_app_id() {
+        use std::path::PathBuf;
+        use vietime_core::{AppFacts, AppKind};
+
+        // DOC-31 wrote first: found the binary, parsed version, kind=Electron.
+        let generic = AppFacts {
+            app_id: "vscode".to_owned(),
+            binary_path: PathBuf::from("/usr/bin/code"),
+            version: Some("1.87.2".to_owned()),
+            kind: AppKind::Electron,
+            electron_version: None,
+            uses_wayland: None,
+            detector_notes: vec!["generic: ok".to_owned()],
+        };
+        // DOC-32 wrote second: filled in electron_version and uses_wayland.
+        let electron = AppFacts {
+            app_id: "vscode".to_owned(),
+            binary_path: PathBuf::from("/usr/bin/code"),
+            version: None,
+            kind: AppKind::Electron,
+            electron_version: Some("28.2.4".to_owned()),
+            uses_wayland: Some(true),
+            detector_notes: vec!["electron: ok".to_owned()],
+        };
+        let mut partial = PartialFacts { apps: vec![generic, electron], ..PartialFacts::default() };
+        reconcile_app_facts(&mut partial);
+        assert_eq!(partial.apps.len(), 1);
+        let a = &partial.apps[0];
+        assert_eq!(a.app_id, "vscode");
+        assert_eq!(a.version.as_deref(), Some("1.87.2"));
+        assert_eq!(a.electron_version.as_deref(), Some("28.2.4"));
+        assert_eq!(a.uses_wayland, Some(true));
+        assert_eq!(a.detector_notes.len(), 2);
+    }
+
+    #[test]
+    fn reconcile_app_facts_leaves_single_row_unchanged() {
+        use std::path::PathBuf;
+        use vietime_core::{AppFacts, AppKind};
+
+        let only = AppFacts {
+            app_id: "firefox".to_owned(),
+            binary_path: PathBuf::from("/usr/bin/firefox"),
+            version: Some("126.0".to_owned()),
+            kind: AppKind::Native,
+            electron_version: None,
+            uses_wayland: None,
+            detector_notes: vec![],
+        };
+        let mut partial = PartialFacts { apps: vec![only.clone()], ..PartialFacts::default() };
+        reconcile_app_facts(&mut partial);
+        assert_eq!(partial.apps, vec![only]);
     }
 
     #[test]

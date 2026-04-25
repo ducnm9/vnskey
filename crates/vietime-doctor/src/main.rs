@@ -17,10 +17,10 @@ use tracing::info;
 
 use vietime_doctor::detector::{Detector, DetectorContext};
 use vietime_doctor::detectors::{
-    DesktopDetector, DistroDetector, EtcEnvironmentDetector, EtcProfileDDetector,
-    Fcitx5ConfigDetector, Fcitx5DaemonDetector, HomeProfileDetector, IbusDaemonDetector,
-    IbusEnginesDetector, PackageEnginesDetector, ProcessEnvDetector, SessionDetector,
-    SystemdEnvDetector,
+    DesktopDetector, DistroDetector, ElectronAppDetector, EtcEnvironmentDetector,
+    EtcProfileDDetector, Fcitx5ConfigDetector, Fcitx5DaemonDetector, GenericAppDetector,
+    HomeProfileDetector, IbusDaemonDetector, IbusEnginesDetector, PackageEnginesDetector,
+    ProcessEnvDetector, SessionDetector, SystemdEnvDetector,
 };
 use vietime_doctor::render::{render, render_json, RenderOptions};
 use vietime_doctor::{Orchestrator, OrchestratorConfig};
@@ -57,8 +57,9 @@ struct Cli {
     #[arg(long = "no-redact", global = true)]
     no_redact: bool,
 
-    /// Focus on a specific app (e.g. `vscode`, `chrome`). Not yet wired in
-    /// Phase 1 Week 1.
+    /// Focus on a specific app (e.g. `vscode`, `chrome`). When set, the
+    /// `app.generic` / `app.electron` detectors run in addition to the
+    /// base layer and a per-app section is added to the report.
     #[arg(long, global = true)]
     app: Option<String>,
 
@@ -117,12 +118,16 @@ async fn dispatch(cli: Cli) -> ExitCode {
         }
         Command::List => {
             // Detector listing — Checker listing lands with the checker
-            // engine in Week 5.
-            let orch = build_orchestrator();
+            // engine in Week 5. We always list every id for discoverability,
+            // including the `app.*` ones that only fire when `--app <X>`
+            // is passed.
+            let orch = build_orchestrator(Some("__list_mode__"));
             println!("Detectors:");
             for d in orch.detectors() {
                 println!("  - {}", d.id());
             }
+            println!();
+            println!("(app.* detectors run only when `--app <X>` is passed.)");
             println!();
             println!("Checkers: (none in this build — Week 5)");
             ExitCode::from(exit::OK)
@@ -135,8 +140,9 @@ async fn dispatch(cli: Cli) -> ExitCode {
             ExitCode::from(exit::USAGE_ERROR)
         }
         Command::Check => {
-            let orch = build_orchestrator();
-            let ctx = DetectorContext::from_current_process();
+            let orch = build_orchestrator(cli.app.as_deref());
+            let mut ctx = DetectorContext::from_current_process();
+            ctx.target_app.clone_from(&cli.app);
             let report = orch.run(&ctx).await;
             // No checkers yet — the check subcommand is effectively a
             // smoke test that the orchestrator ran at all. Actual checker
@@ -154,8 +160,9 @@ async fn dispatch(cli: Cli) -> ExitCode {
             ExitCode::from(u8::try_from(report.exit_code().max(0)).unwrap_or(exit::INTERNAL_ERROR))
         }
         Command::Report { output } => {
-            let orch = build_orchestrator();
-            let ctx = DetectorContext::from_current_process();
+            let orch = build_orchestrator(cli.app.as_deref());
+            let mut ctx = DetectorContext::from_current_process();
+            ctx.target_app.clone_from(&cli.app);
             info!(detectors = orch.detectors().len(), "running detectors");
             let report = orch.run(&ctx).await;
 
@@ -196,9 +203,9 @@ async fn dispatch(cli: Cli) -> ExitCode {
     }
 }
 
-fn build_orchestrator() -> Orchestrator {
+fn build_orchestrator(target_app: Option<&str>) -> Orchestrator {
     let mut orch = Orchestrator::new(OrchestratorConfig::default());
-    let detectors: Vec<Arc<dyn Detector>> = vec![
+    let mut detectors: Vec<Arc<dyn Detector>> = vec![
         Arc::new(DistroDetector::new()),
         Arc::new(SessionDetector::new()),
         Arc::new(DesktopDetector::new()),
@@ -213,6 +220,13 @@ fn build_orchestrator() -> Orchestrator {
         Arc::new(Fcitx5ConfigDetector::new()),
         Arc::new(PackageEnginesDetector::new()),
     ];
+    // App-specific detectors are gated on `--app <X>`. The detectors
+    // themselves re-check `ctx.target_app` at run time, but skipping the
+    // registration here keeps `list` output honest in the default case.
+    if target_app.is_some() {
+        detectors.push(Arc::new(GenericAppDetector::new()));
+        detectors.push(Arc::new(ElectronAppDetector::new()));
+    }
     for d in detectors {
         orch.add(d);
     }

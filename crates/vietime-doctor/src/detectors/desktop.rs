@@ -54,7 +54,7 @@ mod tests {
     fn make_ctx(env: &[(&str, &str)]) -> DetectorContext {
         let env: HashMap<String, String> =
             env.iter().map(|(k, v)| ((*k).to_owned(), (*v).to_owned())).collect();
-        DetectorContext { env, sysroot: None }
+        DetectorContext { env, sysroot: None, target_app: None }
     }
 
     #[tokio::test]

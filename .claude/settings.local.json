@@ -16,7 +16,8 @@
       "Bash(cargo check *)",
       "Bash(awk '{passed += $4; ignored += $8} END {print \"Total passed:\", passed; print \"Total ignored:\", ignored}')",
       "Bash(INSTA_UPDATE=always cargo test --package vietime-doctor --lib render::)",
-      "Bash(awk '{passed+=$4; failed+=$6; ignored+=$8} END {print \"TOTAL: passed=\"passed, \"failed=\"failed, \"ignored=\"ignored}')"
+      "Bash(awk '{passed+=$4; failed+=$6; ignored+=$8} END {print \"TOTAL: passed=\"passed, \"failed=\"failed, \"ignored=\"ignored}')",
+      "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d['facts']['apps'], indent=2\\)\\)\")"
     ]
   }
 }

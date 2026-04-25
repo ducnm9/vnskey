@@ -75,12 +75,20 @@ fn list_subcommand_mentions_all_registered_detectors() {
         "im.fcitx5.daemon",
         "im.fcitx5.config",
         "im.engines.packages",
+        "app.generic",
+        "app.electron",
     ] {
         assert!(
             stdout.contains(id),
             "expected list output to include detector id `{id}`, got:\n{stdout}"
         );
     }
+    // `list` notes that app.* detectors are gated on `--app <X>` so the
+    // default `report` / `check` invocation doesn't run them.
+    assert!(
+        stdout.contains("app.*"),
+        "expected list output to mention app.* gating, got:\n{stdout}"
+    );
 }
 
 #[test]

@@ -85,7 +85,11 @@ mod tests {
 
     async fn run_with_sysroot(root: &std::path::Path) -> DetectorOutput {
         let det = EtcEnvironmentDetector::new();
-        let ctx = DetectorContext { env: HashMap::default(), sysroot: Some(root.to_path_buf()) };
+        let ctx = DetectorContext {
+            env: HashMap::default(),
+            sysroot: Some(root.to_path_buf()),
+            target_app: None,
+        };
         det.run(&ctx).await.expect("detector should not fail")
     }
 

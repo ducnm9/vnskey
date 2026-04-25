@@ -177,6 +177,92 @@ pub type SharedRunner = Arc<dyn CommandRunner>;
 /// Convenience alias — same for D-Bus.
 pub type SharedDbus = Arc<dyn DbusProbe>;
 
+/// Walk `/proc/*/cmdline` and return the argv of every process whose
+/// argv[0] matches `binary`.
+///
+/// The Electron detector (DOC-32) uses this to answer "is this app
+/// currently running, and if so did it get `--ozone-platform=wayland`?".
+/// We expose it as a trait so tests can feed curated process lists
+/// without touching the real `/proc`.
+#[async_trait]
+pub trait ProcScanner: Send + Sync + std::fmt::Debug {
+    /// Return argv vectors of every live process whose argv[0] equals
+    /// `binary` (or whose basename equals `binary`'s basename — the same
+    /// app can appear under `/opt/foo/foo` and `foo` in cmdline depending
+    /// on how it was launched).
+    ///
+    /// Returning an empty `Vec` means "no matching processes running" —
+    /// **not** an error. I/O failures reading `/proc` are swallowed into
+    /// an empty vec with a `tracing::debug!` trace, because a sysfs
+    /// hiccup shouldn't fail the detector.
+    async fn find_processes(&self, binary: &std::path::Path) -> Vec<Vec<String>>;
+}
+
+/// Real `/proc`-backed scanner. Iterates numeric subdirectories, reads
+/// `cmdline` (NUL-separated argv), matches the first token against the
+/// target path.
+#[derive(Debug, Default)]
+pub struct ProcfsScanner;
+
+impl ProcfsScanner {
+    #[must_use]
+    pub fn new() -> Self {
+        Self
+    }
+}
+
+#[async_trait]
+impl ProcScanner for ProcfsScanner {
+    async fn find_processes(&self, binary: &std::path::Path) -> Vec<Vec<String>> {
+        // Do all the blocking fs work on the Tokio blocking pool so we
+        // don't stall the runtime. /proc is fast but iterating it is
+        // still a syscall per pid.
+        let target = binary.to_owned();
+        tokio::task::spawn_blocking(move || scan_procfs(&target)).await.unwrap_or_else(|e| {
+            tracing::debug!("proc scan join error: {e}");
+            Vec::new()
+        })
+    }
+}
+
+fn scan_procfs(binary: &std::path::Path) -> Vec<Vec<String>> {
+    let Ok(entries) = std::fs::read_dir("/proc") else {
+        return Vec::new();
+    };
+    let target_name = binary.file_name().and_then(|s| s.to_str()).unwrap_or("");
+    let target_str = binary.to_str().unwrap_or("");
+    let mut out = Vec::new();
+    for entry in entries.flatten() {
+        let name = entry.file_name();
+        let Some(name) = name.to_str() else { continue };
+        if !name.chars().all(|c| c.is_ascii_digit()) {
+            continue;
+        }
+        let cmdline_path = entry.path().join("cmdline");
+        let Ok(bytes) = std::fs::read(&cmdline_path) else {
+            continue;
+        };
+        if bytes.is_empty() {
+            continue;
+        }
+        let argv: Vec<String> = bytes
+            .split(|b| *b == 0)
+            .filter(|s| !s.is_empty())
+            .map(|s| String::from_utf8_lossy(s).into_owned())
+            .collect();
+        let Some(argv0) = argv.first() else { continue };
+        let argv0_base =
+            std::path::Path::new(argv0).file_name().and_then(|s| s.to_str()).unwrap_or(argv0);
+        if argv0 == target_str || (!target_name.is_empty() && argv0_base == target_name) {
+            out.push(argv);
+        }
+    }
+    out
+}
+
+/// Convenience alias.
+pub type SharedProcScanner = Arc<dyn ProcScanner>;
+
 #[cfg(test)]
 #[allow(clippy::expect_used, clippy::unwrap_used, clippy::panic)]
 pub(crate) mod tests {
@@ -217,6 +303,25 @@ pub(crate) mod tests {
     pub struct FakeDbus {
         pub owners: HashSet<String>,
         pub fail: bool,
+    }
+
+    /// Test fake proc scanner: returns a preset list of argv vectors for
+    /// any binary path it's asked about. Keyed by the binary's basename so
+    /// tests don't have to care whether the detector was given an absolute
+    /// or relative path.
+    #[derive(Debug, Default)]
+    pub struct FakeProcScanner {
+        /// Map: binary basename → list of argv vectors to return.
+        pub by_basename: std::collections::HashMap<String, Vec<Vec<String>>>,
+    }
+
+    #[async_trait]
+    impl ProcScanner for FakeProcScanner {
+        async fn find_processes(&self, binary: &std::path::Path) -> Vec<Vec<String>> {
+            let key =
+                binary.file_name().and_then(|s| s.to_str()).map_or_else(String::new, str::to_owned);
+            self.by_basename.get(&key).cloned().unwrap_or_default()
+        }
     }
 
     #[async_trait]
@@ -261,5 +366,19 @@ pub(crate) mod tests {
         let fake = FakeDbus { owners: HashSet::new(), fail: true };
         let err = fake.name_has_owner("anything").await.expect_err("fails");
         assert_eq!(err.kind(), std::io::ErrorKind::Other);
+    }
+
+    #[tokio::test]
+    async fn fake_proc_scanner_round_trips_argv_by_basename() {
+        let mut fake = FakeProcScanner::default();
+        fake.by_basename.insert(
+            "code".to_owned(),
+            vec![vec!["/usr/bin/code".to_owned(), "--ozone-platform=wayland".to_owned()]],
+        );
+        let found = fake.find_processes(std::path::Path::new("/opt/bin/code")).await;
+        assert_eq!(found.len(), 1);
+        assert_eq!(found[0][1], "--ozone-platform=wayland");
+        let none = fake.find_processes(std::path::Path::new("/usr/bin/firefox")).await;
+        assert!(none.is_empty());
     }
 }

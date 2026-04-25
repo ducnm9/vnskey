@@ -255,7 +255,7 @@ mod tests {
     fn make_ctx(sysroot: PathBuf, home: &str) -> DetectorContext {
         let mut env = HashMap::new();
         env.insert("HOME".to_owned(), home.to_owned());
-        DetectorContext { env, sysroot: Some(sysroot) }
+        DetectorContext { env, sysroot: Some(sysroot), target_app: None }
     }
 
     #[test]

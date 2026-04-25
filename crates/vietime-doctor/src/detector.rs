@@ -34,6 +34,10 @@ pub struct DetectorContext {
     /// When set, detectors that read files should root their paths here
     /// instead of `/`. Keeps tests hermetic.
     pub sysroot: Option<std::path::PathBuf>,
+    /// Raw `--app <X>` argument value when the CLI was invoked with one.
+    /// Week-4 app detectors (DOC-31 / DOC-32) early-return when this is
+    /// `None`; base-layer (Week 1-3) detectors never read it.
+    pub target_app: Option<String>,
 }
 
 impl DetectorContext {
@@ -42,7 +46,7 @@ impl DetectorContext {
     #[must_use]
     pub fn from_current_process() -> Self {
         let env = std::env::vars().collect();
-        Self { env, sysroot: None }
+        Self { env, sysroot: None, target_app: None }
     }
 }
 

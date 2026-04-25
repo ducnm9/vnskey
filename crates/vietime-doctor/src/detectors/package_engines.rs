@@ -400,7 +400,11 @@ mod tests {
                 .map_or(0, |d| d.as_nanos())
         ));
         std::fs::create_dir_all(&tmp).expect("mkdir tmp");
-        let ctx = DetectorContext { env: std::collections::HashMap::new(), sysroot: Some(tmp) };
+        let ctx = DetectorContext {
+            env: std::collections::HashMap::new(),
+            sysroot: Some(tmp),
+            target_app: None,
+        };
         let res = det.run(&ctx).await.expect("ok");
         assert!(res.partial.engines.is_empty());
     }

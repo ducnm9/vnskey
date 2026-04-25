@@ -10,16 +10,19 @@
 
 #![doc = "Vietnamese IME diagnostic tool — internal library."]
 
+pub mod apps;
 pub mod detector;
 pub mod detectors;
 pub mod orchestrator;
 pub mod process;
 pub mod render;
 
+pub use apps::{resolve_app, AppProfile, PROFILES};
 pub use detector::{Detector, DetectorContext, DetectorOutput, PartialFacts};
 pub use orchestrator::{run_all, Orchestrator, OrchestratorConfig};
 pub use process::{
-    CommandRunner, DbusProbe, SharedDbus, SharedRunner, TokioCommandRunner, ZbusProbe,
+    CommandRunner, DbusProbe, ProcScanner, ProcfsScanner, SharedDbus, SharedProcScanner,
+    SharedRunner, TokioCommandRunner, ZbusProbe,
 };
 pub use render::{render, render_json, RenderError, RenderOptions};
 

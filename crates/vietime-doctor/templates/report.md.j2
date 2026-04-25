@@ -51,6 +51,28 @@ vietime-doctor v{{ tool_version }}
 - (no IM env vars set)
 {%- endif %}
 
+{%- if apps %}
+
+## App-specific
+{%- for a in apps %}
+
+### {{ a.display_name }} (`{{ a.app_id }}`)
+- Binary: `{{ a.binary_path }}`
+- Kind: {{ a.kind }}
+- Version: `{{ a.version }}`
+{%- if a.electron_like %}
+- Electron version: `{{ a.electron_version }}`
+- Uses Wayland (Ozone): {{ a.uses_wayland }}
+{%- endif %}
+{%- if a.notes %}
+
+{%- for n in a.notes %}
+- Note: {{ n }}
+{%- endfor %}
+{%- endif %}
+{%- endfor %}
+{%- endif %}
+
 ## Checks
 {%- if issues %}
 {%- for issue in issues %}

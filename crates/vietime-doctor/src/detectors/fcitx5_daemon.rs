@@ -122,7 +122,7 @@ mod tests {
     fn ctx_with_home(home: &str) -> DetectorContext {
         let mut env = HashMap::new();
         env.insert("HOME".to_owned(), home.to_owned());
-        DetectorContext { env, sysroot: None }
+        DetectorContext { env, sysroot: None, target_app: None }
     }
 
     fn runner(pgrep: Option<&str>, version: Option<&str>) -> FakeCommandRunner {

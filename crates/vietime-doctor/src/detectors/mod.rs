@@ -4,6 +4,8 @@
 //
 // Spec ref: `spec/01-phase1-doctor.md` §B.3.
 
+pub mod app_electron;
+pub mod app_generic;
 pub mod desktop;
 pub mod distro;
 pub mod env_etc_environment;
@@ -18,6 +20,8 @@ pub mod ibus_engines;
 pub mod package_engines;
 pub mod session;
 
+pub use app_electron::ElectronAppDetector;
+pub use app_generic::GenericAppDetector;
 pub use desktop::DesktopDetector;
 pub use distro::DistroDetector;
 pub use env_etc_environment::EtcEnvironmentDetector;

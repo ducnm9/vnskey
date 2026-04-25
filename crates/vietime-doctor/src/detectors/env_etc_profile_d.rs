@@ -146,7 +146,8 @@ mod tests {
 
     async fn run_with(root: PathBuf) -> DetectorOutput {
         let det = EtcProfileDDetector::new();
-        let ctx = DetectorContext { env: HashMap::default(), sysroot: Some(root) };
+        let ctx =
+            DetectorContext { env: HashMap::default(), sysroot: Some(root), target_app: None };
         det.run(&ctx).await.expect("detector ok")
     }
 

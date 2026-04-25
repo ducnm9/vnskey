@@ -21,9 +21,11 @@ use minijinja::{context, value::Value, Environment};
 use serde::Serialize;
 
 use vietime_core::{
-    ActiveFramework, Anomaly, DesktopEnv, EnvFacts, EnvSource, ImFacts, Issue, Recommendation,
-    Report, Severity, SystemFacts, IM_ENV_KEYS,
+    ActiveFramework, Anomaly, AppFacts, AppKind, DesktopEnv, EnvFacts, EnvSource, ImFacts, Issue,
+    Recommendation, Report, Severity, SystemFacts, IM_ENV_KEYS,
 };
+
+use crate::apps::resolve_app;
 
 /// Raw template source baked into the binary.
 const TEMPLATE_SRC: &str = include_str!("../templates/report.md.j2");
@@ -78,6 +80,7 @@ fn build_context(report: &Report, verbose: bool) -> Value {
         system => build_system(&report.facts.system),
         im => build_im(&report.facts.im),
         env_rows => build_env_rows(&report.facts.env),
+        apps => report.facts.apps.iter().map(app_ctx).collect::<Vec<_>>(),
         issues => report.issues.iter().map(issue_ctx).collect::<Vec<_>>(),
         recommendations => report.recommendations.iter().map(rec_ctx).collect::<Vec<_>>(),
         anomalies => report.anomalies.iter().map(anomaly_ctx).collect::<Vec<_>>(),
@@ -236,6 +239,62 @@ struct AnomalyCtx {
 
 fn anomaly_ctx(a: &Anomaly) -> AnomalyCtx {
     AnomalyCtx { detector: a.detector.clone(), reason: a.reason.clone() }
+}
+
+#[derive(Serialize)]
+struct AppCtx {
+    app_id: String,
+    display_name: String,
+    binary_path: String,
+    version: String,
+    kind: &'static str,
+    electron_like: bool,
+    electron_version: String,
+    uses_wayland: &'static str,
+    notes: Vec<String>,
+}
+
+fn app_ctx(a: &AppFacts) -> AppCtx {
+    // Pretty display name from the static registry if we recognise the id;
+    // otherwise fall back to the id itself so unknown apps still render.
+    let display_name =
+        resolve_app(&a.app_id).map_or_else(|| a.app_id.clone(), |p| p.display_name.to_owned());
+    let binary_path = if a.binary_path.as_os_str().is_empty() {
+        "<not found>".to_owned()
+    } else {
+        a.binary_path.display().to_string()
+    };
+    let version = a.version.clone().unwrap_or_else(|| "unknown".to_owned());
+    let electron_like = matches!(a.kind, AppKind::Electron | AppKind::Chromium);
+    let electron_version = a.electron_version.clone().unwrap_or_else(|| "unknown".to_owned());
+    let uses_wayland = match a.uses_wayland {
+        Some(true) => "yes",
+        Some(false) => "no",
+        None => "unknown",
+    };
+    AppCtx {
+        app_id: a.app_id.clone(),
+        display_name,
+        binary_path,
+        version,
+        kind: kind_label(&a.kind),
+        electron_like,
+        electron_version,
+        uses_wayland,
+        notes: a.detector_notes.clone(),
+    }
+}
+
+fn kind_label(k: &AppKind) -> &'static str {
+    match k {
+        AppKind::Native => "Native",
+        AppKind::Electron => "Electron",
+        AppKind::Chromium => "Chromium",
+        AppKind::Jvm => "JVM",
+        AppKind::Flatpak { .. } => "Flatpak",
+        AppKind::Snap { .. } => "Snap",
+        AppKind::AppImage => "AppImage",
+    }
 }
 
 // ─── Markdown stripping ──────────────────────────────────────────────────
