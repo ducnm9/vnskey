@@ -1,0 +1,155 @@
+---
+source: crates/vietime-installer/tests/plan_golden.rs
+assertion_line: 39
+expression: toml_text
+---
+schema_version = 1
+id = "00000000-0000-0000-0000-000000000000"
+generated_at = "2026-01-01T00:00:00Z"
+estimated_duration_secs = 45
+requires_sudo = true
+requires_logout = true
+
+[goal]
+kind = "install"
+
+[goal.combo]
+framework = "fcitx5"
+engine = "bamboo"
+
+[pre_state]
+session = "wayland"
+active_framework = "ibus"
+installed_packages = []
+
+[pre_state.distro]
+id = "ubuntu"
+version_id = "24.04"
+pretty = "Ubuntu 24.04 LTS"
+family = "debian"
+id_like = ["debian"]
+
+[pre_state.desktop]
+kind = "gnome"
+
+[pre_state.env]
+
+[[steps]]
+kind = "backup_file"
+path = "/etc/environment"
+
+[[steps]]
+kind = "backup_file"
+path = "/home/vietime/.profile"
+
+[[steps]]
+kind = "backup_file"
+path = "/home/vietime/.config/fcitx5/profile"
+
+[[steps]]
+kind = "install_packages"
+manager = "apt"
+packages = ["fcitx5", "fcitx5-frontend-gtk3", "fcitx5-frontend-gtk4", "fcitx5-frontend-qt5", "fcitx5-module-xorg", "fcitx5-bamboo"]
+
+[[steps]]
+kind = "run_im_config"
+mode = "fcitx5"
+
+[[steps]]
+kind = "set_env_var"
+key = "GTK_IM_MODULE"
+value = "fcitx"
+
+[steps.file]
+kind = "etc_environment"
+
+[[steps]]
+kind = "set_env_var"
+key = "QT_IM_MODULE"
+value = "fcitx"
+
+[steps.file]
+kind = "etc_environment"
+
+[[steps]]
+kind = "set_env_var"
+key = "XMODIFIERS"
+value = "@im=fcitx"
+
+[steps.file]
+kind = "etc_environment"
+
+[[steps]]
+kind = "set_env_var"
+key = "SDL_IM_MODULE"
+value = "fcitx"
+
+[steps.file]
+kind = "etc_environment"
+
+[[steps]]
+kind = "set_env_var"
+key = "GLFW_IM_MODULE"
+value = "ibus"
+
+[steps.file]
+kind = "etc_environment"
+
+[[steps]]
+kind = "write_file"
+path = "/home/vietime/.config/fcitx5/profile"
+content = """
+[Groups/0]
+Name=Default
+Default Layout=us
+DefaultIM=bamboo
+
+[Groups/0/Items/0]
+Name=keyboard-us
+Layout=
+
+[Groups/0/Items/1]
+Name=bamboo
+Layout=
+
+[GroupOrder]
+0=Default
+"""
+mode = 420
+
+[[steps]]
+kind = "systemctl_user_enable"
+unit = "fcitx5.service"
+
+[[steps]]
+kind = "systemctl_user_disable"
+unit = "ibus.service"
+
+[[steps]]
+kind = "systemctl_user_start"
+unit = "fcitx5.service"
+
+[[steps]]
+kind = "verify"
+
+[steps.check]
+kind = "daemon_running"
+framework = "fcitx5"
+
+[[steps]]
+kind = "verify"
+
+[steps.check]
+kind = "engine_registered"
+name = "bamboo"
+
+[[steps]]
+kind = "verify"
+
+[steps.check]
+kind = "env_consistent"
+
+[[steps]]
+kind = "prompt"
+message = "Hoàn tất. Hãy logout và login lại để các biến môi trường IM có hiệu lực, sau đó chạy `vietime-installer verify`."
+continue_if = "user_yes"

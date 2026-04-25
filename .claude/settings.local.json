@@ -12,7 +12,8 @@
       "Bash(cargo install *)",
       "Bash(/Users/nguyenduc/.cargo/bin/cargo-deny check *)",
       "Bash(bash scripts/check-spdx.sh)",
-      "Bash(cargo deny *)"
+      "Bash(cargo deny *)",
+      "Bash(cargo check *)"
     ]
   }
 }
