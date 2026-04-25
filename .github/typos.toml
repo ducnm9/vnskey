@@ -20,6 +20,9 @@ wtype = "wtype"
 Viet = "Viet"
 Tieng = "Tieng"
 vietime = "vietime"
+thay = "thay"
+tham = "tham"
+Nam = "Nam"
 
 [files]
 extend-exclude = [
