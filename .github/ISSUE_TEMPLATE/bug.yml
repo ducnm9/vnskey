@@ -1,0 +1,84 @@
+name: Bug report
+description: Báo cáo bug Doctor/Installer/Bench
+title: "[bug] "
+labels: ["bug", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Cám ơn đã báo bug! Vui lòng paste output của `vietime-doctor report --json`
+        nếu có thể (đã auto-redact PII).
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - vietime-doctor
+        - vietime-installer
+        - vietime-bench
+        - vietime-core
+        - spec/docs
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Output của `<tool> --version`
+      placeholder: "vietime-doctor 0.1.0"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: distro
+    attributes:
+      label: Distro
+      options:
+        - Ubuntu 22.04
+        - Ubuntu 24.04
+        - Debian 12
+        - Fedora 40
+        - Fedora 41
+        - Arch Linux
+        - Pop!_OS
+        - Other (ghi chi tiết ở Context)
+    validations:
+      required: true
+
+  - type: dropdown
+    id: session
+    attributes:
+      label: Session
+      options:
+        - X11
+        - Wayland (GNOME)
+        - Wayland (KDE)
+        - Wayland (other)
+        - Unknown
+
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Reproduce steps
+      placeholder: |
+        1. Chạy `vietime-installer install fcitx5-bamboo`
+        2. Reboot
+        3. Mở gedit, gõ "aa"
+        4. Kỳ vọng: "â". Thực tế: "aa".
+    validations:
+      required: true
+
+  - type: textarea
+    id: doctor-report
+    attributes:
+      label: Doctor report
+      description: Paste output `vietime-doctor report --json`. Tool đã tự redact PII.
+      render: json
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Logs, screenshot, note khác.

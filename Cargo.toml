@@ -1,0 +1,100 @@
+[workspace]
+resolver = "2"
+members = [
+    "crates/vietime-core",
+    "crates/vietime-doctor",
+    "crates/vietime-installer",
+    "crates/vietime-bench",
+]
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+rust-version = "1.75"
+license = "GPL-3.0-or-later"
+authors = ["VietIME Suite contributors"]
+repository = "https://github.com/vietime/vietime"
+homepage = "https://vietime.io"
+readme = "README.md"
+keywords = ["vietnamese", "ime", "input-method", "linux", "telex"]
+categories = ["command-line-utilities", "localization"]
+
+[workspace.dependencies]
+# Internal
+vietime-core = { path = "crates/vietime-core", version = "0.0.1" }
+
+# Error / logging
+anyhow = "1.0"
+thiserror = "1.0"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+
+# Serde / config
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+toml = "0.8"
+
+# CLI
+clap = { version = "4.5", features = ["derive", "env"] }
+
+# Time / ID
+chrono = { version = "0.4", default-features = false, features = ["serde", "clock"] }
+uuid = { version = "1.10", features = ["v4", "serde"] }
+
+# Async (Doctor orchestrator)
+tokio = { version = "1.40", features = ["rt", "rt-multi-thread", "macros", "time", "sync", "process", "fs", "io-util"] }
+async-trait = "0.1"
+futures = "0.3"
+
+# Testing
+insta = { version = "1.40", features = ["yaml", "json"] }
+rstest = "0.22"
+tokio-test = "0.4"
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_debug_implementations = "warn"
+rust_2018_idioms = { level = "warn", priority = -1 }
+
+[workspace.lints.clippy]
+# Deny the footguns
+unwrap_used = "warn"
+expect_used = "warn"
+panic = "warn"
+todo = "warn"
+unimplemented = "warn"
+dbg_macro = "warn"
+
+# Style
+pedantic = { level = "warn", priority = -1 }
+# Relax a few pedantic lints that fire too often in early code.
+# These are opinions disguised as lints — worth revisiting at v1.0 but
+# not worth flame-warring every PR over in v0.1.
+missing_errors_doc = "allow"
+missing_panics_doc = "allow"
+module_name_repetitions = "allow"
+must_use_candidate = "allow"
+return_self_not_must_use = "allow"
+# `doc_markdown` flags valid project nouns (VietIME, IBus, Fcitx5) on every
+# occurrence; turning into line-noise.
+doc_markdown = "allow"
+# Public helpers routinely take `&HashMap<String, String>` (from env or
+# file parsers). Forcing a BuildHasher param everywhere hurts call sites.
+implicit_hasher = "allow"
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = "symbols"
+opt-level = 3
+panic = "abort"
+
+[profile.release-debug]
+inherits = "release"
+debug = true
+strip = "none"
+
+[profile.dev]
+# Faster incremental builds
+opt-level = 0
+debug = 1

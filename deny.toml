@@ -1,0 +1,73 @@
+# cargo-deny configuration for VietIME Suite
+#
+# Spec ref: spec/04-cross-cutting.md §10, §12.
+#
+# Run locally: `cargo deny check`
+# CI gate: `cargo deny check licenses bans sources advisories`
+
+[graph]
+all-features = false
+
+[output]
+feature-depth = 1
+
+# =======================================================================
+# Advisories — RustSec database.
+# =======================================================================
+[advisories]
+version = 2
+yanked = "warn"
+ignore = []
+
+# =======================================================================
+# Licenses — must be GPLv3-compatible.
+# =======================================================================
+[licenses]
+version = 2
+# Confidence threshold for detecting a license from its text.
+confidence-threshold = 0.93
+
+# Explicit allow-list. Everything we pull must resolve to one of these.
+# GPL-3.0-or-later is the project's own license; the others are all widely
+# considered GPLv3-compatible permissive licenses.
+allow = [
+    "GPL-3.0-or-later",
+    "GPL-3.0",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "MIT",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-DFS-2016",
+    "Unicode-3.0",
+    "Zlib",
+    "CC0-1.0",
+    "MPL-2.0",
+    "LGPL-3.0",
+    "LGPL-3.0-or-later",
+]
+
+exceptions = []
+
+# =======================================================================
+# Crate bans — block known-problematic or replaced crates.
+# =======================================================================
+[bans]
+multiple-versions = "warn"
+wildcards = "deny"
+highlight = "all"
+
+deny = []
+
+skip = []
+skip-tree = []
+
+# =======================================================================
+# Sources — only crates.io and nothing else.
+# =======================================================================
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []

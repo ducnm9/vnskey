@@ -1,0 +1,31 @@
+# typos.rs configuration — spec/04-cross-cutting.md §12.
+#
+# We keep the default dictionary but allow a small set of words that are
+# correct in the Vietnamese / Linux IM domain.
+
+[default.extend-words]
+# Technical
+IME = "IME"
+ibus = "ibus"
+fcitx = "fcitx"
+bamboo = "bamboo"
+unikey = "unikey"
+telex = "telex"
+xmodifiers = "xmodifiers"
+xdotool = "xdotool"
+ydotool = "ydotool"
+wtype = "wtype"
+
+# Vietnamese words or transliterations that appear in comments/docs.
+Viet = "Viet"
+Tieng = "Tieng"
+vietime = "vietime"
+
+[files]
+extend-exclude = [
+    "target/",
+    "Cargo.lock",
+    "**/testdata/**",
+    "**/fixtures/**",
+    "docs/research/**",
+]

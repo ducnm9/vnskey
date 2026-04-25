@@ -1,0 +1,56 @@
+name: Feature request
+description: Đề xuất tính năng mới
+title: "[feat] "
+labels: ["enhancement", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Trước khi đề xuất, hãy đọc `spec/00-vision-and-scope.md` §3 (Non-goals).
+        Nếu feature đụng non-goal, sẽ bị close.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Component
+      options:
+        - vietime-doctor
+        - vietime-installer
+        - vietime-bench
+        - vietime-core
+        - spec/docs
+        - Cross-cutting
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem
+      description: Mô tả pain point cụ thể bạn đang gặp.
+      placeholder: "Khi chạy ... tôi không thể ..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Proposal
+      description: Giải pháp đề xuất. Nếu có sketch API/CLI càng tốt.
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+      description: Bạn đã nghĩ đến cách nào khác?
+
+  - type: dropdown
+    id: phase
+    attributes:
+      label: Target phase
+      options:
+        - MVP v0.1
+        - v0.2+ (backlog)
+        - Don't know

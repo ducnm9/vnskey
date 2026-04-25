@@ -1,0 +1,76 @@
+name: Compat matrix entry
+description: Báo cáo 1 combo (engine × app × mode) hoạt động hay không
+title: "[compat] <engine> + <app> + <mode>"
+labels: ["compat", "triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Dữ liệu này feed vào `vietime-bench` matrix public dashboard. Cám ơn đóng góp!
+
+  - type: dropdown
+    id: engine
+    attributes:
+      label: IM Engine
+      options:
+        - ibus-bamboo
+        - fcitx5-bamboo
+        - fcitx5-unikey
+        - ibus-unikey
+        - Other
+    validations:
+      required: true
+
+  - type: input
+    id: app
+    attributes:
+      label: App name + version
+      placeholder: "VS Code 1.93.0 (.deb)"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Typing mode
+      options:
+        - Telex
+        - VNI
+        - VIQR
+
+  - type: dropdown
+    id: result
+    attributes:
+      label: Result
+      options:
+        - Work perfectly
+        - Work với workaround (ghi rõ ở Context)
+        - Partially broken
+        - Completely broken
+    validations:
+      required: true
+
+  - type: input
+    id: distro
+    attributes:
+      label: Distro + session
+      placeholder: "Ubuntu 24.04 Wayland"
+    validations:
+      required: true
+
+  - type: textarea
+    id: test-input
+    attributes:
+      label: Test input + expected + actual
+      placeholder: |
+        Input (Telex): tieesng Vieejt
+        Expected: tiếng Việt
+        Actual: tiếng Vi ệt
+    validations:
+      required: true
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Context
+      description: Workaround, config notes, screenshot.

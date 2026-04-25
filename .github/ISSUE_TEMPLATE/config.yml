@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Discussion / Question
+    url: https://github.com/vietime/vietime/discussions
+    about: Câu hỏi chung, thảo luận kiến trúc, xin tư vấn.
+  - name: Security vulnerability
+    url: https://github.com/vietime/vietime/security/advisories/new
+    about: KHÔNG mở public issue. Dùng GitHub Security Advisory.

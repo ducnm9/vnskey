@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git init *)",
+      "Bash(cargo build *)",
+      "Bash(cargo test *)",
+      "Bash(cargo fmt *)",
+      "Bash(cargo clippy *)",
+      "Bash(cargo run *)",
+      "Bash(chmod +x /Users/nguyenduc/Sites/claudecode/vnskey/scripts/check-spdx.sh)",
+      "Bash(bash /Users/nguyenduc/Sites/claudecode/vnskey/scripts/check-spdx.sh)",
+      "Bash(cargo install *)",
+      "Bash(/Users/nguyenduc/.cargo/bin/cargo-deny check *)",
+      "Bash(bash scripts/check-spdx.sh)",
+      "Bash(cargo deny *)"
+    ]
+  }
+}

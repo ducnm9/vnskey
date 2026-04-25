@@ -1,0 +1,39 @@
+# Rust / Cargo
+target/
+**/*.rs.bk
+Cargo.lock.bak
+
+# macOS / editor
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+*.iml
+
+# Logs & temp
+*.log
+*.tmp
+tmp/
+
+# Node (docs build)
+node_modules/
+dist/
+
+# Output / generated
+coverage/
+*.profraw
+*.profdata
+
+# Snapshot test pending files
+*.pending-snap
+
+# Local env
+.env
+.env.local
+
+# User docs build
+docs/book/
+
+# Scheduled scripts side-effects
+/scripts/*.out
