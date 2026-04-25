@@ -80,8 +80,7 @@ pub fn detect_desktop_from_env(env: &HashMap<String, String>) -> Option<DesktopE
     // `"ubuntu:GNOME"`, `"pop:GNOME"`). We take the last segment because the
     // vendor prefix before the colon is just branding — `ubuntu:GNOME` is
     // still GNOME for our purposes.
-    let candidate =
-        raw.split(':').map(str::trim).rfind(|s| !s.is_empty()).unwrap_or(raw);
+    let candidate = raw.split(':').map(str::trim).rfind(|s| !s.is_empty()).unwrap_or(raw);
 
     Some(classify_desktop(candidate))
 }

@@ -23,6 +23,13 @@ vietime = "vietime"
 thay = "thay"
 tham = "tham"
 Nam = "Nam"
+vai = "vai"
+ba = "ba"
+thi = "thi"
+mis = "mis"
+
+# Rust TUI crate name
+ratatui = "ratatui"
 
 [files]
 extend-exclude = [
