@@ -238,80 +238,80 @@
 ## Week 5 — Checkers core
 
 ### DOC-40 — Checker trait + engine
-- **Status**: TODO
+- **Status**: DONE
 - **Priority**: P0
 - **Estimate**: S (3h)
 - **Depends on**: DOC-24
 - **Spec ref**: spec/01 §B.4
 - **Acceptance**:
-  - [ ] `fn check(&Facts) -> Vec<Issue>` pure function.
-  - [ ] Registry của checkers, orchestrator chạy tất cả sau detectors.
-  - [ ] Severity ordering: Info < Warn < Error < Critical.
+  - [x] `fn check(&Facts) -> Vec<Issue>` pure function.
+  - [x] Registry của checkers, orchestrator chạy tất cả sau detectors.
+  - [x] Severity ordering: Info < Warn < Error < Critical.
 
 ### DOC-41 — VD001 NoImFrameworkActive
-- **Status**: TODO
+- **Status**: DONE
 - **Priority**: P0
 - **Estimate**: S (2h)
 - **Depends on**: DOC-40
 - **Spec ref**: spec/01 §B.4
 - **Acceptance**:
-  - [ ] Trigger khi không có daemon chạy + có Vietnamese engine.
-  - [ ] Severity Critical.
-  - [ ] Recommendation VR001 gợi ý start daemon.
+  - [x] Trigger khi không có daemon chạy + có Vietnamese engine.
+  - [x] Severity Critical.
+  - [x] Recommendation VR001 gợi ý start daemon.
 
 ### DOC-42 — VD002 ImFrameworkConflict
-- **Status**: TODO
+- **Status**: DONE
 - **Priority**: P0
 - **Estimate**: S (2h)
 - **Depends on**: DOC-40
 - **Spec ref**: spec/01 §B.4
 - **Acceptance**:
-  - [ ] Trigger khi cả IBus và Fcitx5 daemon đều running.
-  - [ ] Severity Error.
-  - [ ] VR002: gợi ý stop 1 trong 2.
+  - [x] Trigger khi cả IBus và Fcitx5 daemon đều running.
+  - [x] Severity Error.
+  - [x] VR002: gợi ý stop 1 trong 2.
 
 ### DOC-43 — VD003 EnvVarMismatch
-- **Status**: TODO
+- **Status**: DONE
 - **Priority**: P0
 - **Estimate**: S (3h)
 - **Depends on**: DOC-40
 - **Spec ref**: spec/01 §B.4
 - **Acceptance**:
-  - [ ] Trigger khi `GTK_IM_MODULE=ibus` nhưng active framework là Fcitx5 (hoặc ngược).
-  - [ ] Severity Error.
-  - [ ] VR003: show các env sai + gợi ý giá trị đúng.
+  - [x] Trigger khi `GTK_IM_MODULE=ibus` nhưng active framework là Fcitx5 (hoặc ngược).
+  - [x] Severity Error.
+  - [x] VR003: show các env sai + gợi ý giá trị đúng.
 
 ### DOC-44 — VD004 MissingSdlImModule + VD012 LegacyImSettingEmpty
-- **Status**: TODO
+- **Status**: DONE
 - **Priority**: P1
 - **Estimate**: S (2h)
 - **Depends on**: DOC-40
 - **Spec ref**: spec/01 §B.4
 - **Acceptance**:
-  - [ ] VD004 Warn khi `SDL_IM_MODULE` unset.
-  - [ ] VD012 Info khi `INPUT_METHOD` unset.
-  - [ ] VR tương ứng.
+  - [x] VD004 Warn khi `SDL_IM_MODULE` unset.
+  - [x] VD012 Info khi `INPUT_METHOD` unset.
+  - [x] VR tương ứng.
 
 ### DOC-45 — VD005 EngineInstalledNotRegistered
-- **Status**: TODO
+- **Status**: DONE
 - **Priority**: P1
 - **Estimate**: S (2h)
 - **Depends on**: DOC-40
 - **Spec ref**: spec/01 §B.4
 - **Acceptance**:
-  - [ ] Trigger khi package installed nhưng không register trong IBus/Fcitx5 config.
-  - [ ] Severity Warn.
+  - [x] Trigger khi package installed nhưng không register trong IBus/Fcitx5 config.
+  - [x] Severity Warn.
 
 ### DOC-46 — VD006 + VD007 + VD008 (Wayland/Electron/Chrome)
-- **Status**: TODO
+- **Status**: DONE
 - **Priority**: P1
 - **Estimate**: M (4h)
 - **Depends on**: DOC-32, DOC-40
 - **Spec ref**: spec/01 §B.4
 - **Acceptance**:
-  - [ ] VD006: Wayland + IBus → Warn, gợi ý Fcitx5.
-  - [ ] VD007: Electron app no Ozone flags → Error (chỉ chạy khi `--app`).
-  - [ ] VD008: Chrome chạy X11 backend trên Wayland → Warn.
+  - [x] VD006: Wayland + IBus → Warn, gợi ý Fcitx5.
+  - [x] VD007: Electron app no Ozone flags → Error (chỉ chạy khi `--app`).
+  - [x] VD008: Chrome chạy X11 backend trên Wayland → Warn.
 
 ---
 

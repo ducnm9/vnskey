@@ -79,7 +79,7 @@ vietime-doctor v{{ tool_version }}
 - [{{ issue.severity_badge }}] {{ issue.title }}{% if issue.detail %} — {{ issue.detail }}{% endif %}
 {%- endfor %}
 {%- else %}
-- (no checks run — checker engine lands in Week 5)
+- (no issues found)
 {%- endif %}
 
 {%- if recommendations %}

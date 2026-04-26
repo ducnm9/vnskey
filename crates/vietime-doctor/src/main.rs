@@ -15,6 +15,8 @@ use anyhow::Context;
 use clap::{Parser, Subcommand};
 use tracing::info;
 
+use vietime_doctor::checker::Checker;
+use vietime_doctor::checkers::list_all as list_all_checkers;
 use vietime_doctor::detector::{Detector, DetectorContext};
 use vietime_doctor::detectors::{
     DesktopDetector, DistroDetector, ElectronAppDetector, EtcEnvironmentDetector,
@@ -117,10 +119,8 @@ async fn dispatch(cli: Cli) -> ExitCode {
             ExitCode::from(exit::OK)
         }
         Command::List => {
-            // Detector listing — Checker listing lands with the checker
-            // engine in Week 5. We always list every id for discoverability,
-            // including the `app.*` ones that only fire when `--app <X>`
-            // is passed.
+            // We always list every id for discoverability — including the
+            // `app.*` detectors that only fire when `--app <X>` is passed.
             let orch = build_orchestrator(Some("__list_mode__"));
             println!("Detectors:");
             for d in orch.detectors() {
@@ -129,7 +129,10 @@ async fn dispatch(cli: Cli) -> ExitCode {
             println!();
             println!("(app.* detectors run only when `--app <X>` is passed.)");
             println!();
-            println!("Checkers: (none in this build — Week 5)");
+            println!("Checkers:");
+            for c in orch.checkers() {
+                println!("  - {}", c.id());
+            }
             ExitCode::from(exit::OK)
         }
         Command::Diagnose { topic } => {
@@ -144,17 +147,16 @@ async fn dispatch(cli: Cli) -> ExitCode {
             let mut ctx = DetectorContext::from_current_process();
             ctx.target_app.clone_from(&cli.app);
             let report = orch.run(&ctx).await;
-            // No checkers yet — the check subcommand is effectively a
-            // smoke test that the orchestrator ran at all. Actual checker
-            // engine ships in Week 5.
             let status = match report.exit_code() {
                 0 => "ok",
                 1 => "warn",
                 _ => "error",
             };
             println!(
-                "vietime-doctor: {status} ({} detectors, {} anomalies)",
+                "vietime-doctor: {status} ({} detectors, {} checkers, {} issues, {} anomalies)",
                 orch.detectors().len(),
+                orch.checkers().len(),
+                report.issues.len(),
                 report.anomalies.len()
             );
             ExitCode::from(u8::try_from(report.exit_code().max(0)).unwrap_or(exit::INTERNAL_ERROR))
@@ -230,7 +232,17 @@ fn build_orchestrator(target_app: Option<&str>) -> Orchestrator {
     for d in detectors {
         orch.add(d);
     }
+    for c in build_checker_list() {
+        orch.add_checker(c);
+    }
     orch
+}
+
+/// The full set of Week-5 checkers wired into every run. Week-6 adds
+/// VD009-VD011 / VD013-VD015; the helper lives here so `build_orchestrator`
+/// and any future test harness share the same registration list.
+fn build_checker_list() -> Vec<Arc<dyn Checker>> {
+    list_all_checkers()
 }
 
 fn init_tracing() {

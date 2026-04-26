@@ -11,6 +11,8 @@
 #![doc = "Vietnamese IME diagnostic tool — internal library."]
 
 pub mod apps;
+pub mod checker;
+pub mod checkers;
 pub mod detector;
 pub mod detectors;
 pub mod orchestrator;
@@ -18,6 +20,7 @@ pub mod process;
 pub mod render;
 
 pub use apps::{resolve_app, AppProfile, PROFILES};
+pub use checker::{run_checkers, Checker};
 pub use detector::{Detector, DetectorContext, DetectorOutput, PartialFacts};
 pub use orchestrator::{run_all, Orchestrator, OrchestratorConfig};
 pub use process::{

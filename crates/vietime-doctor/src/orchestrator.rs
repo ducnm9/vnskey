@@ -14,9 +14,12 @@ use tokio::task::JoinSet;
 use tokio::time::timeout;
 
 use vietime_core::{
-    ActiveFramework, Anomaly, Facts, ImFacts, Report, SystemFacts, REPORT_SCHEMA_VERSION,
+    ActiveFramework, Anomaly, Facts, ImFacts, Recommendation, Report, SystemFacts,
+    REPORT_SCHEMA_VERSION,
 };
 
+use crate::checker::{run_checkers, Checker};
+use crate::checkers::lookup_recommendation;
 use crate::detector::{Detector, DetectorContext, DetectorError, PartialFacts};
 use crate::TOOL_VERSION;
 
@@ -42,13 +45,14 @@ impl Default for OrchestratorConfig {
 /// task — the trait object itself isn't cloneable.
 pub struct Orchestrator {
     detectors: Vec<Arc<dyn Detector>>,
+    checkers: Vec<Arc<dyn Checker>>,
     config: OrchestratorConfig,
 }
 
 impl Orchestrator {
     #[must_use]
     pub fn new(config: OrchestratorConfig) -> Self {
-        Self { detectors: Vec::new(), config }
+        Self { detectors: Vec::new(), checkers: Vec::new(), config }
     }
 
     /// Register a detector. Duplicate ids are allowed (the caller's problem);
@@ -58,8 +62,20 @@ impl Orchestrator {
         self
     }
 
+    /// Register a Week-5 checker. Order of registration is preserved for
+    /// the `list` subcommand but doesn't affect the final report — issues
+    /// are re-sorted by `(severity desc, id asc)` in `run_checkers`.
+    pub fn add_checker(&mut self, checker: Arc<dyn Checker>) -> &mut Self {
+        self.checkers.push(checker);
+        self
+    }
+
     pub fn detectors(&self) -> &[Arc<dyn Detector>] {
         &self.detectors
+    }
+
+    pub fn checkers(&self) -> &[Arc<dyn Checker>] {
+        &self.checkers
     }
 
     /// Run every registered detector concurrently, enforce timeouts, and
@@ -102,23 +118,46 @@ impl Orchestrator {
             apps: partial.apps,
         };
 
+        // Week 5: checker pass — pure `(&Facts) -> Vec<Issue>` fan-out.
+        // Runs after the two reconcile passes so every checker sees the
+        // same assembled view that the JSON renderer will.
+        let issues = run_checkers(&self.checkers, &facts);
+        let recommendations = populate_recommendations(&issues);
+
         Report {
             schema_version: REPORT_SCHEMA_VERSION,
             generated_at: chrono::Utc::now(),
             tool_version: TOOL_VERSION.to_owned(),
             facts,
-            issues: Vec::new(),
-            recommendations: Vec::new(),
+            issues,
+            recommendations,
             anomalies,
         }
     }
 }
 
+/// Collect every unique `VR###` id referenced by at least one issue,
+/// resolve it via `checkers::recommendations::lookup`, and return the
+/// matching `Recommendation`s sorted by id ascending.
+///
+/// Unknown VR ids (typo in a checker, or a deferred entry that hasn't
+/// shipped yet) are silently dropped — the renderer would produce a
+/// broken cross-reference otherwise.
+#[must_use]
+fn populate_recommendations(issues: &[vietime_core::Issue]) -> Vec<Recommendation> {
+    let mut ids: Vec<String> = issues.iter().filter_map(|i| i.recommendation.clone()).collect();
+    ids.sort();
+    ids.dedup();
+    ids.into_iter().filter_map(|id| lookup_recommendation(&id)).collect()
+}
+
 impl std::fmt::Debug for Orchestrator {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        let ids: Vec<&'static str> = self.detectors.iter().map(|d| d.id()).collect();
+        let detector_ids: Vec<&'static str> = self.detectors.iter().map(|d| d.id()).collect();
+        let checker_ids: Vec<&'static str> = self.checkers.iter().map(|c| c.id()).collect();
         f.debug_struct("Orchestrator")
-            .field("detectors", &ids)
+            .field("detectors", &detector_ids)
+            .field("checkers", &checker_ids)
             .field("config", &self.config)
             .finish()
     }
@@ -632,5 +671,128 @@ mod tests {
         let mut partial = PartialFacts { fcitx5: Some(fcitx5), engines, ..PartialFacts::default() };
         reconcile_engine_registration(&mut partial);
         assert!(partial.engines[0].is_registered);
+    }
+
+    // ──────────────────────────────────────────────────────────────
+    // Week 5: end-to-end orchestrator + checker integration.
+    // ──────────────────────────────────────────────────────────────
+
+    /// Minimal detector that plants both IBus and Fcitx5 as running —
+    /// triggers VD002 `ImFrameworkConflict` through the full orchestrator
+    /// pipeline (detector → reconcile → derive_active → checker).
+    struct BothDaemonsDetector;
+    #[async_trait]
+    impl Detector for BothDaemonsDetector {
+        fn id(&self) -> &'static str {
+            "test.both_daemons"
+        }
+        fn timeout(&self) -> Duration {
+            Duration::from_millis(500)
+        }
+        async fn run(&self, _ctx: &DetectorContext) -> crate::detector::DetectorResult {
+            use std::path::PathBuf;
+            Ok(DetectorOutput {
+                partial: PartialFacts {
+                    ibus: Some(vietime_core::IbusFacts {
+                        version: None,
+                        daemon_running: true,
+                        daemon_pid: Some(1),
+                        config_dir: Some(PathBuf::from("/tmp/ibus")),
+                        registered_engines: vec![],
+                    }),
+                    fcitx5: Some(vietime_core::Fcitx5Facts {
+                        version: None,
+                        daemon_running: true,
+                        daemon_pid: Some(2),
+                        config_dir: Some(PathBuf::from("/tmp/fcitx5")),
+                        addons_enabled: vec![],
+                        input_methods_configured: vec![],
+                    }),
+                    ..PartialFacts::default()
+                },
+                notes: vec![],
+            })
+        }
+    }
+
+    #[tokio::test]
+    async fn orchestrator_runs_checkers_and_populates_issues() {
+        use crate::checkers::Vd002;
+        let mut orch = Orchestrator::new(OrchestratorConfig::default());
+        orch.add(Arc::new(BothDaemonsDetector));
+        orch.add_checker(Arc::new(Vd002));
+        let report = orch.run(&DetectorContext::default()).await;
+        assert!(
+            report.issues.iter().any(|i| i.id == "VD002"),
+            "expected VD002 to fire, got: {:?}",
+            report.issues
+        );
+        assert!(
+            report.recommendations.iter().any(|r| r.id == "VR002"),
+            "expected VR002 to be populated, got: {:?}",
+            report.recommendations
+        );
+    }
+
+    #[tokio::test]
+    async fn orchestrator_leaves_issues_empty_when_no_checker_fires() {
+        use crate::checkers::Vd001;
+        // No detectors at all — `facts` is empty; VD001 needs a VN engine,
+        // so it stays silent.
+        let mut orch = Orchestrator::new(OrchestratorConfig::default());
+        orch.add_checker(Arc::new(Vd001));
+        let report = orch.run(&DetectorContext::default()).await;
+        assert!(report.issues.is_empty());
+        assert!(report.recommendations.is_empty());
+    }
+
+    #[test]
+    fn populate_recommendations_dedupes_and_sorts_vr_ids() {
+        use vietime_core::{Issue, Severity};
+        let issues = vec![
+            Issue {
+                id: "VD005".to_owned(),
+                severity: Severity::Warn,
+                title: "x".to_owned(),
+                detail: String::new(),
+                facts_evidence: vec![],
+                recommendation: Some("VR005".to_owned()),
+            },
+            Issue {
+                id: "VD005".to_owned(),
+                severity: Severity::Warn,
+                title: "y".to_owned(),
+                detail: String::new(),
+                facts_evidence: vec![],
+                recommendation: Some("VR005".to_owned()),
+            },
+            Issue {
+                id: "VD001".to_owned(),
+                severity: Severity::Critical,
+                title: "z".to_owned(),
+                detail: String::new(),
+                facts_evidence: vec![],
+                recommendation: Some("VR001".to_owned()),
+            },
+        ];
+        let recs = populate_recommendations(&issues);
+        assert_eq!(recs.len(), 2);
+        assert_eq!(recs[0].id, "VR001");
+        assert_eq!(recs[1].id, "VR005");
+    }
+
+    #[test]
+    fn populate_recommendations_skips_info_only_issues() {
+        use vietime_core::{Issue, Severity};
+        let issues = vec![Issue {
+            id: "VD012".to_owned(),
+            severity: Severity::Info,
+            title: "x".to_owned(),
+            detail: String::new(),
+            facts_evidence: vec![],
+            recommendation: None,
+        }];
+        let recs = populate_recommendations(&issues);
+        assert!(recs.is_empty());
     }
 }

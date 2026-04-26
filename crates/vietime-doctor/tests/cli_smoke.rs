@@ -112,6 +112,29 @@ fn default_report_json_is_valid_json_with_schema_version() {
 }
 
 #[test]
+fn list_subcommand_enumerates_all_9_checkers() {
+    let out = Command::new(binary_path()).arg("list").output().expect("spawn vietime-doctor list");
+    assert!(out.status.success(), "expected `list` to exit 0");
+    let stdout = String::from_utf8_lossy(&out.stdout);
+    // Week 5 ships VD001-VD008 + VD012 (VD009-VD011/VD013-VD015 land in
+    // Week 6). We assert on every id so adding one without updating this
+    // test is a red flag.
+    for id in ["VD001", "VD002", "VD003", "VD004", "VD005", "VD006", "VD007", "VD008", "VD012"] {
+        assert!(
+            stdout.contains(id),
+            "expected list output to include checker id `{id}`, got:\n{stdout}"
+        );
+    }
+    // Sanity-check: the heading for the checker section is present so a
+    // future refactor that accidentally collapses the two lists still
+    // produces a readable `list` output.
+    assert!(
+        stdout.contains("Checkers:"),
+        "expected list output to include Checkers: heading, got:\n{stdout}"
+    );
+}
+
+#[test]
 fn unknown_subcommand_exits_with_usage_error() {
     let out = Command::new(binary_path())
         .arg("not-a-real-subcommand")
