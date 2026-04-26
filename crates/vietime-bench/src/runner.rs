@@ -30,6 +30,12 @@ const POST_INJECT_DELAY: Duration = Duration::from_millis(200);
 /// Default inter-key delay in milliseconds.
 const DEFAULT_MS_PER_KEY: u32 = 30;
 
+/// Max retries for injection failures (BEN-71).
+const INJECTION_RETRIES: u32 = 3;
+
+/// Max retries for capture/read failures (BEN-71).
+const CAPTURE_RETRIES: u32 = 2;
+
 /// Describes one (engine × app × session × mode) combination to test.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct RunCombo {
@@ -104,6 +110,7 @@ impl RunResult {
 ///
 /// This is the inner loop of the matrix runner. The caller (the CLI `run`
 /// subcommand) builds the list of combos and calls this once per combo.
+#[allow(clippy::too_many_lines)]
 pub async fn run_combo(
     session_driver: &mut dyn SessionDriver,
     im_driver: &mut dyn ImDriver,
@@ -157,22 +164,53 @@ pub async fn run_combo(
             continue;
         }
 
-        // Inject keys.
-        if let Err(e) = injector.type_raw(&vector.input_keys, DEFAULT_MS_PER_KEY).await {
-            tracing::warn!(vector_id = %vector.id, err = %e, "injection failed, skipping");
+        // Inject keys with retry (BEN-71).
+        let mut inject_ok = false;
+        for attempt in 0..INJECTION_RETRIES {
+            match injector.type_raw(&vector.input_keys, DEFAULT_MS_PER_KEY).await {
+                Ok(()) => {
+                    inject_ok = true;
+                    break;
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        vector_id = %vector.id, attempt, err = %e,
+                        "injection failed, retrying"
+                    );
+                    tokio::time::sleep(Duration::from_millis(200)).await;
+                }
+            }
+        }
+        if !inject_ok {
+            tracing::warn!(vector_id = %vector.id, "injection failed after retries, skipping");
             continue;
         }
 
         tokio::time::sleep(POST_INJECT_DELAY).await;
 
-        // Capture output.
-        let actual = match app_runner.read_text(&inst).await {
-            Ok(t) => t,
-            Err(e) => {
-                tracing::warn!(vector_id = %vector.id, err = %e, "read_text failed, skipping");
-                continue;
+        // Capture output with retry (BEN-71).
+        let mut actual = None;
+        for attempt in 0..CAPTURE_RETRIES {
+            match app_runner.read_text(&inst).await {
+                Ok(t) if !t.is_empty() => {
+                    actual = Some(t);
+                    break;
+                }
+                Ok(_empty) => {
+                    // Empty read — IME may not have flushed yet.
+                    tracing::debug!(vector_id = %vector.id, attempt, "empty read, retrying");
+                    tokio::time::sleep(Duration::from_millis(500)).await;
+                }
+                Err(e) => {
+                    tracing::warn!(
+                        vector_id = %vector.id, attempt, err = %e,
+                        "read_text failed, retrying"
+                    );
+                    tokio::time::sleep(Duration::from_millis(300)).await;
+                }
             }
-        };
+        }
+        let actual = actual.unwrap_or_default();
 
         let vs = scoring::score_vector(&vector.id, &vector.expected_output, &actual);
         if !vs.exact_match {

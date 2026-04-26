@@ -1,0 +1,7 @@
+name = "bugs"
+description = "Regression vectors only — exercises known-failing combos."
+engines = ["ibus-bamboo", "fcitx5-bamboo"]
+apps = ["gedit", "vscode"]
+sessions = ["x11"]
+modes = ["telex"]
+vector_tags = ["regression"]

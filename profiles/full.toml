@@ -1,0 +1,6 @@
+name = "full"
+description = "Full matrix: 6 apps × 4 engines × 2 sessions × Telex (500+ vectors)."
+engines = ["ibus-bamboo", "ibus-unikey", "fcitx5-bamboo", "fcitx5-unikey"]
+apps = ["gedit", "kate", "firefox", "chromium", "vscode", "libreoffice"]
+sessions = ["x11", "wayland"]
+modes = ["telex"]

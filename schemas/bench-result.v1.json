@@ -1,0 +1,92 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vietime.io/schemas/bench-result.v1.json",
+  "title": "VietIME Bench Run Result",
+  "description": "Schema for vietime-bench run output (summary.json).",
+  "type": "object",
+  "required": ["schema_version", "run_id", "started_at", "finished_at", "matrix", "anomalies"],
+  "properties": {
+    "schema_version": {
+      "type": "integer",
+      "const": 1
+    },
+    "run_id": {
+      "type": "string",
+      "description": "Unique run identifier (timestamp + UUID fragment)."
+    },
+    "started_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finished_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "matrix": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/ComboResult" }
+    },
+    "anomalies": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Anomaly" }
+    }
+  },
+  "$defs": {
+    "ComboResult": {
+      "type": "object",
+      "required": ["engine", "app", "session", "mode", "score", "failures", "duration_ms"],
+      "properties": {
+        "engine": { "type": "string" },
+        "app": { "type": "string" },
+        "session": {
+          "type": "string",
+          "enum": ["x11", "wayland", "tty", "unknown"]
+        },
+        "mode": {
+          "type": "string",
+          "enum": ["telex", "vni", "viqr", "simple_telex"]
+        },
+        "score": { "$ref": "#/$defs/ComboScore" },
+        "failures": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/VectorFailure" }
+        },
+        "duration_ms": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "ComboScore": {
+      "type": "object",
+      "required": ["vectors_tested", "exact_match_count", "accuracy_pct", "edit_distance_total", "weighted_score"],
+      "properties": {
+        "vectors_tested": { "type": "integer", "minimum": 0 },
+        "exact_match_count": { "type": "integer", "minimum": 0 },
+        "accuracy_pct": { "type": "number", "minimum": 0, "maximum": 100 },
+        "edit_distance_total": { "type": "integer", "minimum": 0 },
+        "weighted_score": { "type": "number", "minimum": 0, "maximum": 1 }
+      }
+    },
+    "VectorFailure": {
+      "type": "object",
+      "required": ["vector_id", "expected", "actual", "edit_distance"],
+      "properties": {
+        "vector_id": { "type": "string" },
+        "expected": { "type": "string" },
+        "actual": { "type": "string" },
+        "edit_distance": { "type": "integer", "minimum": 0 },
+        "screenshot_path": { "type": ["string", "null"] }
+      }
+    },
+    "Anomaly": {
+      "type": "object",
+      "required": ["kind", "detail", "retry_count"],
+      "properties": {
+        "kind": { "type": "string" },
+        "detail": { "type": "string" },
+        "retry_count": { "type": "integer", "minimum": 0 }
+      }
+    }
+  }
+}

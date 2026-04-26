@@ -1,8 +1,10 @@
 version = 1
 engine_mode = "telex"
-description = "Core Telex tones and modifiers — MVP seed vectors."
+description = "Core Telex test vectors — 500 entries covering tones, modifiers, words, and edge cases."
 
-# === Basic tones ===
+# ============================================================
+# T001–T020  Basic modifiers (single characters)
+# ============================================================
 
 [[vectors]]
 id = "T001"
@@ -14,246 +16,3020 @@ tags = ["basic", "tone", "two-word"]
 id = "T002"
 input_keys = "aa"
 expected_output = "â"
-tags = ["modifier", "letter-a-circumflex"]
+tags = ["basic", "modifier"]
 
 [[vectors]]
 id = "T003"
 input_keys = "ee"
 expected_output = "ê"
-tags = ["modifier", "letter-e-circumflex"]
+tags = ["basic", "modifier"]
 
 [[vectors]]
 id = "T004"
 input_keys = "oo"
 expected_output = "ô"
-tags = ["modifier", "letter-o-circumflex"]
+tags = ["basic", "modifier"]
 
 [[vectors]]
 id = "T005"
 input_keys = "ow"
 expected_output = "ơ"
-tags = ["modifier", "letter-o-horn"]
+tags = ["basic", "modifier"]
 
 [[vectors]]
 id = "T006"
 input_keys = "uw"
 expected_output = "ư"
-tags = ["modifier", "letter-u-horn"]
+tags = ["basic", "modifier"]
 
 [[vectors]]
 id = "T007"
 input_keys = "aw"
 expected_output = "ă"
-tags = ["modifier", "letter-a-breve"]
+tags = ["basic", "modifier"]
 
 [[vectors]]
 id = "T008"
 input_keys = "dd"
 expected_output = "đ"
-tags = ["modifier", "letter-d-stroke"]
+tags = ["basic", "modifier"]
 
-# === Tone marks ===
+[[vectors]]
+id = "T009"
+input_keys = "af"
+expected_output = "à"
+tags = ["basic", "tone"]
 
 [[vectors]]
 id = "T010"
-input_keys = "af"
-expected_output = "à"
-tags = ["tone", "grave"]
+input_keys = "as"
+expected_output = "á"
+tags = ["basic", "tone"]
 
 [[vectors]]
 id = "T011"
-input_keys = "as"
-expected_output = "á"
-tags = ["tone", "acute"]
+input_keys = "ar"
+expected_output = "ả"
+tags = ["basic", "tone"]
 
 [[vectors]]
 id = "T012"
-input_keys = "ar"
-expected_output = "ả"
-tags = ["tone", "hook-above"]
+input_keys = "ax"
+expected_output = "ã"
+tags = ["basic", "tone"]
 
 [[vectors]]
 id = "T013"
-input_keys = "ax"
-expected_output = "ã"
-tags = ["tone", "tilde"]
+input_keys = "aj"
+expected_output = "ạ"
+tags = ["basic", "tone"]
 
 [[vectors]]
 id = "T014"
-input_keys = "aj"
-expected_output = "ạ"
-tags = ["tone", "dot-below"]
+input_keys = "is"
+expected_output = "í"
+tags = ["basic", "tone"]
 
-# === Combined modifier + tone ===
+[[vectors]]
+id = "T015"
+input_keys = "if"
+expected_output = "ì"
+tags = ["basic", "tone"]
+
+[[vectors]]
+id = "T016"
+input_keys = "us"
+expected_output = "ú"
+tags = ["basic", "tone"]
+
+[[vectors]]
+id = "T017"
+input_keys = "uf"
+expected_output = "ù"
+tags = ["basic", "tone"]
+
+[[vectors]]
+id = "T018"
+input_keys = "es"
+expected_output = "é"
+tags = ["basic", "tone"]
+
+[[vectors]]
+id = "T019"
+input_keys = "ef"
+expected_output = "è"
+tags = ["basic", "tone"]
 
 [[vectors]]
 id = "T020"
-input_keys = "aas"
-expected_output = "ấ"
-tags = ["combined", "circumflex", "acute"]
+input_keys = "os"
+expected_output = "ó"
+tags = ["basic", "tone"]
+
+# ============================================================
+# T021–T050  Combined modifier + tone
+# ============================================================
 
 [[vectors]]
 id = "T021"
-input_keys = "aaf"
-expected_output = "ầ"
-tags = ["combined", "circumflex", "grave"]
+input_keys = "aas"
+expected_output = "ấ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T022"
-input_keys = "aar"
-expected_output = "ẩ"
-tags = ["combined", "circumflex", "hook-above"]
+input_keys = "aaf"
+expected_output = "ầ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T023"
-input_keys = "aax"
-expected_output = "ẫ"
-tags = ["combined", "circumflex", "tilde"]
+input_keys = "aar"
+expected_output = "ẩ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T024"
-input_keys = "aaj"
-expected_output = "ậ"
-tags = ["combined", "circumflex", "dot-below"]
+input_keys = "aax"
+expected_output = "ẫ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T025"
-input_keys = "ows"
-expected_output = "ớ"
-tags = ["combined", "horn", "acute"]
+input_keys = "aaj"
+expected_output = "ậ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T026"
-input_keys = "owf"
-expected_output = "ờ"
-tags = ["combined", "horn", "grave"]
+input_keys = "ows"
+expected_output = "ớ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T027"
-input_keys = "uws"
-expected_output = "ứ"
-tags = ["combined", "horn", "acute"]
+input_keys = "owf"
+expected_output = "ờ"
+tags = ["combined", "modifier", "tone"]
 
-# === Common words ===
+[[vectors]]
+id = "T028"
+input_keys = "owr"
+expected_output = "ở"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T029"
+input_keys = "owx"
+expected_output = "ỡ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T030"
-input_keys = "xin chaof"
-expected_output = "xin chào"
-tags = ["word", "greeting"]
+input_keys = "owj"
+expected_output = "ợ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T031"
-input_keys = "cam ownf"
-expected_output = "cảm ơn"
-tags = ["word", "greeting"]
+input_keys = "uws"
+expected_output = "ứ"
+tags = ["combined", "modifier", "tone"]
 
 [[vectors]]
 id = "T032"
+input_keys = "uwf"
+expected_output = "ừ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T033"
+input_keys = "uwr"
+expected_output = "ử"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T034"
+input_keys = "uwx"
+expected_output = "ữ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T035"
+input_keys = "uwj"
+expected_output = "ự"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T036"
+input_keys = "aws"
+expected_output = "ắ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T037"
+input_keys = "awf"
+expected_output = "ằ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T038"
+input_keys = "awr"
+expected_output = "ẳ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T039"
+input_keys = "awx"
+expected_output = "ẵ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T040"
+input_keys = "awj"
+expected_output = "ặ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T041"
+input_keys = "ees"
+expected_output = "ế"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T042"
+input_keys = "eef"
+expected_output = "ề"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T043"
+input_keys = "eer"
+expected_output = "ể"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T044"
+input_keys = "eex"
+expected_output = "ễ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T045"
+input_keys = "eej"
+expected_output = "ệ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T046"
+input_keys = "oos"
+expected_output = "ố"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T047"
+input_keys = "oof"
+expected_output = "ồ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T048"
+input_keys = "oor"
+expected_output = "ổ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T049"
+input_keys = "oox"
+expected_output = "ỗ"
+tags = ["combined", "modifier", "tone"]
+
+[[vectors]]
+id = "T050"
+input_keys = "ooj"
+expected_output = "ộ"
+tags = ["combined", "modifier", "tone"]
+
+# ============================================================
+# T051–T150  Common Vietnamese words (100 entries)
+# ============================================================
+
+[[vectors]]
+id = "T051"
+input_keys = "xin chaof"
+expected_output = "xin chào"
+tags = ["word", "common", "greeting"]
+
+[[vectors]]
+id = "T052"
 input_keys = "Vieejt Nam"
 expected_output = "Việt Nam"
 tags = ["word", "proper-noun"]
 
 [[vectors]]
-id = "T033"
+id = "T053"
 input_keys = "nguowif"
 expected_output = "người"
 tags = ["word", "common"]
 
 [[vectors]]
-id = "T034"
+id = "T054"
 input_keys = "dduowngf"
 expected_output = "đường"
-tags = ["word", "common", "multi-modifier"]
+tags = ["word", "common"]
 
 [[vectors]]
-id = "T035"
-input_keys = "nghieengs"
-expected_output = "nghiếng"
-tags = ["word", "nh", "tone-acute"]
-
-[[vectors]]
-id = "T036"
-input_keys = "khoonng"
+id = "T055"
+input_keys = "khoong"
 expected_output = "không"
 tags = ["word", "common"]
 
 [[vectors]]
-id = "T037"
-input_keys = "coongs ngheej"
+id = "T056"
+input_keys = "coong ngheej"
 expected_output = "công nghệ"
-tags = ["word", "two-word", "technology"]
+tags = ["word", "common", "two-word"]
 
 [[vectors]]
-id = "T038"
+id = "T057"
 input_keys = "hocj"
 expected_output = "học"
 tags = ["word", "common"]
 
 [[vectors]]
-id = "T039"
+id = "T058"
 input_keys = "thaays"
 expected_output = "thấy"
 tags = ["word", "common"]
 
-# === Edge cases ===
-
 [[vectors]]
-id = "T050"
-input_keys = "123 abcs"
-expected_output = "123 abc"
-tags = ["edge", "number-mixed"]
-
-[[vectors]]
-id = "T051"
-input_keys = "hello"
-expected_output = "hello"
-tags = ["edge", "no-vietnamese"]
-
-[[vectors]]
-id = "T052"
-input_keys = "Toois"
-expected_output = "Tối"
-tags = ["edge", "uppercase-start"]
-
-[[vectors]]
-id = "T053"
-input_keys = "ddi"
-expected_output = "đi"
-tags = ["edge", "d-stroke-simple"]
-
-[[vectors]]
-id = "T054"
+id = "T059"
 input_keys = "thuees"
 expected_output = "thuế"
 tags = ["word", "common"]
 
 [[vectors]]
-id = "T055"
+id = "T060"
 input_keys = "giaos"
 expected_output = "giáo"
 tags = ["word", "common"]
 
 [[vectors]]
-id = "T056"
+id = "T061"
 input_keys = "duowis"
 expected_output = "dưới"
-tags = ["word", "common", "horn"]
-
-[[vectors]]
-id = "T057"
-input_keys = "tuooir"
-expected_output = "tưởi"
 tags = ["word", "common"]
 
 [[vectors]]
-id = "T058"
-input_keys = "baawngs"
-expected_output = "bẳng"
-tags = ["edge", "breve-hook"]
+id = "T062"
+input_keys = "camr own"
+expected_output = "cảm ơn"
+tags = ["word", "common", "greeting", "two-word"]
 
 [[vectors]]
-id = "T059"
-input_keys = "nhaanf"
-expected_output = "nhần"
+id = "T063"
+input_keys = "ddi"
+expected_output = "đi"
 tags = ["word", "common"]
+
+[[vectors]]
+id = "T064"
+input_keys = "aanh"
+expected_output = "anh"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T065"
+input_keys = "chij"
+expected_output = "chị"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T066"
+input_keys = "emr"
+expected_output = "ẻm"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T067"
+input_keys = "baanj"
+expected_output = "bạn"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T068"
+input_keys = "tooi"
+expected_output = "tôi"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T069"
+input_keys = "chuongs"
+expected_output = "chúng"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T070"
+input_keys = "chungf ta"
+expected_output = "chúng ta"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T071"
+input_keys = "nhaaf"
+expected_output = "nhà"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T072"
+input_keys = "nuwowcs"
+expected_output = "nước"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T073"
+input_keys = "ddaats"
+expected_output = "đất"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T074"
+input_keys = "baanf"
+expected_output = "bàn"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T075"
+input_keys = "saasch"
+expected_output = "sách"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T076"
+input_keys = "buoir"
+expected_output = "buổi"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T077"
+input_keys = "ngaayf"
+expected_output = "ngày"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T078"
+input_keys = "thaangs"
+expected_output = "tháng"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T079"
+input_keys = "naawm"
+expected_output = "năm"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T080"
+input_keys = "giows"
+expected_output = "giờ"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T081"
+input_keys = "phuuts"
+expected_output = "phút"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T082"
+input_keys = "giaaos"
+expected_output = "giáo"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T083"
+input_keys = "vieenf"
+expected_output = "viền"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T084"
+input_keys = "hieeur"
+expected_output = "hiểu"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T085"
+input_keys = "bieeets"
+expected_output = "biết"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T086"
+input_keys = "noois"
+expected_output = "nói"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T087"
+input_keys = "vieeets"
+expected_output = "viết"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T088"
+input_keys = "ddocj"
+expected_output = "đọc"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T089"
+input_keys = "soongs"
+expected_output = "sống"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T090"
+input_keys = "thuwj"
+expected_output = "thự"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T091"
+input_keys = "laams"
+expected_output = "làm"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T092"
+input_keys = "aawn"
+expected_output = "ăn"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T093"
+input_keys = "uoongs"
+expected_output = "uống"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T094"
+input_keys = "ngur"
+expected_output = "ngủ"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T095"
+input_keys = "ddis"
+expected_output = "đi"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T096"
+input_keys = "lais"
+expected_output = "lại"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T097"
+input_keys = "ddeens"
+expected_output = "đến"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T098"
+input_keys = "veef"
+expected_output = "về"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T099"
+input_keys = "raaf"
+expected_output = "ra"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T100"
+input_keys = "vaof"
+expected_output = "vào"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T101"
+input_keys = "cheets"
+expected_output = "chết"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T102"
+input_keys = "nghee"
+expected_output = "nghe"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T103"
+input_keys = "buoongs"
+expected_output = "buồng"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T104"
+input_keys = "yeuws"
+expected_output = "yêu"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T105"
+input_keys = "thuowng"
+expected_output = "thương"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T106"
+input_keys = "giaof dducj"
+expected_output = "giáo dục"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T107"
+input_keys = "kinh teess"
+expected_output = "kinh tế"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T108"
+input_keys = "xaax hoij"
+expected_output = "xã hội"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T109"
+input_keys = "chinh trij"
+expected_output = "chính trị"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T110"
+input_keys = "vaawn hooas"
+expected_output = "văn hoá"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T111"
+input_keys = "khoa hocj"
+expected_output = "khoa học"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T112"
+input_keys = "coong tys"
+expected_output = "công ty"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T113"
+input_keys = "thaanf phooss"
+expected_output = "thành phố"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T114"
+input_keys = "Ha Noij"
+expected_output = "Hà Nội"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T115"
+input_keys = "Saif Goofn"
+expected_output = "Sài Gòn"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T116"
+input_keys = "ddaangs"
+expected_output = "đáng"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T117"
+input_keys = "chuawr"
+expected_output = "chưa"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T118"
+input_keys = "vaanx ddeer"
+expected_output = "vẫn đề"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T119"
+input_keys = "phaats trieenr"
+expected_output = "phát triển"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T120"
+input_keys = "hoaij ddoongj"
+expected_output = "hoạt động"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T121"
+input_keys = "quoocs teess"
+expected_output = "quốc tế"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T122"
+input_keys = "mois truowngf"
+expected_output = "môi trường"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T123"
+input_keys = "lich suer"
+expected_output = "lịch sử"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T124"
+input_keys = "nguwowif ta"
+expected_output = "người ta"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T125"
+input_keys = "maayf tinh"
+expected_output = "máy tính"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T126"
+input_keys = "ddieenj thoaij"
+expected_output = "điện thoại"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T127"
+input_keys = "inteernet"
+expected_output = "internet"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T128"
+input_keys = "phaanf meemf"
+expected_output = "phần mềm"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T129"
+input_keys = "chus ddees"
+expected_output = "chủ đề"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T130"
+input_keys = "baaws caos"
+expected_output = "báo cáo"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T131"
+input_keys = "hieenf ddaij"
+expected_output = "hiện đại"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T132"
+input_keys = "truowcs tieeen"
+expected_output = "trước tiên"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T133"
+input_keys = "saauf ddooss"
+expected_output = "sau đó"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T134"
+input_keys = "cuoois cuungf"
+expected_output = "cuối cùng"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T135"
+input_keys = "thuwj tuwcs"
+expected_output = "thứ tự"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T136"
+input_keys = "ngoaij nguwf"
+expected_output = "ngoại ngữ"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T137"
+input_keys = "dduws aasn"
+expected_output = "đủ ăn"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T138"
+input_keys = "khoeer maanj"
+expected_output = "khỏe mạnh"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T139"
+input_keys = "haanhs phucs"
+expected_output = "hạnh phúc"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T140"
+input_keys = "thanh nieeen"
+expected_output = "thanh niên"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T141"
+input_keys = "trewr emr"
+expected_output = "trẻ em"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T142"
+input_keys = "nguowif lownf"
+expected_output = "người lớn"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T143"
+input_keys = "ddaafn ongs"
+expected_output = "đàn ông"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T144"
+input_keys = "ddaafn baaf"
+expected_output = "đàn bà"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T145"
+input_keys = "thowig gian"
+expected_output = "thời gian"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T146"
+input_keys = "khoongg gian"
+expected_output = "không gian"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T147"
+input_keys = "tuowng lai"
+expected_output = "tương lai"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T148"
+input_keys = "quaas khuwfs"
+expected_output = "quá khứ"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T149"
+input_keys = "hieenj taij"
+expected_output = "hiện tại"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T150"
+input_keys = "tuwj ddoongj"
+expected_output = "tự động"
+tags = ["word", "common", "two-word"]
+
+# ============================================================
+# T151–T250  Two-word and multi-word phrases (100 entries)
+# ============================================================
+
+[[vectors]]
+id = "T151"
+input_keys = "xin chaof buoir saangs"
+expected_output = "xin chào buổi sáng"
+tags = ["multi-word", "greeting"]
+
+[[vectors]]
+id = "T152"
+input_keys = "xin chaof buoir chieeeuf"
+expected_output = "xin chào buổi chiều"
+tags = ["multi-word", "greeting"]
+
+[[vectors]]
+id = "T153"
+input_keys = "xin chaof buoir toois"
+expected_output = "xin chào buổi tối"
+tags = ["multi-word", "greeting"]
+
+[[vectors]]
+id = "T154"
+input_keys = "camr own raats nhieeeuf"
+expected_output = "cảm ơn rất nhiều"
+tags = ["multi-word", "greeting"]
+
+[[vectors]]
+id = "T155"
+input_keys = "xin loir"
+expected_output = "xin lỗi"
+tags = ["word", "greeting", "two-word"]
+
+[[vectors]]
+id = "T156"
+input_keys = "khoong cooss"
+expected_output = "không có"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T157"
+input_keys = "cooss theeer"
+expected_output = "có thể"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T158"
+input_keys = "phaair khoong"
+expected_output = "phải không"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T159"
+input_keys = "dduongs nhieeen"
+expected_output = "đương nhiên"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T160"
+input_keys = "thaajt suwj"
+expected_output = "thật sự"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T161"
+input_keys = "biinhs thuowngf"
+expected_output = "bình thường"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T162"
+input_keys = "raats tooets"
+expected_output = "rất tốt"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T163"
+input_keys = "khoong toots"
+expected_output = "không tốt"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T164"
+input_keys = "raats ddepj"
+expected_output = "rất đẹp"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T165"
+input_keys = "raats ngoanf"
+expected_output = "rất ngoan"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T166"
+input_keys = "raats khoeer"
+expected_output = "rất khỏe"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T167"
+input_keys = "raats vuij"
+expected_output = "rất vui"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T168"
+input_keys = "khoong saof"
+expected_output = "không sao"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T169"
+input_keys = "theeo tooi"
+expected_output = "theo tôi"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T170"
+input_keys = "noois chung"
+expected_output = "nói chung"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T171"
+input_keys = "vi duuj"
+expected_output = "ví dụ"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T172"
+input_keys = "tuwcs laaf"
+expected_output = "tức là"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T173"
+input_keys = "noois khaacs"
+expected_output = "nói khác"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T174"
+input_keys = "maatj khaacs"
+expected_output = "mặt khác"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T175"
+input_keys = "been caanj"
+expected_output = "bên cạnh"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T176"
+input_keys = "phias truowcs"
+expected_output = "phía trước"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T177"
+input_keys = "phias saauf"
+expected_output = "phía sau"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T178"
+input_keys = "been treeens"
+expected_output = "bên trên"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T179"
+input_keys = "been duowis"
+expected_output = "bên dưới"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T180"
+input_keys = "beeen traij"
+expected_output = "bên trái"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T181"
+input_keys = "beeens phaair"
+expected_output = "bên phải"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T182"
+input_keys = "trong ngoaif"
+expected_output = "trong ngoài"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T183"
+input_keys = "loonfs nhoar"
+expected_output = "lớn nhỏ"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T184"
+input_keys = "cao thaaaps"
+expected_output = "cao thấp"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T185"
+input_keys = "daif ngawsn"
+expected_output = "dài ngắn"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T186"
+input_keys = "nhanh chaams"
+expected_output = "nhanh chậm"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T187"
+input_keys = "maanhs yeeufs"
+expected_output = "mạnh yếu"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T188"
+input_keys = "hay dor"
+expected_output = "hay dở"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T189"
+input_keys = "tooets xaauss"
+expected_output = "tốt xấu"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T190"
+input_keys = "ddungs saij"
+expected_output = "đúng sai"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T191"
+input_keys = "suwj thaajtj"
+expected_output = "sự thật"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T192"
+input_keys = "cuoocj sooongs"
+expected_output = "cuộc sống"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T193"
+input_keys = "loaif nguowif"
+expected_output = "loài người"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T194"
+input_keys = "thieeen nhieeen"
+expected_output = "thiên nhiên"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T195"
+input_keys = "xaax hoij nguwowif"
+expected_output = "xã hội người"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T196"
+input_keys = "luwcs luowngf laof ddooongj"
+expected_output = "lực lượng lao động"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T197"
+input_keys = "quaas trinh phaats trieenr"
+expected_output = "quá trình phát triển"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T198"
+input_keys = "trieeen khai thuwcj hieenj"
+expected_output = "triển khai thực hiện"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T199"
+input_keys = "naangs cao chaats luowngf"
+expected_output = "nâng cao chất lượng"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T200"
+input_keys = "baor veej mois truowngf"
+expected_output = "bảo vệ môi trường"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T201"
+input_keys = "Thaanhs phooss Hooff Chi Minh"
+expected_output = "Thành phố Hồ Chí Minh"
+tags = ["multi-word", "proper-noun"]
+
+[[vectors]]
+id = "T202"
+input_keys = "Dda Nawngf"
+expected_output = "Đà Nẵng"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T203"
+input_keys = "Hais Phoong"
+expected_output = "Hải Phòng"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T204"
+input_keys = "Caanf Tho"
+expected_output = "Cần Thơ"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T205"
+input_keys = "Hueess"
+expected_output = "Huế"
+tags = ["word", "proper-noun"]
+
+[[vectors]]
+id = "T206"
+input_keys = "Hoij Ans"
+expected_output = "Hội An"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T207"
+input_keys = "Nhaf Trang"
+expected_output = "Nha Trang"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T208"
+input_keys = "Vunfg Taauf"
+expected_output = "Vũng Tàu"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T209"
+input_keys = "Quaangs Ninh"
+expected_output = "Quảng Ninh"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T210"
+input_keys = "Thanhs Hooas"
+expected_output = "Thanh Hóa"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T211"
+input_keys = "Ngheej An"
+expected_output = "Nghệ An"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T212"
+input_keys = "Tieeenf Giang"
+expected_output = "Tiền Giang"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T213"
+input_keys = "Beens Tre"
+expected_output = "Bến Tre"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T214"
+input_keys = "Viinhs Long"
+expected_output = "Vĩnh Long"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T215"
+input_keys = "Socs Traangs"
+expected_output = "Sóc Trăng"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T216"
+input_keys = "Kieeen Giang"
+expected_output = "Kiên Giang"
+tags = ["word", "proper-noun", "two-word"]
+
+[[vectors]]
+id = "T217"
+input_keys = "raats vuis dduwowcs gap baanj"
+expected_output = "rất vui được gặp bạn"
+tags = ["multi-word", "greeting"]
+
+[[vectors]]
+id = "T218"
+input_keys = "banj cooss khooer khoong"
+expected_output = "bạn có khỏe không"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T219"
+input_keys = "tooi khoeer camr own"
+expected_output = "tôi khỏe cảm ơn"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T220"
+input_keys = "banj tenr laaf gi"
+expected_output = "bạn tên là gì"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T221"
+input_keys = "tooi tenr laaf Minh"
+expected_output = "tôi tên là Minh"
+tags = ["multi-word", "common", "proper-noun"]
+
+[[vectors]]
+id = "T222"
+input_keys = "banj ows ddaaur"
+expected_output = "bạn ở đâu"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T223"
+input_keys = "tooi ows Haaf Noij"
+expected_output = "tôi ở Hà Nội"
+tags = ["multi-word", "common", "proper-noun"]
+
+[[vectors]]
+id = "T224"
+input_keys = "cooss bao nhieeu"
+expected_output = "có bao nhiêu"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T225"
+input_keys = "baof nhieeu tieefn"
+expected_output = "bao nhiêu tiền"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T226"
+input_keys = "thowir tieets nayf"
+expected_output = "thời tiết này"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T227"
+input_keys = "hoomm nay theer naaof"
+expected_output = "hôm nay thế nào"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T228"
+input_keys = "ngaayf mai troij naawngss"
+expected_output = "ngày mai trời nắng"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T229"
+input_keys = "muaf baaon nhieeu"
+expected_output = "mua bao nhiêu"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T230"
+input_keys = "baanr cho tooi"
+expected_output = "bán cho tôi"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T231"
+input_keys = "cho tooi hoir"
+expected_output = "cho tôi hỏi"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T232"
+input_keys = "tooi muoosn muas"
+expected_output = "tôi muốn mua"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T233"
+input_keys = "caais naayf cooss toots khoong"
+expected_output = "cái này có tốt không"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T234"
+input_keys = "dduwowcj rooi"
+expected_output = "được rồi"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T235"
+input_keys = "chuwas dduwowcj"
+expected_output = "chưa được"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T236"
+input_keys = "tooi hieuur rooi"
+expected_output = "tôi hiểu rồi"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T237"
+input_keys = "tooi chuwas hieuur"
+expected_output = "tôi chưa hiểu"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T238"
+input_keys = "noois laij moots laanf nuwas"
+expected_output = "nói lại một lần nữa"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T239"
+input_keys = "noois chaajm thooi"
+expected_output = "nói chậm thôi"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T240"
+input_keys = "vieeets bawngf tieesng Vieejt"
+expected_output = "viết bằng tiếng Việt"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T241"
+input_keys = "ddocj saasch"
+expected_output = "đọc sách"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T242"
+input_keys = "nghee nhacj"
+expected_output = "nghe nhạc"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T243"
+input_keys = "xem phims"
+expected_output = "xem phim"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T244"
+input_keys = "aaawn cows"
+expected_output = "ăn cơm"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T245"
+input_keys = "uoongs nuowcs"
+expected_output = "uống nước"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T246"
+input_keys = "ddis laams vieecj"
+expected_output = "đi làm việc"
+tags = ["multi-word", "common"]
+
+[[vectors]]
+id = "T247"
+input_keys = "veef nhaaf"
+expected_output = "về nhà"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T248"
+input_keys = "raar ngoaaif"
+expected_output = "ra ngoài"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T249"
+input_keys = "vaof nhaaf"
+expected_output = "vào nhà"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T250"
+input_keys = "leeen laauf"
+expected_output = "lên lầu"
+tags = ["word", "common", "two-word"]
+
+# ============================================================
+# T251–T350  Full sentences (100 entries)
+# ============================================================
+
+[[vectors]]
+id = "T251"
+input_keys = "Tooi laaf nguwowif Vieejt Nam"
+expected_output = "Tôi là người Việt Nam"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T252"
+input_keys = "Tooi yweu tieesng Vieejt"
+expected_output = "Tôi yêu tiếng Việt"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T253"
+input_keys = "Haaf Noij laaf thur ddoo cuuar Vieejt Nam"
+expected_output = "Hà Nội là thủ đô của Việt Nam"
+tags = ["sentence", "common", "proper-noun"]
+
+[[vectors]]
+id = "T254"
+input_keys = "Tooi muoosn hocj tieesng Vieejt"
+expected_output = "Tôi muốn học tiếng Việt"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T255"
+input_keys = "Hoomm nay troij ddepj"
+expected_output = "Hôm nay trời đẹp"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T256"
+input_keys = "Banj cooss khooer khoong"
+expected_output = "Bạn có khỏe không"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T257"
+input_keys = "Tooi raats vuis dduwowcs gap banj"
+expected_output = "Tôi rất vui được gặp bạn"
+tags = ["sentence", "greeting"]
+
+[[vectors]]
+id = "T258"
+input_keys = "Caanf phaair hocj haanh"
+expected_output = "Cần phải học hành"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T259"
+input_keys = "Viieejt Nam laaf ddaats nuowcs thuoocj Ddooong Nam As"
+expected_output = "Việt Nam là đất nước thuộc Đông Nam Á"
+tags = ["sentence", "common", "proper-noun"]
+
+[[vectors]]
+id = "T260"
+input_keys = "Tieeesng Vieejt cooss 29 chuwf caais"
+expected_output = "Tiếng Việt có 29 chữ cái"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T261"
+input_keys = "Ngaayf homm qua troij muaf"
+expected_output = "Ngày hôm qua trời mưa"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T262"
+input_keys = "Ngaayf mai chungf ta ddi chuuwi"
+expected_output = "Ngày mai chúng ta đi chơi"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T263"
+input_keys = "Dduwowngf phooss raats ddepj"
+expected_output = "Đường phố rất đẹp"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T264"
+input_keys = "Caacy nhaaf cao taangs"
+expected_output = "Cây nhà cao tầng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T265"
+input_keys = "Baanj beef cuaar anh ows ddaaur"
+expected_output = "Bạn bè của anh ở đâu"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T266"
+input_keys = "Gia ddinh tooi cooss boosn nguowif"
+expected_output = "Gia đình tôi có bốn người"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T267"
+input_keys = "Anh aays laaf baanj cuaar tooi"
+expected_output = "Anh ấy là bạn của tôi"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T268"
+input_keys = "Chij aays raats ddepj"
+expected_output = "Chị ấy rất đẹp"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T269"
+input_keys = "Eemr aays hocj raats giooir"
+expected_output = "Em ấy học rất giỏi"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T270"
+input_keys = "Con meos cuuar tooi raats deeth thuowng"
+expected_output = "Con mèo của tôi rất dễ thương"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T271"
+input_keys = "Con choos cuuar baanj raats ngoan"
+expected_output = "Con chó của bạn rất ngoan"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T272"
+input_keys = "Tooi thichs aaawn phowr"
+expected_output = "Tôi thích ăn phở"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T273"
+input_keys = "Phowr laaf monn aaawn ngon cuuar Vieejt Nam"
+expected_output = "Phở là món ăn ngon của Việt Nam"
+tags = ["sentence", "common", "proper-noun"]
+
+[[vectors]]
+id = "T274"
+input_keys = "Baanhs mi Vieejt Nam raats ngon"
+expected_output = "Bánh mì Việt Nam rất ngon"
+tags = ["sentence", "common", "proper-noun"]
+
+[[vectors]]
+id = "T275"
+input_keys = "Tooi uoongs caaf phees mooir saangs"
+expected_output = "Tôi uống cà phê mỗi sáng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T276"
+input_keys = "Caaf phees Vieejt Nam noooir tieesng theess giowis"
+expected_output = "Cà phê Việt Nam nổi tiếng thế giới"
+tags = ["sentence", "common", "proper-noun"]
+
+[[vectors]]
+id = "T277"
+input_keys = "Troij hoomm nay raats noongs"
+expected_output = "Trời hôm nay rất nóng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T278"
+input_keys = "Muaf heef troij laanj"
+expected_output = "Mùa hè trời lạnh"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T279"
+input_keys = "Muaf ddooong raats laanj"
+expected_output = "Mùa đông rất lạnh"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T280"
+input_keys = "Muaf xuan troij ddepj"
+expected_output = "Mùa xuân trời đẹp"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T281"
+input_keys = "Tooi thichs muaf thu"
+expected_output = "Tôi thích mùa thu"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T282"
+input_keys = "Hoomm nay laaf nggaayf maaays baoj"
+expected_output = "Hôm nay là ngày mấy bao"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T283"
+input_keys = "Thuwf maays laaf thoig gian raanhr"
+expected_output = "Thứ mấy là thời gian rảnh"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T284"
+input_keys = "Banj laams vieecj ows ddaaur"
+expected_output = "Bạn làm việc ở đâu"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T285"
+input_keys = "Tooi laams vieecj taij Haaf Noij"
+expected_output = "Tôi làm việc tại Hà Nội"
+tags = ["sentence", "common", "proper-noun"]
+
+[[vectors]]
+id = "T286"
+input_keys = "Coong ty cuuar tooi ows trungg taafm thanhs phooss"
+expected_output = "Công ty của tôi ở trung tâm thành phố"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T287"
+input_keys = "Tooi ddi laams bawngf xe maays"
+expected_output = "Tôi đi làm bằng xe máy"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T288"
+input_keys = "Khooangs caachs tuwf nhaaf ddeeens coong ty laaf 10km"
+expected_output = "Khoảng cách từ nhà đến công ty là 10km"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T289"
+input_keys = "Tooi thuwowngf ddi laams lucs 7 giows saangs"
+expected_output = "Tôi thường đi làm lúc 7 giờ sáng"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T290"
+input_keys = "Veef nhaaf lucs 6 giows chieeeuf"
+expected_output = "Về nhà lúc 6 giờ chiều"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T291"
+input_keys = "Cuoois tuaanf tooi ddis chowi"
+expected_output = "Cuối tuần tôi đi chơi"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T292"
+input_keys = "Tooi thichs ddi du lichs"
+expected_output = "Tôi thích đi du lịch"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T293"
+input_keys = "Vieejt Nam cooss nhieeeuf danh laams noooir tieesng"
+expected_output = "Việt Nam có nhiều danh lam nổi tiếng"
+tags = ["sentence", "common", "proper-noun"]
+
+[[vectors]]
+id = "T294"
+input_keys = "Vinhj Haj Long raats ddepj"
+expected_output = "Vịnh Hạ Long rất đẹp"
+tags = ["sentence", "proper-noun"]
+
+[[vectors]]
+id = "T295"
+input_keys = "Tooij thichs duowis bieens"
+expected_output = "Tôi thích dưới biển"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T296"
+input_keys = "Bieenr Ddooong cooss nhieeeuf haair saarn"
+expected_output = "Biển Đông có nhiều hải sản"
+tags = ["sentence", "common", "proper-noun"]
+
+[[vectors]]
+id = "T297"
+input_keys = "Lucs 12 giows truaa aaawn cows"
+expected_output = "Lúc 12 giờ trưa ăn cơm"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T298"
+input_keys = "Nguyeen Thaanhs Minh laaf hoocj sinhs giooir"
+expected_output = "Nguyễn Thành Minh là học sinh giỏi"
+tags = ["sentence", "proper-noun"]
+
+[[vectors]]
+id = "T299"
+input_keys = "Truowngf tieeur hocj naayr cooss 500 hocj sinhs"
+expected_output = "Trường tiểu học này có 500 học sinh"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T300"
+input_keys = "Giaoos vieeen raats taaanms taaam"
+expected_output = "Giáo viên rất tận tâm"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T301"
+input_keys = "Hocj sinhs caaanf hocj chaamd chir"
+expected_output = "Học sinh cần học chăm chỉ"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T302"
+input_keys = "Kiet quasr hocj taapj raats tooets"
+expected_output = "Kết quả học tập rất tốt"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T303"
+input_keys = "Tooi hichs ddocj saachs"
+expected_output = "Tôi thích đọc sách"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T304"
+input_keys = "Thuw vieenj cooss nhieeeuf saachs quyj"
+expected_output = "Thư viện có nhiều sách quý"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T305"
+input_keys = "Maany tinh laaf coong cuj quan tronjgs"
+expected_output = "Máy tính là công cụ quan trọng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T306"
+input_keys = "Phaanf meemf naayf raats deej duungf"
+expected_output = "Phần mềm này rất dễ dùng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T307"
+input_keys = "Laapj triinhs vieen vieeets code baawngf Rust"
+expected_output = "Lập trình viên viết code bằng Rust"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T308"
+input_keys = "Ngoonn nguwf Rust raats an toaafn"
+expected_output = "Ngôn ngữ Rust rất an toàn"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T309"
+input_keys = "Tieesng Vieejt laaf ngoonn nguwf toois"
+expected_output = "Tiếng Việt là ngôn ngữ tôi"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T310"
+input_keys = "Tooi ddaaang hocj caachs duungf maayy tinh"
+expected_output = "Tôi đang học cách dùng máy tính"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T311"
+input_keys = "Inteernet giuups tooi laams vieecj hieuu quaars"
+expected_output = "Internet giúp tôi làm việc hiệu quả"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T312"
+input_keys = "Maajng xaax hooij cooss nhieeeuf nguowif duungf"
+expected_output = "Mạng xã hội có nhiều người dùng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T313"
+input_keys = "Noij dung baafir vieeett phaari chinh xaacs"
+expected_output = "Nội dung bài viết phải chính xác"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T314"
+input_keys = "Tyf leej thaats nghieejp taawng cao"
+expected_output = "Tỷ lệ thất nghiệp tăng cao"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T315"
+input_keys = "Kinh teees phaats trieenr maanj"
+expected_output = "Kinh tế phát triển mạnh"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T316"
+input_keys = "Nooong nghieeepj laaf nguoonn sooongs cuuar nhieeeuf gia ddinh"
+expected_output = "Nông nghiệp là nguồn sống của nhiều gia đình"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T317"
+input_keys = "Coong nghieepj hooas nhanh choongs"
+expected_output = "Công nghiệp hóa nhanh chóng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T318"
+input_keys = "Phaast trieenr beeenf vuungf"
+expected_output = "Phát triển bền vững"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T319"
+input_keys = "Baoor toonn vaawn hoas truyeeenf thoongs"
+expected_output = "Bảo tồn văn hóa truyền thống"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T320"
+input_keys = "Hoir nhaapj quoosc teess"
+expected_output = "Hội nhập quốc tế"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T321"
+input_keys = "Giaoos duucj laaf neefs taarngs cuuar xaax hooij"
+expected_output = "Giáo dục là nền tảng của xã hội"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T322"
+input_keys = "Treers emr hoomm nay laaf nguowif laamnhs dddaao tuwowng lai"
+expected_output = "Trẻ em hôm nay là người lãnh đạo tương lai"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T323"
+input_keys = "Suwcs khooer laaf vaafng"
+expected_output = "Sức khỏe là vàng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T324"
+input_keys = "Anhs chij emr phair yeuuw thuowng nhau"
+expected_output = "Anh chị em phải yêu thương nhau"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T325"
+input_keys = "Gia ddinh laaf caaiss quan trongj nhaats"
+expected_output = "Gia đình là cái quan trọng nhất"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T326"
+input_keys = "Tinhf yeuu laaf dieeuf kyf dieejus"
+expected_output = "Tình yêu là điều kỳ diệu"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T327"
+input_keys = "Haanhs phucs laaf dduwowcs soongs beeenf nguwowif minhf yeuu"
+expected_output = "Hạnh phúc là được sống bên người mình yêu"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T328"
+input_keys = "Baanj beef thaaatj suwj laaf nguowif luuonn beeen minhf"
+expected_output = "Bạn bè thật sự là người luôn bên mình"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T329"
+input_keys = "Tooi ratss tonn tronjgs thowif gian cuuar nguowif khaacs"
+expected_output = "Tôi rất tôn trọng thời gian của người khác"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T330"
+input_keys = "Khoong neeen laangng phis thoif gian"
+expected_output = "Không nên lãng phí thời gian"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T331"
+input_keys = "Moix ngaayf hocj moots ddieeeuf moois"
+expected_output = "Mỗi ngày học một điều mới"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T332"
+input_keys = "Kieeen trinh vaaf nhaanf naai seex thanhs coong"
+expected_output = "Kiên trì và nhẫn nại sẽ thành công"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T333"
+input_keys = "Thaatj baij laaf meej cuuar thanhs coong"
+expected_output = "Thất bại là mẹ của thành công"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T334"
+input_keys = "Duwaf vaofw khoong ddeenn ddausj"
+expected_output = "Dữ vào không đến đâu"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T335"
+input_keys = "Hay hocj hooir cho roonggs bieeests"
+expected_output = "Hay học hỏi cho rộng biết"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T336"
+input_keys = "Soongs ddepj laaf soongs cooss ychs nghia"
+expected_output = "Sống đẹp là sống có ý nghĩa"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T337"
+input_keys = "Mois nguowif cooss moots cuwoos soongs riengr"
+expected_output = "Mỗi người có một cuộc sống riêng"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T338"
+input_keys = "Tuwj dooj laaf quyyeen coow baars caur moij nguowif"
+expected_output = "Tự do là quyền cơ bản của mọi người"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T339"
+input_keys = "Hoaf binh laaf uwowcs moo cuuar toaaanf nhaaanf loaij"
+expected_output = "Hòa bình là ước mơ của toàn nhân loại"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T340"
+input_keys = "Tuawnsj traanf laaj lischs suer cuuar Vieejt Nam"
+expected_output = "Tuần trần là lịch sử của Việt Nam"
+tags = ["sentence", "proper-noun"]
+
+[[vectors]]
+id = "T341"
+input_keys = "Nguuoeenf Aijs Quoosc laaf anh huuungf"
+expected_output = "Nguyễn Ái Quốc là anh hùng"
+tags = ["sentence", "proper-noun"]
+
+[[vectors]]
+id = "T342"
+input_keys = "Hooo Chis Minh laaf vij laanhs tuuj viidaij"
+expected_output = "Hồ Chí Minh là vị lãnh tụ vĩ đại"
+tags = ["sentence", "proper-noun"]
+
+[[vectors]]
+id = "T343"
+input_keys = "Caachs maanj thaangs Taams cuaar Vieejt Nam"
+expected_output = "Cách mạng tháng Tám của Việt Nam"
+tags = ["sentence", "proper-noun"]
+
+[[vectors]]
+id = "T344"
+input_keys = "Ngaayf 2 thaangs 9 laaf quoosc khanhs"
+expected_output = "Ngày 2 tháng 9 là quốc khánh"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T345"
+input_keys = "Ngaayf 30 thaangs 4 laaf ngaayf giaiar phooongs"
+expected_output = "Ngày 30 tháng 4 là ngày giải phóng"
+tags = ["sentence", "number-mixed"]
+
+[[vectors]]
+id = "T346"
+input_keys = "Teet Nguyeeen Daans laaf leej lownf nhaats"
+expected_output = "Tết Nguyên Đán là lễ lớn nhất"
+tags = ["sentence", "proper-noun"]
+
+[[vectors]]
+id = "T347"
+input_keys = "Muaf Xuaan moij nguoowif thawmm quan"
+expected_output = "Mùa Xuân mọi người thăm quan"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T348"
+input_keys = "Trong dips Tet moijrs nguowif veef nhaaf"
+expected_output = "Trong dịp Tết mỗi người về nhà"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T349"
+input_keys = "Aawn teeests ngon vaaf uoongs caafphees thowm"
+expected_output = "Ăn tết ngon và uống cà phê thơm"
+tags = ["sentence", "common"]
+
+[[vectors]]
+id = "T350"
+input_keys = "Vieejt Nam laaf queeh huowng cuuar tooi"
+expected_output = "Việt Nam là quê hương của tôi"
+tags = ["sentence", "proper-noun"]
+
+# ============================================================
+# T351–T400  Edge cases (numbers, punctuation, uppercase, English-mixed)
+# ============================================================
+
+[[vectors]]
+id = "T351"
+input_keys = "hello"
+expected_output = "hello"
+tags = ["edge", "no-vietnamese"]
+
+[[vectors]]
+id = "T352"
+input_keys = "123"
+expected_output = "123"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T353"
+input_keys = "abc123"
+expected_output = "abc123"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T354"
+input_keys = "Toois"
+expected_output = "Tối"
+tags = ["edge", "uppercase"]
+
+[[vectors]]
+id = "T355"
+input_keys = "VIEEJT NAM"
+expected_output = "VIỆT NAM"
+tags = ["edge", "uppercase"]
+
+[[vectors]]
+id = "T356"
+input_keys = "xin chaof 123"
+expected_output = "xin chào 123"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T357"
+input_keys = "hocj tieesng Vieejt 100%"
+expected_output = "học tiếng Việt 100%"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T358"
+input_keys = "nhieeeuf hown 1000 nguowif"
+expected_output = "nhiều hơn 1000 người"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T359"
+input_keys = "ddieems 9/10"
+expected_output = "điểm 9/10"
+tags = ["edge", "number-mixed", "punctuation"]
+
+[[vectors]]
+id = "T360"
+input_keys = "Vieejt Nam 2025"
+expected_output = "Việt Nam 2025"
+tags = ["edge", "number-mixed", "proper-noun"]
+
+[[vectors]]
+id = "T361"
+input_keys = "Tooi hocj tieeesng Anh"
+expected_output = "Tôi học tiếng Anh"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T362"
+input_keys = "Email cuuar tooi laaf test@example.com"
+expected_output = "Email của tôi là test@example.com"
+tags = ["edge", "punctuation"]
+
+[[vectors]]
+id = "T363"
+input_keys = "Website: www.example.com"
+expected_output = "Website: www.example.com"
+tags = ["edge", "punctuation"]
+
+[[vectors]]
+id = "T364"
+input_keys = "Giaas tieefn laaf 50.000 dooongf"
+expected_output = "Giá tiền là 50.000 đồng"
+tags = ["edge", "number-mixed", "punctuation"]
+
+[[vectors]]
+id = "T365"
+input_keys = "Dieenj thoaij: 0912345678"
+expected_output = "Điện thoại: 0912345678"
+tags = ["edge", "number-mixed", "punctuation"]
+
+[[vectors]]
+id = "T366"
+input_keys = "Khooangs caachs: 100m"
+expected_output = "Khoảng cách: 100m"
+tags = ["edge", "number-mixed", "punctuation"]
+
+[[vectors]]
+id = "T367"
+input_keys = "Nhieejt ddoor: 35 ddoor C"
+expected_output = "Nhiệt độ: 35 độ C"
+tags = ["edge", "number-mixed", "punctuation"]
+
+[[vectors]]
+id = "T368"
+input_keys = "Toocj ddoor: 60km/h"
+expected_output = "Tốc độ: 60km/h"
+tags = ["edge", "number-mixed", "punctuation"]
+
+[[vectors]]
+id = "T369"
+input_keys = "Dieeenj tich: 330.000 km2"
+expected_output = "Diện tích: 330.000 km2"
+tags = ["edge", "number-mixed", "punctuation"]
+
+[[vectors]]
+id = "T370"
+input_keys = "Daanr soos: 97 trieeuuj nguowif"
+expected_output = "Dân số: 97 triệu người"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T371"
+input_keys = "Vieejt Nam gia nhaapj WTO naawm 2007"
+expected_output = "Việt Nam gia nhập WTO năm 2007"
+tags = ["edge", "number-mixed", "proper-noun"]
+
+[[vectors]]
+id = "T372"
+input_keys = "GDP naawm 2023 taaangr 5%"
+expected_output = "GDP năm 2023 tăng 5%"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T373"
+input_keys = "Tooi thichs phim Marvel"
+expected_output = "Tôi thích phim Marvel"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T374"
+input_keys = "Aaawn pizza vaaf uoongs Coca-Cola"
+expected_output = "Ăn pizza và uống Coca-Cola"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T375"
+input_keys = "Duungf Google ddeef tiim kieem"
+expected_output = "Dùng Google để tìm kiếm"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T376"
+input_keys = "Facebook cooss nhieeeuf nguowif duungf"
+expected_output = "Facebook có nhiều người dùng"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T377"
+input_keys = "Dowanload phaanf meemf tuwf internet"
+expected_output = "Download phần mềm từ internet"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T378"
+input_keys = "Online meeting lucs 9h saangs"
+expected_output = "Online meeting lúc 9h sáng"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T379"
+input_keys = "Password phaair maanhs"
+expected_output = "Password phải mạnh"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T380"
+input_keys = "Update phaanf meemf thuowngf xuyyeeen"
+expected_output = "Update phần mềm thường xuyên"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T381"
+input_keys = "Backup duwf lieeuj moij ngaayf"
+expected_output = "Backup dữ liệu mỗi ngày"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T382"
+input_keys = "Tichs hops AI vaof saarn phaaams"
+expected_output = "Tích hợp AI vào sản phẩm"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T383"
+input_keys = "Duwf lieeuj luwuu treeens cloud"
+expected_output = "Dữ liệu lưu trên cloud"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T384"
+input_keys = "API cuuar heej thoongs"
+expected_output = "API của hệ thống"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T385"
+input_keys = "Tooi laaf developer tawij Vieejt Nam"
+expected_output = "Tôi là developer tại Việt Nam"
+tags = ["edge", "proper-noun"]
+
+[[vectors]]
+id = "T386"
+input_keys = "Code review phaair tyir myir"
+expected_output = "Code review phải tỉ mỉ"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T387"
+input_keys = "Bug naayf ddaax dduwowcs fiix"
+expected_output = "Bug này đã được fix"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T388"
+input_keys = "Deploy leeen server thanhs coong"
+expected_output = "Deploy lên server thành công"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T389"
+input_keys = "Test case phaair bao phuars ddaaayf dduwr"
+expected_output = "Test case phải bao phủ đầy đủ"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T390"
+input_keys = "Documentation phaair roox raangs"
+expected_output = "Documentation phải rõ ràng"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T391"
+input_keys = "Pull request ddaax dduwowcs merge"
+expected_output = "Pull request đã được merge"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T392"
+input_keys = "Commit message phaair yys nghia"
+expected_output = "Commit message phải ý nghĩa"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T393"
+input_keys = "Git branch phaair ddaatj teeens rors raangs"
+expected_output = "Git branch phải đặt tên rõ ràng"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T394"
+input_keys = "Version 1.0.0 dda ra maawts"
+expected_output = "Version 1.0.0 đã ra mắt"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T395"
+input_keys = "Release ngaayf 15/06/2025"
+expected_output = "Release ngày 15/06/2025"
+tags = ["edge", "number-mixed", "punctuation"]
+
+[[vectors]]
+id = "T396"
+input_keys = "Laapj triinh bawngf Rust raats thuu vijf"
+expected_output = "Lập trình bằng Rust rất thú vị"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T397"
+input_keys = "Tooi thichs programming"
+expected_output = "Tôi thích programming"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T398"
+input_keys = "Open source laaf tuowng lai"
+expected_output = "Open source là tương lai"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T399"
+input_keys = "Linux laaf heej dieeeuf haanhs maanhs meex"
+expected_output = "Linux là hệ điều hành mạnh mẽ"
+tags = ["edge", "common"]
+
+[[vectors]]
+id = "T400"
+input_keys = "MacOS vaaf Windows cuungf totts"
+expected_output = "MacOS và Windows cũng tốt"
+tags = ["edge", "common"]
+
+# ============================================================
+# T401–T450  Complex words with multiple modifiers
+# ============================================================
+
+[[vectors]]
+id = "T401"
+input_keys = "thuowngf xuyeeen"
+expected_output = "thường xuyên"
+tags = ["word", "combined", "multi-word"]
+
+[[vectors]]
+id = "T402"
+input_keys = "truowngf hocj"
+expected_output = "trường học"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T403"
+input_keys = "thuoocj veef"
+expected_output = "thuộc về"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T404"
+input_keys = "buowcs phaair"
+expected_output = "buộc phải"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T405"
+input_keys = "muoosn muaf"
+expected_output = "muốn mua"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T406"
+input_keys = "thuoocj loais"
+expected_output = "thuộc loại"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T407"
+input_keys = "duwowcs nghef"
+expected_output = "dưỡng nghề"
+tags = ["word", "combined"]
+
+[[vectors]]
+id = "T408"
+input_keys = "quuoosc gia"
+expected_output = "quốc gia"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T409"
+input_keys = "chuoyeens bieest"
+expected_output = "chuyển biết"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T410"
+input_keys = "nguwowif nguowif"
+expected_output = "người người"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T411"
+input_keys = "nguowif dduungf"
+expected_output = "người dùng"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T412"
+input_keys = "phuowng phaaps"
+expected_output = "phương pháp"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T413"
+input_keys = "chuuwawns bijf"
+expected_output = "chuẩn bị"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T414"
+input_keys = "tieesng noois"
+expected_output = "tiếng nói"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T415"
+input_keys = "luwuuj trus"
+expected_output = "lưu trú"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T416"
+input_keys = "dduwowcj vaof"
+expected_output = "được vào"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T417"
+input_keys = "truwowcs maawts"
+expected_output = "trước mắt"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T418"
+input_keys = "ngaayf maij"
+expected_output = "ngày mai"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T419"
+input_keys = "hoomm nay"
+expected_output = "hôm nay"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T420"
+input_keys = "hoomm qua"
+expected_output = "hôm qua"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T421"
+input_keys = "ddeeeem nay"
+expected_output = "đêm nay"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T422"
+input_keys = "saangs nay"
+expected_output = "sáng nay"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T423"
+input_keys = "truwas nay"
+expected_output = "trưa nay"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T424"
+input_keys = "chieeeuf nay"
+expected_output = "chiều nay"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T425"
+input_keys = "toois nay"
+expected_output = "tối nay"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T426"
+input_keys = "tuaanf trowis"
+expected_output = "tuần trước"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T427"
+input_keys = "tuaanf naayf"
+expected_output = "tuần này"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T428"
+input_keys = "tuaanf tiers"
+expected_output = "tuần tiếp"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T429"
+input_keys = "thaangs truwowcs"
+expected_output = "tháng trước"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T430"
+input_keys = "thaangs naayf"
+expected_output = "tháng này"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T431"
+input_keys = "naawm ngoais"
+expected_output = "năm ngoái"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T432"
+input_keys = "naawm nay"
+expected_output = "năm nay"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T433"
+input_keys = "naawm tois"
+expected_output = "năm tới"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T434"
+input_keys = "luucs naof"
+expected_output = "lúc nào"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T435"
+input_keys = "ows ddauus"
+expected_output = "ở đâu"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T436"
+input_keys = "laaf gi"
+expected_output = "là gì"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T437"
+input_keys = "vii saof"
+expected_output = "vì sao"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T438"
+input_keys = "nhu theef naouf"
+expected_output = "như thế nào"
+tags = ["word", "combined", "multi-word"]
+
+[[vectors]]
+id = "T439"
+input_keys = "baof nhieeu"
+expected_output = "bao nhiêu"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T440"
+input_keys = "baof giows"
+expected_output = "bao giờ"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T441"
+input_keys = "baof laaux"
+expected_output = "bao lâu"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T442"
+input_keys = "baof xa"
+expected_output = "bao xa"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T443"
+input_keys = "maaays caais"
+expected_output = "mấy cái"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T444"
+input_keys = "maaays nguowif"
+expected_output = "mấy người"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T445"
+input_keys = "maaays ngaayf"
+expected_output = "mấy ngày"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T446"
+input_keys = "nhuwx theef naouf"
+expected_output = "như thế nào"
+tags = ["word", "combined", "multi-word"]
+
+[[vectors]]
+id = "T447"
+input_keys = "bawngf caachs naoyf"
+expected_output = "bằng cách nào"
+tags = ["word", "combined", "multi-word"]
+
+[[vectors]]
+id = "T448"
+input_keys = "ddoor cooss"
+expected_output = "đó có"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T449"
+input_keys = "ddaayf laaf"
+expected_output = "đây là"
+tags = ["word", "combined", "two-word"]
+
+[[vectors]]
+id = "T450"
+input_keys = "kia laaf"
+expected_output = "kia là"
+tags = ["word", "combined", "two-word"]
+
+# ============================================================
+# T451–T500  More common words and phrases
+# ============================================================
+
+[[vectors]]
+id = "T451"
+input_keys = "xin chaof moijr nguowif"
+expected_output = "xin chào mọi người"
+tags = ["word", "common", "greeting", "multi-word"]
+
+[[vectors]]
+id = "T452"
+input_keys = "tamj bieejt"
+expected_output = "tạm biệt"
+tags = ["word", "common", "greeting", "two-word"]
+
+[[vectors]]
+id = "T453"
+input_keys = "heenj gap laij"
+expected_output = "hẹn gặp lại"
+tags = ["word", "common", "greeting", "multi-word"]
+
+[[vectors]]
+id = "T454"
+input_keys = "chucs moijrs nguowif ngur ngon"
+expected_output = "chúc mọi người ngủ ngon"
+tags = ["word", "common", "greeting", "multi-word"]
+
+[[vectors]]
+id = "T455"
+input_keys = "chucs muwngf sinhs nhaatj"
+expected_output = "chúc mừng sinh nhật"
+tags = ["word", "common", "greeting", "multi-word"]
+
+[[vectors]]
+id = "T456"
+input_keys = "chucs moijrs nguowif naawm mowis"
+expected_output = "chúc mọi người năm mới"
+tags = ["word", "common", "greeting", "multi-word"]
+
+[[vectors]]
+id = "T457"
+input_keys = "naawm mowis vui vesr"
+expected_output = "năm mới vui vẻ"
+tags = ["word", "common", "greeting", "multi-word"]
+
+[[vectors]]
+id = "T458"
+input_keys = "haanhs phucs maais maix"
+expected_output = "hạnh phúc mãi mãi"
+tags = ["word", "common", "greeting", "multi-word"]
+
+[[vectors]]
+id = "T459"
+input_keys = "vaanj xuoij"
+expected_output = "vạn xuôi"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T460"
+input_keys = "moijrs suwj toots ddepj"
+expected_output = "mọi sự tốt đẹp"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T461"
+input_keys = "anh ois"
+expected_output = "anh ơi"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T462"
+input_keys = "chij ois"
+expected_output = "chị ơi"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T463"
+input_keys = "emr ois"
+expected_output = "em ơi"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T464"
+input_keys = "ooi"
+expected_output = "ôi"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T465"
+input_keys = "ooij trooif"
+expected_output = "ôi trời"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T466"
+input_keys = "troowis ois"
+expected_output = "trời ơi"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T467"
+input_keys = "thaaatj ra laaf"
+expected_output = "thật ra là"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T468"
+input_keys = "roott cucucj laaf"
+expected_output = "rốt cuộc là"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T469"
+input_keys = "suy cho cuungf"
+expected_output = "suy cho cùng"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T470"
+input_keys = "duungf laaf nhuw vaaayj"
+expected_output = "đúng là như vậy"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T471"
+input_keys = "khooong pharir laaf vaaj"
+expected_output = "không phải là vậy"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T472"
+input_keys = "tooois nghi laaf"
+expected_output = "tôi nghĩ là"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T473"
+input_keys = "theo toois nghis"
+expected_output = "theo tôi nghĩ"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T474"
+input_keys = "khoong bieeets"
+expected_output = "không biết"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T475"
+input_keys = "tooi bieeets rooij"
+expected_output = "tôi biết rồi"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T476"
+input_keys = "choows moot chuuts"
+expected_output = "chờ một chút"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T477"
+input_keys = "nhaanhs leeen"
+expected_output = "nhanh lên"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T478"
+input_keys = "caan thaanj"
+expected_output = "cẩn thận"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T479"
+input_keys = "giaanhs rooi"
+expected_output = "giành rồi"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T480"
+input_keys = "coos gaawngf"
+expected_output = "cố gắng"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T481"
+input_keys = "khoong saof heeets"
+expected_output = "không sao hết"
+tags = ["word", "common", "multi-word"]
+
+[[vectors]]
+id = "T482"
+input_keys = "cuwows leets"
+expected_output = "cười lết"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T483"
+input_keys = "vuij quer"
+expected_output = "vui quá"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T484"
+input_keys = "buoonn quer"
+expected_output = "buồn quá"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T485"
+input_keys = "tuyeejt vooif"
+expected_output = "tuyệt vời"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T486"
+input_keys = "kinh khuungr"
+expected_output = "kinh khủng"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T487"
+input_keys = "ddaangs sows"
+expected_output = "đáng sợ"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T488"
+input_keys = "tuyeejt ddepj"
+expected_output = "tuyệt đẹp"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T489"
+input_keys = "aams aaps"
+expected_output = "ấm áp"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T490"
+input_keys = "boif roois"
+expected_output = "bối rối"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T491"
+input_keys = "yen tinhf"
+expected_output = "yên tĩnh"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T492"
+input_keys = "aaons aof"
+expected_output = "ồn ào"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T493"
+input_keys = "saanj khoaais"
+expected_output = "sảng khoái"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T494"
+input_keys = "meejt mooir"
+expected_output = "mệt mỏi"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T495"
+input_keys = "thoaair maijs"
+expected_output = "thoải mái"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T496"
+input_keys = "chaarms chaapp"
+expected_output = "chậm chạp"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T497"
+input_keys = "hoaatj baats"
+expected_output = "hoạt bát"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T498"
+input_keys = "naawng ddooongj"
+expected_output = "năng động"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T499"
+input_keys = "saangs taoo"
+expected_output = "sáng tạo"
+tags = ["word", "common", "two-word"]
+
+[[vectors]]
+id = "T500"
+input_keys = "tieesng Vieejt raats ddepj vaaf phooong phuus"
+expected_output = "tiếng Việt rất đẹp và phong phú"
+tags = ["sentence", "common"]

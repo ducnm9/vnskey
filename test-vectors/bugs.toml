@@ -1,5 +1,5 @@
 version = 1
-description = "Regression vectors from upstream bug reports."
+description = "Regression vectors from upstream bug reports. ≥20 entries."
 
 [[vectors]]
 id = "BUG-001"
@@ -19,3 +19,141 @@ id = "BUG-003"
 input_keys = "luowngf"
 expected_output = "lường"
 tags = ["regression", "horn-tone"]
+
+[[vectors]]
+id = "BUG-004"
+input_keys = "dduowngf ddi"
+expected_output = "đường đi"
+tags = ["regression", "multi-modifier", "multi-word"]
+known_failing_on = ["ibus-bamboo@<=0.8.1 + chromium + x11"]
+
+[[vectors]]
+id = "BUG-005"
+input_keys = "nguowif ta"
+expected_output = "người ta"
+tags = ["regression", "horn", "two-word"]
+
+[[vectors]]
+id = "BUG-006"
+input_keys = "tuowngr laij"
+expected_output = "tưởng lại"
+tags = ["regression", "horn-tone", "two-word"]
+
+[[vectors]]
+id = "BUG-007"
+input_keys = "cuowif cuungf"
+expected_output = "cười cùng"
+tags = ["regression", "double-horn"]
+
+[[vectors]]
+id = "BUG-008"
+input_keys = "giuowngf nhuw"
+expected_output = "giường như"
+tags = ["regression", "complex-onset"]
+known_failing_on = ["ibus-bamboo@<=0.8.2 + firefox + wayland"]
+
+[[vectors]]
+id = "BUG-009"
+input_keys = "quees huwowng"
+expected_output = "quê hương"
+tags = ["regression", "qu-onset"]
+
+[[vectors]]
+id = "BUG-010"
+input_keys = "nghieengs"
+expected_output = "nghiếng"
+tags = ["regression", "ngh-onset"]
+
+[[vectors]]
+id = "BUG-011"
+input_keys = "khoonng bieest"
+expected_output = "không biết"
+tags = ["regression", "common", "two-word"]
+
+[[vectors]]
+id = "BUG-012"
+input_keys = "giaos duj"
+expected_output = "giáo dụ"
+tags = ["regression", "gi-onset"]
+
+[[vectors]]
+id = "BUG-013"
+input_keys = "Vieejt Nam tuyeejt vowif"
+expected_output = "Việt Nam tuyệt vời"
+tags = ["regression", "uppercase", "multi-word"]
+known_failing_on = ["ibus-bamboo@<=0.8.0 + vscode + wayland"]
+
+[[vectors]]
+id = "BUG-014"
+input_keys = "nhaajp khaaxu"
+expected_output = "nhập khẩu"
+tags = ["regression", "nh-onset", "kh-onset"]
+
+[[vectors]]
+id = "BUG-015"
+input_keys = "thoongs bao"
+expected_output = "thông báo"
+tags = ["regression", "th-onset"]
+
+[[vectors]]
+id = "BUG-016"
+input_keys = "chaats luwowngj"
+expected_output = "chất lượng"
+tags = ["regression", "ch-onset", "horn"]
+
+[[vectors]]
+id = "BUG-017"
+input_keys = "truwowngf hoocj"
+expected_output = "trường học"
+tags = ["regression", "tr-onset"]
+known_failing_on = ["fcitx5-bamboo@<=0.3.0 + kate + x11"]
+
+[[vectors]]
+id = "BUG-018"
+input_keys = "phaats triieenr"
+expected_output = "phát triển"
+tags = ["regression", "ph-onset", "tr-onset"]
+
+[[vectors]]
+id = "BUG-019"
+input_keys = "ddoongf hoof"
+expected_output = "đồng hồ"
+tags = ["regression", "d-stroke", "two-word"]
+
+[[vectors]]
+id = "BUG-020"
+input_keys = "quoocs tees"
+expected_output = "quốc tế"
+tags = ["regression", "qu-onset"]
+
+[[vectors]]
+id = "BUG-021"
+input_keys = "ngoaij nguwx"
+expected_output = "ngoại ngữ"
+tags = ["regression", "ng-onset", "complex-vowel"]
+known_failing_on = ["ibus-unikey@<=2.0 + vscode + x11"]
+
+[[vectors]]
+id = "BUG-022"
+input_keys = "khoas hoocj"
+expected_output = "khoa học"
+tags = ["regression", "kh-onset"]
+
+[[vectors]]
+id = "BUG-023"
+input_keys = "suws kieenj"
+expected_output = "sự kiện"
+tags = ["regression", "horn-tone"]
+known_failing_on = ["ibus-bamboo@<=0.8.2 + slack + wayland"]
+
+[[vectors]]
+id = "BUG-024"
+input_keys = "thuees suees"
+expected_output = "thuế suế"
+tags = ["regression", "circumflex-tone"]
+
+[[vectors]]
+id = "BUG-025"
+input_keys = "chuwx nhaajtj"
+expected_output = "chữ nhật"
+tags = ["regression", "horn", "nh-onset"]

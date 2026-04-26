@@ -1,0 +1,6 @@
+name = "smoke"
+description = "Quick smoke test: 3 apps × 1 engine × X11 × Telex (~50 vectors)."
+engines = ["ibus-bamboo"]
+apps = ["gedit", "kate", "firefox"]
+sessions = ["x11"]
+modes = ["telex"]

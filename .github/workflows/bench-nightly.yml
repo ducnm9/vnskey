@@ -1,0 +1,126 @@
+name: Bench Nightly
+
+on:
+  schedule:
+    - cron: "0 2 * * *" # 2am UTC daily
+  workflow_dispatch:
+    inputs:
+      profile:
+        description: "Bench profile to run"
+        default: "smoke"
+        type: choice
+        options:
+          - smoke
+          - full
+          - bugs
+
+permissions:
+  contents: write
+  pages: write
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  bench:
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        combo:
+          - { engine: "ibus-bamboo", session: "x11" }
+          - { engine: "fcitx5-bamboo", session: "x11" }
+          - { engine: "ibus-bamboo", session: "wayland" }
+          - { engine: "fcitx5-bamboo", session: "wayland" }
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action/setup@v1
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            xvfb openbox xdotool xclip \
+            weston ydotool wtype \
+            at-spi2-core \
+            ibus ibus-daemon \
+            fcitx5 fcitx5-bamboo \
+            gedit kate \
+            firefox \
+            chromium-browser \
+            libreoffice-writer
+
+      - name: Setup uinput for ydotool
+        if: matrix.combo.session == 'wayland'
+        run: |
+          sudo modprobe uinput
+          sudo chmod 666 /dev/uinput
+
+      - name: Build bench
+        run: cargo build --release -p vietime-bench
+
+      - name: Run bench
+        run: |
+          ./target/release/vietime-bench run \
+            --profile ${{ inputs.profile || 'smoke' }} \
+            --engine ${{ matrix.combo.engine }} \
+            --session ${{ matrix.combo.session }}
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: bench-${{ matrix.combo.engine }}-${{ matrix.combo.session }}
+          path: runs/latest/
+          retention-days: 90
+
+  publish:
+    needs: bench
+    if: always()
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action/setup@v1
+
+      - name: Build bench
+        run: cargo build --release -p vietime-bench
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: runs/
+
+      - name: Generate HTML dashboard
+        run: |
+          mkdir -p site
+          for dir in runs/bench-*/; do
+            if [ -f "$dir/summary.json" ]; then
+              ./target/release/vietime-bench report \
+                --format html > site/index.html 2>/dev/null || true
+            fi
+          done
+
+      - name: Deploy to GitHub Pages
+        if: github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: site/
+
+  validate-vectors:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-action/setup@v1
+
+      - name: Build bench
+        run: cargo build --release -p vietime-bench
+
+      - name: Validate test vectors
+        run: ./target/release/vietime-bench validate

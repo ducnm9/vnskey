@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// `GeditRunner` — launches gedit in a headless X11 session.
-// BEN-11. Spec ref: `spec/03-phase3-test-suite.md` §B.4.
+// `KateRunner` — launches Kate (Qt text editor) in a headless X11 session.
+// BEN-20. Spec ref: `spec/03-phase3-test-suite.md` §B.4.
 
 use std::time::Duration;
 
@@ -13,63 +13,63 @@ use crate::session::SessionHandle;
 
 use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
 
-const GEDIT_READY_TIMEOUT: Duration = Duration::from_secs(10);
-const GEDIT_READY_POLL: Duration = Duration::from_millis(200);
+const KATE_READY_TIMEOUT: Duration = Duration::from_secs(15);
+const KATE_READY_POLL: Duration = Duration::from_millis(250);
 
 #[derive(Debug)]
-pub struct GeditRunner {
+pub struct KateRunner {
     display: Option<String>,
     child: Option<Child>,
 }
 
-impl GeditRunner {
+impl KateRunner {
     #[must_use]
     pub fn new() -> Self {
         Self { display: None, child: None }
     }
 }
 
-impl Default for GeditRunner {
+impl Default for KateRunner {
     fn default() -> Self {
         Self::new()
     }
 }
 
 #[async_trait]
-impl AppRunner for GeditRunner {
+impl AppRunner for KateRunner {
     fn id(&self) -> &'static str {
-        "gedit"
+        "kate"
     }
 
     async fn launch(&mut self, session: &SessionHandle) -> Result<AppInstance, AppRunnerError> {
         self.display = Some(session.display.clone());
 
-        let mut cmd = Command::new("gedit");
-        cmd.arg("--new-document")
+        let mut cmd = Command::new("kate");
+        cmd.arg("--new")
             .env("DISPLAY", &session.display)
             .kill_on_drop(true);
 
         let child = cmd.spawn().map_err(|e| match e.kind() {
-            std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("gedit"),
+            std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("kate"),
             _ => AppRunnerError::Io(e),
         })?;
         let pid = child.id().unwrap_or(0);
         self.child = Some(child);
 
-        let deadline = Instant::now() + GEDIT_READY_TIMEOUT;
+        let deadline = Instant::now() + KATE_READY_TIMEOUT;
         let window_id;
         loop {
-            if let Ok(wid) = xdotool_helper::search_window(&session.display, "gedit").await {
+            if let Ok(wid) = xdotool_helper::search_window(&session.display, "kate").await {
                 window_id = wid;
                 break;
             }
             if Instant::now() >= deadline {
                 return Err(AppRunnerError::StartupTimeout {
-                    what: "gedit",
-                    secs: GEDIT_READY_TIMEOUT.as_secs(),
+                    what: "kate",
+                    secs: KATE_READY_TIMEOUT.as_secs(),
                 });
             }
-            tokio::time::sleep(GEDIT_READY_POLL).await;
+            tokio::time::sleep(KATE_READY_POLL).await;
         }
 
         Ok(AppInstance { pid, window_id: Some(window_id) })
@@ -107,29 +107,6 @@ mod tests {
 
     #[test]
     fn id_is_stable() {
-        assert_eq!(GeditRunner::new().id(), "gedit");
-    }
-
-    #[test]
-    fn default_has_no_child() {
-        let r = GeditRunner::default();
-        assert!(r.child.is_none());
-        assert!(r.display.is_none());
-    }
-
-    #[tokio::test]
-    #[ignore = "requires gedit + xdotool + xclip + a live X server"]
-    async fn launch_focus_read_close() {
-        let session = SessionHandle {
-            display: ":99".to_owned(),
-            pids: vec![],
-        };
-        let mut runner = GeditRunner::new();
-        let inst = runner.launch(&session).await.expect("gedit should launch");
-        assert!(inst.window_id.is_some());
-        runner.focus_text_area(&inst).await.expect("focus should work");
-        let text = runner.read_text(&inst).await.expect("read should work");
-        assert!(text.is_empty() || !text.is_empty());
-        runner.close(inst).await.expect("close should work");
+        assert_eq!(KateRunner::new().id(), "kate");
     }
 }

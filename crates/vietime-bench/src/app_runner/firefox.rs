@@ -1,7 +1,8 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// `GeditRunner` — launches gedit in a headless X11 session.
-// BEN-11. Spec ref: `spec/03-phase3-test-suite.md` §B.4.
+// `FirefoxRunner` — launches Firefox with a textarea page, captures text via
+// xdotool+xclip (CDP upgrade tracked separately).
+// BEN-21. Spec ref: `spec/03-phase3-test-suite.md` §B.4.
 
 use std::time::Duration;
 
@@ -13,71 +14,84 @@ use crate::session::SessionHandle;
 
 use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
 
-const GEDIT_READY_TIMEOUT: Duration = Duration::from_secs(10);
-const GEDIT_READY_POLL: Duration = Duration::from_millis(200);
+const FIREFOX_READY_TIMEOUT: Duration = Duration::from_secs(20);
+const FIREFOX_READY_POLL: Duration = Duration::from_millis(500);
+
+/// Minimal HTML page with a textarea for text capture.
+const TEXTAREA_HTML: &str = r#"data:text/html,<html><body><textarea id="t" rows="20" cols="80" autofocus></textarea></body></html>"#;
 
 #[derive(Debug)]
-pub struct GeditRunner {
+pub struct FirefoxRunner {
     display: Option<String>,
     child: Option<Child>,
 }
 
-impl GeditRunner {
+impl FirefoxRunner {
     #[must_use]
     pub fn new() -> Self {
         Self { display: None, child: None }
     }
 }
 
-impl Default for GeditRunner {
+impl Default for FirefoxRunner {
     fn default() -> Self {
         Self::new()
     }
 }
 
 #[async_trait]
-impl AppRunner for GeditRunner {
+impl AppRunner for FirefoxRunner {
     fn id(&self) -> &'static str {
-        "gedit"
+        "firefox"
     }
 
     async fn launch(&mut self, session: &SessionHandle) -> Result<AppInstance, AppRunnerError> {
         self.display = Some(session.display.clone());
 
-        let mut cmd = Command::new("gedit");
-        cmd.arg("--new-document")
+        let mut cmd = Command::new("firefox");
+        cmd.arg("--new-window")
+            .arg(TEXTAREA_HTML)
             .env("DISPLAY", &session.display)
+            .env("MOZ_ENABLE_WAYLAND", "0")
             .kill_on_drop(true);
 
         let child = cmd.spawn().map_err(|e| match e.kind() {
-            std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("gedit"),
+            std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("firefox"),
             _ => AppRunnerError::Io(e),
         })?;
         let pid = child.id().unwrap_or(0);
         self.child = Some(child);
 
-        let deadline = Instant::now() + GEDIT_READY_TIMEOUT;
+        let deadline = Instant::now() + FIREFOX_READY_TIMEOUT;
         let window_id;
         loop {
-            if let Ok(wid) = xdotool_helper::search_window(&session.display, "gedit").await {
+            if let Ok(wid) = xdotool_helper::search_window(&session.display, "Mozilla Firefox").await
+            {
                 window_id = wid;
                 break;
             }
             if Instant::now() >= deadline {
                 return Err(AppRunnerError::StartupTimeout {
-                    what: "gedit",
-                    secs: GEDIT_READY_TIMEOUT.as_secs(),
+                    what: "firefox",
+                    secs: FIREFOX_READY_TIMEOUT.as_secs(),
                 });
             }
-            tokio::time::sleep(GEDIT_READY_POLL).await;
+            tokio::time::sleep(FIREFOX_READY_POLL).await;
         }
+
+        // Give Firefox extra time to render the textarea page.
+        tokio::time::sleep(Duration::from_secs(2)).await;
 
         Ok(AppInstance { pid, window_id: Some(window_id) })
     }
 
     async fn focus_text_area(&self, inst: &AppInstance) -> Result<(), AppRunnerError> {
         let display = self.display.as_deref().unwrap_or(":99");
-        xdotool_helper::focus_window(display, inst).await
+        xdotool_helper::focus_window(display, inst).await?;
+        // Tab into the textarea (Firefox may focus the address bar first).
+        xdotool_helper::run_xdotool(display, &["key", "Tab"]).await?;
+        tokio::time::sleep(Duration::from_millis(100)).await;
+        Ok(())
     }
 
     async fn clear_text_area(&self, inst: &AppInstance) -> Result<(), AppRunnerError> {
@@ -93,7 +107,7 @@ impl AppRunner for GeditRunner {
     async fn close(&mut self, _inst: AppInstance) -> Result<(), AppRunnerError> {
         if let Some(mut c) = self.child.take() {
             let _ = c.kill().await;
-            let _ = timeout(Duration::from_secs(3), c.wait()).await;
+            let _ = timeout(Duration::from_secs(5), c.wait()).await;
         }
         self.display = None;
         Ok(())
@@ -101,35 +115,11 @@ impl AppRunner for GeditRunner {
 }
 
 #[cfg(test)]
-#[allow(clippy::expect_used, clippy::unwrap_used)]
 mod tests {
     use super::*;
 
     #[test]
     fn id_is_stable() {
-        assert_eq!(GeditRunner::new().id(), "gedit");
-    }
-
-    #[test]
-    fn default_has_no_child() {
-        let r = GeditRunner::default();
-        assert!(r.child.is_none());
-        assert!(r.display.is_none());
-    }
-
-    #[tokio::test]
-    #[ignore = "requires gedit + xdotool + xclip + a live X server"]
-    async fn launch_focus_read_close() {
-        let session = SessionHandle {
-            display: ":99".to_owned(),
-            pids: vec![],
-        };
-        let mut runner = GeditRunner::new();
-        let inst = runner.launch(&session).await.expect("gedit should launch");
-        assert!(inst.window_id.is_some());
-        runner.focus_text_area(&inst).await.expect("focus should work");
-        let text = runner.read_text(&inst).await.expect("read should work");
-        assert!(text.is_empty() || !text.is_empty());
-        runner.close(inst).await.expect("close should work");
+        assert_eq!(FirefoxRunner::new().id(), "firefox");
     }
 }
