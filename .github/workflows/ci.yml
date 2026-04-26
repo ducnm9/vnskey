@@ -83,6 +83,7 @@ jobs:
             setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev python3-pip ibus fcitx5 curl
           - container: opensuse/tumbleweed:latest
             setup: zypper --non-interactive install bash gcc14 gcc14-c++ libopenssl-devel python3-pip ibus fcitx5 curl tar gzip make && ln -sf /usr/bin/gcc-14 /usr/local/bin/cc && ln -sf /usr/bin/g++-14 /usr/local/bin/c++
+            manual_rust: true
     container:
       image: ${{ matrix.container }}
     steps:
@@ -90,6 +91,12 @@ jobs:
       - name: Distro packages
         run: ${{ matrix.setup }}
       - uses: dtolnay/rust-toolchain@stable
+        if: ${{ !matrix.manual_rust }}
+      - name: Install Rust (manual)
+        if: ${{ matrix.manual_rust }}
+        run: |
+          curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- --default-toolchain stable --profile minimal -y
+          echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
