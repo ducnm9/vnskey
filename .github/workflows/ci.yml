@@ -79,9 +79,9 @@ jobs:
           - container: archlinux:latest
             setup: pacman -Syu --noconfirm gcc openssl python-pip ibus fcitx5
           - container: debian:12
-            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev python3-pip ibus fcitx5
+            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev python3-pip ibus fcitx5 curl
           - container: opensuse/tumbleweed:latest
-            setup: zypper --non-interactive install gcc openssl-devel python3-pip ibus fcitx5
+            setup: zypper --non-interactive install gcc14 libopenssl-devel python3-pip ibus fcitx5 curl
     container:
       image: ${{ matrix.container }}
     steps:
@@ -124,11 +124,11 @@ jobs:
       matrix:
         include:
           - container: ubuntu:22.04
-            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl
+            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl sudo
           - container: ubuntu:24.04
-            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl
+            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl sudo
           - container: debian:12
-            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl
+            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl sudo
     container:
       image: ${{ matrix.container }}
     steps:
