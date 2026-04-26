@@ -1,0 +1,259 @@
+version = 1
+engine_mode = "telex"
+description = "Core Telex tones and modifiers — MVP seed vectors."
+
+# === Basic tones ===
+
+[[vectors]]
+id = "T001"
+input_keys = "tieesng Vieejt"
+expected_output = "tiếng Việt"
+tags = ["basic", "tone", "two-word"]
+
+[[vectors]]
+id = "T002"
+input_keys = "aa"
+expected_output = "â"
+tags = ["modifier", "letter-a-circumflex"]
+
+[[vectors]]
+id = "T003"
+input_keys = "ee"
+expected_output = "ê"
+tags = ["modifier", "letter-e-circumflex"]
+
+[[vectors]]
+id = "T004"
+input_keys = "oo"
+expected_output = "ô"
+tags = ["modifier", "letter-o-circumflex"]
+
+[[vectors]]
+id = "T005"
+input_keys = "ow"
+expected_output = "ơ"
+tags = ["modifier", "letter-o-horn"]
+
+[[vectors]]
+id = "T006"
+input_keys = "uw"
+expected_output = "ư"
+tags = ["modifier", "letter-u-horn"]
+
+[[vectors]]
+id = "T007"
+input_keys = "aw"
+expected_output = "ă"
+tags = ["modifier", "letter-a-breve"]
+
+[[vectors]]
+id = "T008"
+input_keys = "dd"
+expected_output = "đ"
+tags = ["modifier", "letter-d-stroke"]
+
+# === Tone marks ===
+
+[[vectors]]
+id = "T010"
+input_keys = "af"
+expected_output = "à"
+tags = ["tone", "grave"]
+
+[[vectors]]
+id = "T011"
+input_keys = "as"
+expected_output = "á"
+tags = ["tone", "acute"]
+
+[[vectors]]
+id = "T012"
+input_keys = "ar"
+expected_output = "ả"
+tags = ["tone", "hook-above"]
+
+[[vectors]]
+id = "T013"
+input_keys = "ax"
+expected_output = "ã"
+tags = ["tone", "tilde"]
+
+[[vectors]]
+id = "T014"
+input_keys = "aj"
+expected_output = "ạ"
+tags = ["tone", "dot-below"]
+
+# === Combined modifier + tone ===
+
+[[vectors]]
+id = "T020"
+input_keys = "aas"
+expected_output = "ấ"
+tags = ["combined", "circumflex", "acute"]
+
+[[vectors]]
+id = "T021"
+input_keys = "aaf"
+expected_output = "ầ"
+tags = ["combined", "circumflex", "grave"]
+
+[[vectors]]
+id = "T022"
+input_keys = "aar"
+expected_output = "ẩ"
+tags = ["combined", "circumflex", "hook-above"]
+
+[[vectors]]
+id = "T023"
+input_keys = "aax"
+expected_output = "ẫ"
+tags = ["combined", "circumflex", "tilde"]
+
+[[vectors]]
+id = "T024"
+input_keys = "aaj"
+expected_output = "ậ"
+tags = ["combined", "circumflex", "dot-below"]
+
+[[vectors]]
+id = "T025"
+input_keys = "ows"
+expected_output = "ớ"
+tags = ["combined", "horn", "acute"]
+
+[[vectors]]
+id = "T026"
+input_keys = "owf"
+expected_output = "ờ"
+tags = ["combined", "horn", "grave"]
+
+[[vectors]]
+id = "T027"
+input_keys = "uws"
+expected_output = "ứ"
+tags = ["combined", "horn", "acute"]
+
+# === Common words ===
+
+[[vectors]]
+id = "T030"
+input_keys = "xin chaof"
+expected_output = "xin chào"
+tags = ["word", "greeting"]
+
+[[vectors]]
+id = "T031"
+input_keys = "cam ownf"
+expected_output = "cảm ơn"
+tags = ["word", "greeting"]
+
+[[vectors]]
+id = "T032"
+input_keys = "Vieejt Nam"
+expected_output = "Việt Nam"
+tags = ["word", "proper-noun"]
+
+[[vectors]]
+id = "T033"
+input_keys = "nguowif"
+expected_output = "người"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T034"
+input_keys = "dduowngf"
+expected_output = "đường"
+tags = ["word", "common", "multi-modifier"]
+
+[[vectors]]
+id = "T035"
+input_keys = "nghieengs"
+expected_output = "nghiếng"
+tags = ["word", "nh", "tone-acute"]
+
+[[vectors]]
+id = "T036"
+input_keys = "khoonng"
+expected_output = "không"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T037"
+input_keys = "coongs ngheej"
+expected_output = "công nghệ"
+tags = ["word", "two-word", "technology"]
+
+[[vectors]]
+id = "T038"
+input_keys = "hocj"
+expected_output = "học"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T039"
+input_keys = "thaays"
+expected_output = "thấy"
+tags = ["word", "common"]
+
+# === Edge cases ===
+
+[[vectors]]
+id = "T050"
+input_keys = "123 abcs"
+expected_output = "123 abc"
+tags = ["edge", "number-mixed"]
+
+[[vectors]]
+id = "T051"
+input_keys = "hello"
+expected_output = "hello"
+tags = ["edge", "no-vietnamese"]
+
+[[vectors]]
+id = "T052"
+input_keys = "Toois"
+expected_output = "Tối"
+tags = ["edge", "uppercase-start"]
+
+[[vectors]]
+id = "T053"
+input_keys = "ddi"
+expected_output = "đi"
+tags = ["edge", "d-stroke-simple"]
+
+[[vectors]]
+id = "T054"
+input_keys = "thuees"
+expected_output = "thuế"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T055"
+input_keys = "giaos"
+expected_output = "giáo"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T056"
+input_keys = "duowis"
+expected_output = "dưới"
+tags = ["word", "common", "horn"]
+
+[[vectors]]
+id = "T057"
+input_keys = "tuooir"
+expected_output = "tưởi"
+tags = ["word", "common"]
+
+[[vectors]]
+id = "T058"
+input_keys = "baawngs"
+expected_output = "bẳng"
+tags = ["edge", "breve-hook"]
+
+[[vectors]]
+id = "T059"
+input_keys = "nhaanf"
+expected_output = "nhần"
+tags = ["word", "common"]

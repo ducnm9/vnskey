@@ -70,6 +70,9 @@ dialoguer = { version = "0.11", default-features = false }
 # (INS-42). Default features kept (only pulls in `libc` transitively).
 libc = "0.2"
 
+# String similarity — Levenshtein distance for bench scoring (BEN-13).
+strsim = "0.11"
+
 # Testing
 insta = { version = "1.40", features = ["yaml", "json"] }
 rstest = "0.22"

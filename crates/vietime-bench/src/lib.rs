@@ -12,10 +12,15 @@
 
 #![doc = "Vietnamese IME bench runner — internal library."]
 
+pub mod app_runner;
 pub mod cli;
+pub mod im_driver;
 pub mod injector;
 pub mod model;
+pub mod runner;
+pub mod scoring;
 pub mod session;
+pub mod vector;
 
 pub use cli::{Cli, Command};
 pub use injector::{InjectorError, KeystrokeInjector, XdotoolInjector};

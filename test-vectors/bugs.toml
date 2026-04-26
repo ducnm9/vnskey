@@ -1,0 +1,21 @@
+version = 1
+description = "Regression vectors from upstream bug reports."
+
+[[vectors]]
+id = "BUG-001"
+input_keys = "xin chaof cacs banj"
+expected_output = "xin chào các bạn"
+tags = ["regression", "multi-word"]
+known_failing_on = ["ibus-bamboo@<=0.8.2 + vscode + wayland"]
+
+[[vectors]]
+id = "BUG-002"
+input_keys = "thuowngf"
+expected_output = "thường"
+tags = ["regression", "horn-tone"]
+
+[[vectors]]
+id = "BUG-003"
+input_keys = "luowngf"
+expected_output = "lường"
+tags = ["regression", "horn-tone"]
