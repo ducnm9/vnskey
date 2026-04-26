@@ -81,17 +81,9 @@ jobs:
             setup: pacman -Syu --noconfirm gcc openssl python-pip ibus fcitx5
           - container: debian:12
             setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev python3-pip ibus fcitx5 curl
-          - container: opensuse/leap:15.6
-            setup: zypper --non-interactive install gcc gcc-c++ libopenssl-devel python3-pip ibus curl tar gzip make
     container:
       image: ${{ matrix.container }}
     steps:
-      - name: Bootstrap container prerequisites
-        run: |
-          if command -v zypper >/dev/null 2>&1; then
-            zypper --non-interactive install tar gzip bash
-          fi
-        shell: sh
       - uses: actions/checkout@v6
       - name: Distro packages
         run: ${{ matrix.setup }}
