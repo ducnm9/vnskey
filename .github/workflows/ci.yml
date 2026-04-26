@@ -86,6 +86,12 @@ jobs:
     container:
       image: ${{ matrix.container }}
     steps:
+      - name: Bootstrap container prerequisites
+        run: |
+          if command -v zypper >/dev/null 2>&1; then
+            zypper --non-interactive install tar gzip
+          fi
+        shell: sh
       - uses: actions/checkout@v6
       - name: Distro packages
         run: ${{ matrix.setup }}
