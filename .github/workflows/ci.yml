@@ -95,7 +95,7 @@ jobs:
           key: distro-${{ matrix.container }}
       - run: cargo build --workspace --locked
       - run: cargo test --workspace --locked
-      - name: Smoke: `vietime-doctor report --json` validates against v1 schema
+      - name: "Smoke: vietime-doctor report --json validates against v1 schema"
         run: |
           pip3 install --break-system-packages check-jsonschema || pip3 install check-jsonschema
           ./target/debug/vietime-doctor report --json > /tmp/report.json || true
