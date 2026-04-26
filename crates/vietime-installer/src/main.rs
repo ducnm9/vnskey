@@ -2,40 +2,45 @@
 //
 // `vietime-installer` — CLI entry point.
 //
-// Thin wrapper over the `vietime_installer` library: parses args, dispatches
-// subcommands, and maps failures onto the three exit codes the spec calls
-// out (`0` OK / `64` usage / `70` internal).
+// Thin wrapper over the `vietime_installer` library: parses args,
+// dispatches subcommands, and maps failures onto the three exit codes
+// the spec calls out (`0` OK / `64` usage / `70` internal).
 //
-// Week 1 wires up the argument surface (INS-01) and `list` + `version` +
-// `hello`. The mutating subcommands (`install`, `uninstall`, `switch`,
-// `rollback`, …) print a friendly stub message pointing at the ticket that
-// will fill them in; this keeps `--help` honest while the executor is
-// under construction.
+// Wired subcommands (Phase 2):
 //
-// Spec ref: `spec/02-phase2-installer.md` §A.4 (CLI surface + exit codes).
+//   install     — plan + execute a Combo install.
+//   uninstall   — walk back the latest snapshot (alias for rollback).
+//   switch      — uninstall the active combo then install the new one.
+//   verify      — shell out to `vietime-doctor check`.
+//   status      — one-line summary of which combo is active.
+//   list        — enumerate supported combos.
+//   rollback    — undo a specific snapshot by id.
+//   snapshots   — list snapshot manifests on disk.
+//   doctor      — forward args to `vietime-doctor`.
+//   version     — print the tool version.
+//   hello       — smoke check.
+//
+// Spec ref: `spec/02-phase2-installer.md` §A.4.
 
 use std::path::PathBuf;
 use std::process::ExitCode;
+use std::sync::Arc;
 
 use clap::{Parser, Subcommand};
 
-use vietime_installer::{Combo, TOOL_VERSION};
+use vietime_installer::executor::{self, ExecConfig, ExecReporter, Mode, StderrReporter};
+use vietime_installer::snapshot::SnapshotStore;
+use vietime_installer::{detect_pre_state, plan, Combo, Goal, TOOL_VERSION};
 
-/// Exit codes per `spec/02-phase2-installer.md` §A.4. `INTERNAL_ERROR` is
-/// declared up-front so Week 3's executor (which may actually fail) doesn't
-/// have to re-pick a number — kept even though Week 1 never emits it.
 mod exit {
     pub const OK: u8 = 0;
     pub const USAGE_ERROR: u8 = 64;
-    #[allow(dead_code)] // Wired up when the executor lands (INS-20+).
     pub const INTERNAL_ERROR: u8 = 70;
 }
 
 /// One-click installer for Vietnamese input method stacks on Linux.
 #[derive(Debug, Parser)]
 #[command(name = "vietime-installer", version, about, long_about = None)]
-// Clap-derive naturally produces several `bool` global flags. Grouping them
-// into a sub-struct would obscure the clap surface without adding clarity.
 #[allow(clippy::struct_excessive_bools)]
 struct Cli {
     /// Plan the work but don't mutate anything.
@@ -67,7 +72,7 @@ enum Command {
     },
     /// Roll back to the state before the most recent install.
     Uninstall,
-    /// Switch between combos atomically (backup → install → uninstall old).
+    /// Switch between combos atomically (uninstall old → install new).
     Switch {
         /// Target combo slug.
         combo: String,
@@ -83,6 +88,9 @@ enum Command {
         /// Snapshot id to roll back to. Defaults to the most recent.
         #[arg(long)]
         to: Option<String>,
+        /// Roll back even if the manifest is flagged `incomplete = true`.
+        #[arg(long)]
+        force: bool,
     },
     /// List snapshots saved by previous installer runs.
     Snapshots,
@@ -100,20 +108,23 @@ enum Command {
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
-    dispatch(cli)
+    // Construct a tokio runtime lazily: `version` / `list` / `hello` don't
+    // need one, but every mutating command does.
+    let runtime = match tokio::runtime::Builder::new_current_thread().enable_all().build() {
+        Ok(rt) => rt,
+        Err(err) => {
+            eprintln!("vietime-installer: cannot build tokio runtime: {err}");
+            return ExitCode::from(exit::INTERNAL_ERROR);
+        }
+    };
+    runtime.block_on(dispatch(cli))
 }
 
-// Week 1 just prints stub messages per subcommand; every arm is a
-// trivial `eprintln!` + exit. Once real executors land in Week 3+ each
-// branch will move to its own function and this allow will go away.
-#[allow(clippy::too_many_lines)]
-fn dispatch(cli: Cli) -> ExitCode {
-    // Week 1 doesn't thread the global flags through to an executor yet; name
-    // them here so clippy doesn't flag them as unread fields. Real wiring
-    // lands with the executor in Week 3 (INS-20+).
-    let _ = (cli.dry_run, cli.yes, cli.verbose, &cli.log_file);
-
+async fn dispatch(cli: Cli) -> ExitCode {
     let command = cli.command.unwrap_or(Command::Hello);
+    let mode = if cli.dry_run { Mode::DryRun } else { Mode::Live };
+    let config = ExecConfig::new(mode).with_assume_yes(cli.yes);
+    let reporter: Arc<dyn ExecReporter> = Arc::new(StderrReporter);
 
     match command {
         Command::Hello => {
@@ -132,86 +143,235 @@ fn dispatch(cli: Cli) -> ExitCode {
             }
             ExitCode::from(exit::OK)
         }
-        Command::Install { combo } => {
-            if let Some(slug) = combo.as_deref() {
-                match slug.parse::<Combo>() {
-                    Ok(parsed) => {
-                        eprintln!(
-                            "vietime-installer: `install {parsed}` is planned but not yet \
-                             executed. See tasks/phase-2-installer.md INS-20..INS-30 \
-                             (Week 3). Use `--dry-run` once INS-30 lands to preview \
-                             the plan."
-                        );
-                    }
-                    Err(err) => {
-                        eprintln!("vietime-installer: {err}");
-                        return ExitCode::from(exit::USAGE_ERROR);
-                    }
-                }
-            } else {
-                eprintln!(
-                    "vietime-installer: interactive wizard not yet implemented. \
-                     Run `vietime-installer list` to see supported combos, then \
-                     call `install <combo>` explicitly. (INS-32, Week 4.)"
-                );
+        Command::Install { combo } => cmd_install(combo, &config, reporter).await,
+        Command::Uninstall => cmd_rollback(None, false, &config, reporter).await,
+        Command::Switch { combo } => cmd_switch(&combo, &config, reporter).await,
+        Command::Verify => cmd_verify().await,
+        Command::Status => cmd_status(&config),
+        Command::Rollback { to, force } => cmd_rollback(to, force, &config, reporter).await,
+        Command::Snapshots => cmd_snapshots(&config),
+        Command::Doctor { args } => cmd_doctor(&args).await,
+    }
+}
+
+// ─── install ──────────────────────────────────────────────────────────────
+
+async fn cmd_install(
+    combo: Option<String>,
+    config: &ExecConfig,
+    reporter: Arc<dyn ExecReporter>,
+) -> ExitCode {
+    let combo = match combo {
+        Some(slug) => match slug.parse::<Combo>() {
+            Ok(c) => c,
+            Err(err) => {
+                eprintln!("vietime-installer: {err}");
+                return ExitCode::from(exit::USAGE_ERROR);
             }
-            ExitCode::from(exit::USAGE_ERROR)
+        },
+        None => match run_wizard() {
+            Ok(c) => c,
+            Err(code) => return ExitCode::from(code),
+        },
+    };
+
+    let pre = detect_pre_state().await;
+
+    let plan = match plan(pre, Goal::Install { combo }) {
+        Ok(p) => p,
+        Err(err) => {
+            eprintln!("vietime-installer: cannot plan install: {err}");
+            return ExitCode::from(exit::USAGE_ERROR);
         }
-        Command::Uninstall => {
+    };
+
+    eprintln!(
+        "Planned {n} steps for `install {combo}` (requires_sudo={s}, requires_logout={l})",
+        n = plan.steps.len(),
+        s = plan.requires_sudo,
+        l = plan.requires_logout,
+    );
+
+    match executor::run_plan(plan, config, reporter).await {
+        Ok(outcome) => {
             eprintln!(
-                "vietime-installer: `uninstall` lands in INS-44 (Week 5). \
-                 Use your distro's package manager to remove fcitx5-*/ibus-* \
-                 packages in the meantime."
+                "Success: {n} steps executed. Snapshot id: {id}",
+                n = outcome.steps_executed,
+                id = outcome.snapshot_id,
             );
-            ExitCode::from(exit::USAGE_ERROR)
+            if !outcome.dry_run {
+                eprintln!("Run `vietime-installer rollback --to {}` to undo.", outcome.snapshot_id);
+            }
+            ExitCode::from(exit::OK)
         }
-        Command::Switch { combo } => {
-            eprintln!(
-                "vietime-installer: `switch {combo}` lands in INS-60 (Week 7). \
-                 For now: run `uninstall` then `install <combo>` once those \
-                 subcommands are implemented."
-            );
-            ExitCode::from(exit::USAGE_ERROR)
+        Err(err) => {
+            eprintln!("vietime-installer: install failed: {err}");
+            ExitCode::from(exit::INTERNAL_ERROR)
         }
-        Command::Verify => {
-            eprintln!(
-                "vietime-installer: `verify` forwards to `vietime-doctor check` \
-                 starting in INS-41 (Week 4). Run `vietime-doctor check` directly \
-                 in the meantime."
-            );
-            ExitCode::from(exit::USAGE_ERROR)
+    }
+}
+
+/// Very small selection TUI — matches the spec's INS-32 wizard: prints
+/// the four combos and asks the user to pick one. `--yes` bypasses this.
+fn run_wizard() -> Result<Combo, u8> {
+    let combos = Combo::all_supported();
+    eprintln!("Pick a combo to install (you can also pass the slug directly):");
+    for (i, c) in combos.iter().enumerate() {
+        eprintln!("  [{i}] {}", c.slug());
+    }
+    let selection = dialoguer::Select::new()
+        .with_prompt("Combo")
+        .items(&combos.iter().map(|c| c.slug()).collect::<Vec<_>>())
+        .default(0)
+        .interact()
+        .map_err(|err| {
+            eprintln!("vietime-installer: wizard aborted: {err}");
+            exit::USAGE_ERROR
+        })?;
+    combos.get(selection).copied().ok_or_else(|| {
+        eprintln!("vietime-installer: invalid wizard selection");
+        exit::USAGE_ERROR
+    })
+}
+
+// ─── rollback / uninstall ────────────────────────────────────────────────
+
+async fn cmd_rollback(
+    to: Option<String>,
+    force: bool,
+    config: &ExecConfig,
+    reporter: Arc<dyn ExecReporter>,
+) -> ExitCode {
+    let store = SnapshotStore::new(config.snapshots_root.clone());
+    let Some(id) = to.or_else(|| store.latest_id()) else {
+        eprintln!(
+            "vietime-installer: no snapshots found under {}",
+            config.snapshots_root.display()
+        );
+        return ExitCode::from(exit::USAGE_ERROR);
+    };
+    let handle = match store.load(&id) {
+        Ok(h) => h,
+        Err(err) => {
+            eprintln!("vietime-installer: cannot load snapshot `{id}`: {err}");
+            return ExitCode::from(exit::USAGE_ERROR);
         }
-        Command::Status => {
-            eprintln!(
-                "vietime-installer: `status` lands in INS-42 (Week 4). Use \
-                 `vietime-doctor report` for a fuller picture right now."
-            );
-            ExitCode::from(exit::USAGE_ERROR)
+    };
+    if handle.manifest().incomplete && !force {
+        eprintln!(
+            "vietime-installer: snapshot `{id}` is flagged incomplete — \
+             the previous run was killed mid-flight. Re-run with `--force` \
+             to roll back anyway.",
+        );
+        return ExitCode::from(exit::USAGE_ERROR);
+    }
+
+    eprintln!(
+        "Rolling back snapshot `{id}` ({n} artifacts) …",
+        n = handle.manifest().artifacts.len()
+    );
+    executor::rollback_from_handle(&handle, reporter.as_ref(), config).await;
+    eprintln!("Rollback complete.");
+    ExitCode::from(exit::OK)
+}
+
+// ─── switch ───────────────────────────────────────────────────────────────
+
+async fn cmd_switch(
+    combo_slug: &str,
+    config: &ExecConfig,
+    reporter: Arc<dyn ExecReporter>,
+) -> ExitCode {
+    let target = match combo_slug.parse::<Combo>() {
+        Ok(c) => c,
+        Err(err) => {
+            eprintln!("vietime-installer: {err}");
+            return ExitCode::from(exit::USAGE_ERROR);
         }
-        Command::Rollback { to } => {
-            let label = to.as_deref().unwrap_or("most-recent");
-            eprintln!(
-                "vietime-installer: `rollback {label}` lands in INS-13 (Week 2). \
-                 Snapshots aren't persisted yet — nothing to roll back to."
-            );
-            ExitCode::from(exit::USAGE_ERROR)
+    };
+    // Uninstall-then-install = rollback latest + install target.
+    let store = SnapshotStore::new(config.snapshots_root.clone());
+    if let Some(id) = store.latest_id() {
+        eprintln!("Rolling back current snapshot `{id}` …");
+        if let Ok(handle) = store.load(&id) {
+            executor::rollback_from_handle(&handle, reporter.as_ref(), config).await;
         }
-        Command::Snapshots => {
-            eprintln!(
-                "vietime-installer: `snapshots` lands in INS-12 (Week 2). \
-                 The snapshot store under ~/.local/state/vietime/snapshots \
-                 isn't created yet."
-            );
-            ExitCode::from(exit::USAGE_ERROR)
+    }
+    cmd_install(Some(target.slug()), config, reporter).await
+}
+
+// ─── verify ───────────────────────────────────────────────────────────────
+
+async fn cmd_verify() -> ExitCode {
+    match tokio::process::Command::new("vietime-doctor").arg("check").status().await {
+        Ok(s) if s.success() => ExitCode::from(exit::OK),
+        Ok(s) => exit_from_status(s.code()),
+        Err(err) => {
+            eprintln!("vietime-installer: cannot exec vietime-doctor: {err}");
+            ExitCode::from(exit::INTERNAL_ERROR)
         }
-        Command::Doctor { args } => {
-            let quoted = args.join(" ");
-            eprintln!(
-                "vietime-installer: `doctor` will shell out to vietime-doctor \
-                 in INS-41 (Week 4). For now run `vietime-doctor {quoted}` \
-                 directly."
-            );
-            ExitCode::from(exit::USAGE_ERROR)
+    }
+}
+
+/// Coerce a child-process exit code into our `ExitCode`. Negative / > 255
+/// codes get mapped onto `INTERNAL_ERROR` so we never panic on weird
+/// child-process exits (e.g. a signal-terminated doctor).
+fn exit_from_status(code: Option<i32>) -> ExitCode {
+    let raw = code.unwrap_or(i32::from(exit::INTERNAL_ERROR));
+    ExitCode::from(u8::try_from(raw).unwrap_or(exit::INTERNAL_ERROR))
+}
+
+// ─── status ───────────────────────────────────────────────────────────────
+
+fn cmd_status(config: &ExecConfig) -> ExitCode {
+    let store = SnapshotStore::new(config.snapshots_root.clone());
+    if let Some(handle) = store.latest_id().and_then(|id| store.load(&id).ok()) {
+        let m = handle.manifest();
+        println!(
+            "active snapshot: {id}\ngoal: {goal}\ncreated: {created}\ncomplete: {ok}",
+            id = m.id,
+            goal = m.goal_summary(),
+            created = m.created_at,
+            ok = !m.incomplete,
+        );
+    } else {
+        println!("no snapshots found — nothing installed by vietime");
+    }
+    ExitCode::from(exit::OK)
+}
+
+// ─── snapshots ────────────────────────────────────────────────────────────
+
+fn cmd_snapshots(config: &ExecConfig) -> ExitCode {
+    let store = SnapshotStore::new(config.snapshots_root.clone());
+    match store.list() {
+        Ok(rows) if rows.is_empty() => {
+            println!("no snapshots under {}", config.snapshots_root.display());
+            ExitCode::from(exit::OK)
+        }
+        Ok(rows) => {
+            println!("{:<24} {:<12} goal", "id", "complete");
+            for row in rows {
+                let state = if row.incomplete { "incomplete" } else { "ok" };
+                println!("{:<24} {:<12} {}", row.id, state, row.goal);
+            }
+            ExitCode::from(exit::OK)
+        }
+        Err(err) => {
+            eprintln!("vietime-installer: cannot list snapshots: {err}");
+            ExitCode::from(exit::INTERNAL_ERROR)
+        }
+    }
+}
+
+// ─── doctor ───────────────────────────────────────────────────────────────
+
+async fn cmd_doctor(args: &[String]) -> ExitCode {
+    match tokio::process::Command::new("vietime-doctor").args(args).status().await {
+        Ok(s) => exit_from_status(s.code()),
+        Err(err) => {
+            eprintln!("vietime-installer: cannot exec vietime-doctor: {err}");
+            ExitCode::from(exit::INTERNAL_ERROR)
         }
     }
 }

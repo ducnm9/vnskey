@@ -1,0 +1,39 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Maintainer: VietIME Suite contributors <vietime@vietime.io>
+pkgname=vietime-installer-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="One-click installer for Vietnamese input method stacks on Linux (pre-built binary)"
+arch=('x86_64' 'aarch64')
+url="https://github.com/vietime/vietime"
+license=('GPL3')
+provides=('vietime-installer')
+conflicts=('vietime-installer' 'vietime-installer-git')
+# Installer shells out to package managers and sudo; it *detects* which
+# IM framework you picked via the combo slug, so the IM packages
+# themselves are optional from the PKGBUILD's point of view.
+depends=('sudo')
+optdepends=(
+    'vietime-doctor: `verify` subcommand shells out to the Doctor'
+    'ibus: target framework for `ibus-*` combos'
+    'fcitx5: target framework for `fcitx5-*` combos'
+    'fcitx5-bamboo: Bamboo engine for Fcitx5'
+    'fcitx5-unikey: Unikey engine for Fcitx5'
+    'ibus-bamboo: Bamboo engine for IBus'
+    'ibus-unikey: Unikey engine for IBus'
+)
+source_x86_64=("vietime-installer-${pkgver}-x86_64.tar.gz::${url}/releases/download/v${pkgver}/vietime-installer-${pkgver}-x86_64-unknown-linux-gnu.tar.gz")
+source_aarch64=("vietime-installer-${pkgver}-aarch64.tar.gz::${url}/releases/download/v${pkgver}/vietime-installer-${pkgver}-aarch64-unknown-linux-gnu.tar.gz")
+# Updated by `updpkgsums` against the real release artifacts. `SKIP` here
+# keeps the PKGBUILD publishable before the first tag; replace before push.
+sha256sums_x86_64=('SKIP')
+sha256sums_aarch64=('SKIP')
+
+package() {
+    cd "${srcdir}"
+    install -Dm755 vietime-installer "${pkgdir}/usr/bin/vietime-installer"
+    install -Dm644 README.md         "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+    install -Dm644 README.vi.md      "${pkgdir}/usr/share/doc/${pkgname}/README.vi.md"
+    install -Dm644 CHANGELOG.md      "${pkgdir}/usr/share/doc/${pkgname}/CHANGELOG.md"
+    install -Dm644 LICENSE           "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

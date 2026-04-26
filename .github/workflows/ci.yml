@@ -101,6 +101,61 @@ jobs:
           ./target/debug/vietime-doctor report --json > /tmp/report.json || true
           check-jsonschema --schemafile schemas/report.v1.json /tmp/report.json
 
+  # ---------------------------------------------------------------------
+  # Phase 2 INS-70 — installer integration matrix.
+  #
+  # Runs `vietime-installer install <combo> --dry-run` inside Debian and
+  # Ubuntu containers to exercise:
+  #
+  #   - pre-state detection (distro / session / desktop detectors)
+  #   - planner (combo resolution + plan generation)
+  #   - executor dry-run (every step handler hit, no mutations)
+  #   - snapshot store path resolution under a scratch $HOME
+  #
+  # Live installs are NOT part of CI — they require sudo + a working
+  # session bus, which GH runners don't supply. The INS-73 release
+  # pipeline exercises `cargo deb -p vietime-installer` on amd64.
+  # ---------------------------------------------------------------------
+  installer-dry-run:
+    name: installer dry-run (${{ matrix.container }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - container: ubuntu:22.04
+            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl
+          - container: ubuntu:24.04
+            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl
+          - container: debian:12
+            setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev ca-certificates curl
+    container:
+      image: ${{ matrix.container }}
+    steps:
+      - uses: actions/checkout@v6
+      - name: Distro packages
+        run: ${{ matrix.setup }}
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+          key: installer-${{ matrix.container }}
+      - run: cargo build --workspace --locked
+      - run: cargo test -p vietime-installer --locked
+      - name: Smoke — `install fcitx5-bamboo --dry-run`
+        run: |
+          export HOME=/tmp/smoke-home
+          mkdir -p "$HOME"
+          ./target/debug/vietime-installer install fcitx5-bamboo --dry-run
+      - name: Smoke — `snapshots` on empty store
+        run: |
+          export HOME=/tmp/smoke-home-empty
+          mkdir -p "$HOME"
+          ./target/debug/vietime-installer snapshots
+      - name: Smoke — `list` enumerates the four combos
+        run: |
+          ./target/debug/vietime-installer list | grep -E 'fcitx5-bamboo|fcitx5-unikey|ibus-bamboo|ibus-unikey'
+
   schema:
     name: JSON schema validation
     runs-on: ubuntu-24.04

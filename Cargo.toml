@@ -51,7 +51,7 @@ uuid = { version = "1.10", features = ["v4", "serde"] }
 regex = "1.10"
 
 # Async (Doctor orchestrator)
-tokio = { version = "1.40", features = ["rt", "rt-multi-thread", "macros", "time", "sync", "process", "fs", "io-util"] }
+tokio = { version = "1.40", features = ["rt", "rt-multi-thread", "macros", "time", "sync", "process", "fs", "io-util", "signal"] }
 async-trait = "0.1"
 futures = "0.3"
 
@@ -60,10 +60,21 @@ futures = "0.3"
 # out. `default-features = false` drops the blocking API we don't use.
 zbus = { version = "4", default-features = false, features = ["tokio"] }
 
+# Hashing — SHA-256 for snapshot backup integrity (INS-11).
+sha2 = "0.10"
+
+# Interactive TUI prompts for the install wizard (INS-32).
+dialoguer = { version = "0.11", default-features = false }
+
+# Filesystem / syscall helpers — `statvfs` for disk-space pre-check
+# (INS-42). Default features kept (only pulls in `libc` transitively).
+libc = "0.2"
+
 # Testing
 insta = { version = "1.40", features = ["yaml", "json"] }
 rstest = "0.22"
 tokio-test = "0.4"
+tempfile = "3"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

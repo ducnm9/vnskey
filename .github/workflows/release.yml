@@ -1,18 +1,22 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
-# Release pipeline for vietime-doctor.
+# Release pipeline for the VietIME Suite.
 #
-# Fires on tags matching `v*` (e.g. `v0.1.0`). Produces:
+# Fires on tags matching `v*` (e.g. `v0.1.0`, `v0.1.0-installer`).
+# Produces per release:
 #
-#   1. `vietime-doctor-<ver>-x86_64-unknown-linux-gnu.tar.gz`
-#   2. `vietime-doctor-<ver>-aarch64-unknown-linux-gnu.tar.gz`
-#   3. `vietime-doctor_<ver>_amd64.deb`     (cargo-deb)
-#   4. Attached to a GitHub Release with the changelog fragment for that
+#   1. `vietime-doctor-<ver>-<target>.tar.gz`       (x86_64 + aarch64)
+#   2. `vietime-installer-<ver>-<target>.tar.gz`    (x86_64 + aarch64)
+#   3. `vietime-doctor_<ver>_amd64.deb`             (cargo-deb)
+#   4. `vietime-installer_<ver>_amd64.deb`          (cargo-deb, INS-71)
+#   5. Attached to a GitHub Release with the changelog fragment for that
 #      version auto-extracted from CHANGELOG.md (§[0.1.0]).
 #
-# Each tarball contains: vietime-doctor binary, README.md, CHECKS.md,
-# GLOSSARY.md, CHANGELOG.md, LICENSE. These are what the AUR -bin
-# PKGBUILD consumes.
+# Each doctor tarball contains: vietime-doctor binary, README.md,
+# CHECKS.md, GLOSSARY.md, CHANGELOG.md, LICENSE.
+# Each installer tarball contains: vietime-installer binary,
+# installer.md (en + vi), CHANGELOG.md, LICENSE. These are what the AUR
+# -bin PKGBUILDs consume.
 
 name: release
 
@@ -67,7 +71,7 @@ jobs:
         if: matrix.cross
         run: cargo install cross --locked
 
-      - name: Build
+      - name: Build doctor
         run: |
           if [[ "${{ matrix.cross }}" == "true" ]]; then
             cross build --release --locked --target ${{ matrix.target }} -p vietime-doctor
@@ -75,16 +79,26 @@ jobs:
             cargo build --release --locked --target ${{ matrix.target }} -p vietime-doctor
           fi
 
-      - name: Verify binary size (<8 MiB)
+      - name: Build installer
         run: |
-          bin="target/${{ matrix.target }}/release/vietime-doctor"
-          size=$(stat -c%s "$bin")
-          printf 'binary size: %d bytes (%.2f MiB)\n' "$size" "$(echo "$size / 1048576" | bc -l)"
-          if (( size > 8 * 1024 * 1024 )); then
-            echo "::error::binary exceeds 8 MiB budget"; exit 1
+          if [[ "${{ matrix.cross }}" == "true" ]]; then
+            cross build --release --locked --target ${{ matrix.target }} -p vietime-installer
+          else
+            cargo build --release --locked --target ${{ matrix.target }} -p vietime-installer
           fi
 
-      - name: Stage tarball
+      - name: Verify binary size (<8 MiB each)
+        run: |
+          for bin in vietime-doctor vietime-installer; do
+            path="target/${{ matrix.target }}/release/${bin}"
+            size=$(stat -c%s "$path")
+            printf '%s size: %d bytes (%.2f MiB)\n' "$bin" "$size" "$(echo "$size / 1048576" | bc -l)"
+            if (( size > 8 * 1024 * 1024 )); then
+              echo "::error::${bin} exceeds 8 MiB budget"; exit 1
+            fi
+          done
+
+      - name: Stage doctor tarball
         run: |
           stage="vietime-doctor-${{ steps.ver.outputs.version }}-${{ matrix.target }}"
           mkdir -p "$stage"
@@ -97,13 +111,27 @@ jobs:
           tar -czf "${stage}.tar.gz" "$stage"
           sha256sum "${stage}.tar.gz" > "${stage}.tar.gz.sha256"
 
-      - name: Upload tarball artifact
+      - name: Stage installer tarball
+        run: |
+          stage="vietime-installer-${{ steps.ver.outputs.version }}-${{ matrix.target }}"
+          mkdir -p "$stage"
+          cp target/${{ matrix.target }}/release/vietime-installer "$stage/"
+          cp docs/user/en/installer.md    "$stage/README.md"
+          cp docs/user/vi/installer.md    "$stage/README.vi.md"
+          cp CHANGELOG.md                 "$stage/CHANGELOG.md"
+          cp LICENSE                      "$stage/LICENSE"
+          tar -czf "${stage}.tar.gz" "$stage"
+          sha256sum "${stage}.tar.gz" > "${stage}.tar.gz.sha256"
+
+      - name: Upload tarball artifacts
         uses: actions/upload-artifact@v4
         with:
           name: tarball-${{ matrix.target }}
           path: |
             vietime-doctor-*.tar.gz
             vietime-doctor-*.tar.gz.sha256
+            vietime-installer-*.tar.gz
+            vietime-installer-*.tar.gz.sha256
 
   build-deb:
     name: build (.deb, amd64)
@@ -113,9 +141,11 @@ jobs:
       - uses: dtolnay/rust-toolchain@stable
       - name: Install cargo-deb
         run: cargo install cargo-deb --locked
-      - name: Build Debian package
+      - name: Build doctor Debian package
         run: cargo deb -p vietime-doctor --locked --no-strip
-      - name: Upload .deb artifact
+      - name: Build installer Debian package
+        run: cargo deb -p vietime-installer --locked --no-strip
+      - name: Upload .deb artifacts
         uses: actions/upload-artifact@v4
         with:
           name: debian-amd64

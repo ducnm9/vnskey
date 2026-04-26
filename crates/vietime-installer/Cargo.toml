@@ -37,7 +37,37 @@ uuid = { workspace = true }
 thiserror = { workspace = true }
 tokio = { workspace = true }
 async-trait = { workspace = true }
+sha2 = { workspace = true }
+dialoguer = { workspace = true }
 
 [dev-dependencies]
 insta = { workspace = true }
 rstest = { workspace = true }
+tempfile = { workspace = true }
+
+# ─── Packaging ────────────────────────────────────────────────────────────
+
+# cargo-deb metadata. Build with:
+#   cargo install cargo-deb
+#   cargo deb -p vietime-installer
+# Output lands in target/debian/vietime-installer_<ver>_<arch>.deb.
+[package.metadata.deb]
+maintainer = "VietIME Suite contributors <vietime@vietime.io>"
+copyright = "2026 VietIME Suite contributors"
+license-file = ["../../LICENSE", "4"]
+extended-description = """\
+vietime-installer is a one-click installer for Vietnamese input method \
+stacks (Fcitx5-Bamboo, Fcitx5-Unikey, IBus-Bamboo, IBus-Unikey) on \
+Debian/Ubuntu. Every mutating run writes a snapshot manifest plus \
+SHA-256-verified backups so `rollback` can restore the previous state \
+atomically. The installer never caches passwords — it piggybacks on \
+sudo's own credential cache."""
+depends = "$auto, sudo, apt, im-config"
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/vietime-installer", "usr/bin/", "755"],
+    ["../../docs/user/en/installer.md", "usr/share/doc/vietime-installer/README.md", "644"],
+    ["../../docs/user/vi/installer.md", "usr/share/doc/vietime-installer/README.vi.md", "644"],
+    ["../../CHANGELOG.md", "usr/share/doc/vietime-installer/CHANGELOG.md", "644"],
+]

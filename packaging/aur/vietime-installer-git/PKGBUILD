@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Maintainer: VietIME Suite contributors <vietime@vietime.io>
+pkgname=vietime-installer-git
+pkgver=0.1.0.r0.g0000000
+pkgrel=1
+pkgdesc="One-click installer for Vietnamese input method stacks on Linux (git HEAD)"
+arch=('x86_64' 'aarch64')
+url="https://github.com/vietime/vietime"
+license=('GPL3')
+makedepends=('git' 'rust' 'cargo')
+provides=('vietime-installer')
+conflicts=('vietime-installer' 'vietime-installer-bin')
+depends=('sudo')
+optdepends=(
+    'vietime-doctor: `verify` subcommand shells out to the Doctor'
+    'ibus: target framework for `ibus-*` combos'
+    'fcitx5: target framework for `fcitx5-*` combos'
+    'fcitx5-bamboo: Bamboo engine for Fcitx5'
+    'fcitx5-unikey: Unikey engine for Fcitx5'
+    'ibus-bamboo: Bamboo engine for IBus'
+    'ibus-unikey: Unikey engine for IBus'
+)
+source=("${pkgname}::git+${url}.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "${srcdir}/${pkgname}"
+    git describe --long --tags 2>/dev/null | sed 's/^v//;s/-/.r/;s/-g/.g/' \
+        || printf '0.0.0.r%s.g%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+    cd "${srcdir}/${pkgname}"
+    cargo build --release --locked -p vietime-installer
+}
+
+check() {
+    cd "${srcdir}/${pkgname}"
+    cargo test --release --locked -p vietime-installer
+}
+
+package() {
+    cd "${srcdir}/${pkgname}"
+    install -Dm755 target/release/vietime-installer  "${pkgdir}/usr/bin/vietime-installer"
+    install -Dm644 docs/user/en/installer.md         "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+    install -Dm644 docs/user/vi/installer.md         "${pkgdir}/usr/share/doc/${pkgname}/README.vi.md"
+    install -Dm644 CHANGELOG.md                      "${pkgdir}/usr/share/doc/${pkgname}/CHANGELOG.md"
+    install -Dm644 LICENSE                           "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

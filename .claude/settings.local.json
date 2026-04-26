@@ -23,7 +23,10 @@
       "Bash(INSTA_UPDATE=always cargo test -p vietime-doctor --test render_snapshots)",
       "Bash(chmod +x scripts/check-binary-size.sh scripts/maintainer-dry-run.sh)",
       "Bash(bash scripts/maintainer-dry-run.sh --skip-release)",
-      "Bash(bash scripts/maintainer-dry-run.sh --only fmt)"
+      "Bash(bash scripts/maintainer-dry-run.sh --only fmt)",
+      "WebFetch(domain:index.crates.io)",
+      "WebFetch(domain:static.crates.io)",
+      "Bash(awk '{ passed += $4; failed += $6; ignored += $8 } END { printf \"Total: %d passed, %d failed, %d ignored\\\\n\", passed, failed, ignored }')"
     ]
   }
 }
