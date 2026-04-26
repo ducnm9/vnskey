@@ -18,6 +18,9 @@ vietime-doctor v{{ tool_version }}
 {%- if system.shell %}
 - Shell: {{ system.shell }}
 {%- endif %}
+{%- if system.locale %}
+- Locale: {{ system.locale }}
+{%- endif %}
 {%- if not system.distro and not system.desktop and not system.session %}
 - (no system facts collected)
 {%- endif %}
@@ -87,7 +90,7 @@ vietime-doctor v{{ tool_version }}
 ## Recommendations
 {%- for rec in recommendations %}
 
-### {{ rec.id }}: {{ rec.title }}
+### {{ rec.id }}: {{ rec.title }} {% if rec.safe_to_run_unattended %}[safe to run unattended]{% else %}[review before running]{% endif %}
 {{ rec.description }}
 {%- if rec.commands %}
 
@@ -96,6 +99,13 @@ vietime-doctor v{{ tool_version }}
 {{ cmd }}
 {%- endfor %}
 ```
+{%- endif %}
+{%- if rec.references %}
+
+References:
+{%- for ref in rec.references %}
+- {{ ref }}
+{%- endfor %}
 {%- endif %}
 {%- endfor %}
 {%- endif %}

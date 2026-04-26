@@ -333,16 +333,16 @@
   - [ ] Mỗi checker có test.
 
 ### DOC-51 — PII redactor
-- **Status**: TODO
+- **Status**: DONE
 - **Priority**: P0
 - **Estimate**: M (4h)
 - **Depends on**: DOC-14
 - **Spec ref**: spec/01 §B.6
 - **Acceptance**:
-  - [ ] Redact: username, hostname, machine-id UUID, IPs, `*_TOKEN`/`*_KEY` values.
-  - [ ] `--no-redact` opt-out.
-  - [ ] Fuzz test: feed random data, verify no unreadcted username.
-  - [ ] Apply trên Markdown + JSON + plain.
+  - [x] Redact: username, hostname, machine-id UUID, IPs, `*_TOKEN`/`*_KEY` values.
+  - [x] `--no-redact` opt-out.
+  - [x] Fuzz test: feed random data, verify no unreadcted username.
+  - [x] Apply trên Markdown + JSON + plain.
 
 ### DOC-52 — JSON schema v1 publish
 - **Status**: TODO

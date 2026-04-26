@@ -1,0 +1,364 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://vietime.io/schemas/report.v1.json",
+  "title": "VietIME Doctor Report",
+  "description": "Canonical JSON wire format for reports emitted by `vietime-doctor --json`. Stable across Doctor v0.1.x; bumped to v2 on breaking changes to the Report shape. Spec ref: spec/01-phase1-doctor.md §B.2, §B.14.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "generated_at",
+    "tool_version",
+    "facts"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "description": "Schema version — always `1` for this file.",
+      "const": 1
+    },
+    "generated_at": {
+      "description": "Report generation timestamp in RFC 3339 / ISO 8601 form, UTC.",
+      "type": "string",
+      "format": "date-time"
+    },
+    "tool_version": {
+      "description": "Version of `vietime-doctor` that produced the report (semver).",
+      "type": "string",
+      "minLength": 1
+    },
+    "facts": { "$ref": "#/$defs/Facts" },
+    "issues": {
+      "description": "Issues emitted by the checker pass. Sorted by (severity desc, id asc). Empty when the system is healthy.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/Issue" },
+      "default": []
+    },
+    "recommendations": {
+      "description": "Unique set of recommendations referenced by `issues[].recommendation`.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/Recommendation" },
+      "default": []
+    },
+    "anomalies": {
+      "description": "Per-detector failures (timeout / panic). Distinct from `issues`: these are Doctor bugs or exotic env quirks, not findings about the user's IME setup.",
+      "type": "array",
+      "items": { "$ref": "#/$defs/Anomaly" },
+      "default": []
+    }
+  },
+  "$defs": {
+    "Severity": {
+      "description": "Info < Warn < Error < Critical. Maps to the CLI exit code: Info→0, Warn→1, Error/Critical→2.",
+      "type": "string",
+      "enum": ["info", "warn", "error", "critical"]
+    },
+    "ImFramework": {
+      "type": "string",
+      "enum": ["ibus", "fcitx5", "none"]
+    },
+    "SessionType": {
+      "type": "string",
+      "enum": ["x11", "wayland", "tty", "unknown"]
+    },
+    "ActiveFramework": {
+      "description": "Derived IM framework summary. `conflict` means both daemons are running.",
+      "type": "string",
+      "enum": ["none", "ibus", "fcitx5", "conflict"]
+    },
+    "DistroFamily": {
+      "type": "string",
+      "enum": [
+        "debian",
+        "redhat",
+        "arch",
+        "suse",
+        "alpine",
+        "nix",
+        "unknown"
+      ]
+    },
+    "Distro": {
+      "type": "object",
+      "required": ["id", "family", "id_like"],
+      "additionalProperties": false,
+      "properties": {
+        "id": { "type": "string" },
+        "version_id": { "type": ["string", "null"] },
+        "pretty": { "type": ["string", "null"] },
+        "family": { "$ref": "#/$defs/DistroFamily" },
+        "id_like": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "DesktopEnv": {
+      "description": "Desktop environment. Discriminated by `kind`; Gnome/Kde carry an optional version; Other carries the raw label verbatim.",
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "gnome",
+            "kde",
+            "xfce",
+            "cinnamon",
+            "mate",
+            "budgie",
+            "sway",
+            "hyprland",
+            "lxqt",
+            "lxde",
+            "pantheon",
+            "unity",
+            "other"
+          ]
+        },
+        "version": { "type": ["string", "null"] }
+      }
+    },
+    "EnvSource": {
+      "type": "string",
+      "enum": [
+        "process",
+        "etc_environment",
+        "etc_profile_d",
+        "home_profile",
+        "systemd_user_env",
+        "pam",
+        "unknown"
+      ]
+    },
+    "EnvFacts": {
+      "description": "IM-relevant environment variables. Each `*_im_module` / `xmodifiers` / `input_method` field is null when the variable is unset.",
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "gtk_im_module": { "type": ["string", "null"] },
+        "qt_im_module": { "type": ["string", "null"] },
+        "qt4_im_module": { "type": ["string", "null"] },
+        "xmodifiers": { "type": ["string", "null"] },
+        "input_method": { "type": ["string", "null"] },
+        "sdl_im_module": { "type": ["string", "null"] },
+        "glfw_im_module": { "type": ["string", "null"] },
+        "clutter_im_module": { "type": ["string", "null"] },
+        "sources": {
+          "description": "Per-key provenance. Keys match the env-var names (e.g. `GTK_IM_MODULE`).",
+          "type": "object",
+          "additionalProperties": { "$ref": "#/$defs/EnvSource" }
+        }
+      }
+    },
+    "SystemFacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "distro": {
+          "oneOf": [{ "$ref": "#/$defs/Distro" }, { "type": "null" }]
+        },
+        "desktop": {
+          "oneOf": [{ "$ref": "#/$defs/DesktopEnv" }, { "type": "null" }]
+        },
+        "session": {
+          "oneOf": [{ "$ref": "#/$defs/SessionType" }, { "type": "null" }]
+        },
+        "kernel": { "type": ["string", "null"] },
+        "shell": { "type": ["string", "null"] },
+        "locale": { "type": ["string", "null"] }
+      }
+    },
+    "EngineFact": {
+      "type": "object",
+      "required": ["name", "framework", "is_vietnamese", "is_registered"],
+      "additionalProperties": false,
+      "properties": {
+        "name": { "type": "string" },
+        "package": { "type": ["string", "null"] },
+        "version": { "type": ["string", "null"] },
+        "framework": { "$ref": "#/$defs/ImFramework" },
+        "is_vietnamese": { "type": "boolean" },
+        "is_registered": { "type": "boolean" }
+      }
+    },
+    "IbusFacts": {
+      "type": "object",
+      "required": ["daemon_running", "registered_engines"],
+      "additionalProperties": false,
+      "properties": {
+        "version": { "type": ["string", "null"] },
+        "daemon_running": { "type": "boolean" },
+        "daemon_pid": { "type": ["integer", "null"], "minimum": 0 },
+        "config_dir": { "type": ["string", "null"] },
+        "registered_engines": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "Fcitx5Facts": {
+      "type": "object",
+      "required": [
+        "daemon_running",
+        "addons_enabled",
+        "input_methods_configured"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "version": { "type": ["string", "null"] },
+        "daemon_running": { "type": "boolean" },
+        "daemon_pid": { "type": ["integer", "null"], "minimum": 0 },
+        "config_dir": { "type": ["string", "null"] },
+        "addons_enabled": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "input_methods_configured": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "ImFacts": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "active_framework": { "$ref": "#/$defs/ActiveFramework" },
+        "ibus": {
+          "oneOf": [{ "$ref": "#/$defs/IbusFacts" }, { "type": "null" }]
+        },
+        "fcitx5": {
+          "oneOf": [{ "$ref": "#/$defs/Fcitx5Facts" }, { "type": "null" }]
+        },
+        "engines": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/EngineFact" }
+        }
+      }
+    },
+    "AppKind": {
+      "description": "Serde-tagged union: each variant carries a `kind` discriminator. `flatpak` carries `sandbox_id`; `snap` carries `name`.",
+      "type": "object",
+      "required": ["kind"],
+      "properties": {
+        "kind": {
+          "type": "string",
+          "enum": [
+            "native",
+            "electron",
+            "chromium",
+            "jvm",
+            "flatpak",
+            "snap",
+            "app_image"
+          ]
+        },
+        "sandbox_id": { "type": "string" },
+        "name": { "type": "string" }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "flatpak" } } },
+          "then": { "required": ["sandbox_id"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "snap" } } },
+          "then": { "required": ["name"] }
+        }
+      ]
+    },
+    "AppFacts": {
+      "type": "object",
+      "required": ["app_id", "binary_path", "kind", "detector_notes"],
+      "additionalProperties": false,
+      "properties": {
+        "app_id": { "type": "string" },
+        "binary_path": { "type": "string" },
+        "version": { "type": ["string", "null"] },
+        "kind": { "$ref": "#/$defs/AppKind" },
+        "electron_version": { "type": ["string", "null"] },
+        "uses_wayland": { "type": ["boolean", "null"] },
+        "detector_notes": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "Facts": {
+      "type": "object",
+      "required": ["system", "im", "env"],
+      "additionalProperties": false,
+      "properties": {
+        "system": { "$ref": "#/$defs/SystemFacts" },
+        "im": { "$ref": "#/$defs/ImFacts" },
+        "env": { "$ref": "#/$defs/EnvFacts" },
+        "apps": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/AppFacts" },
+          "default": []
+        }
+      }
+    },
+    "Issue": {
+      "type": "object",
+      "required": ["id", "severity", "title", "detail", "facts_evidence"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "description": "Stable `VD###` id. External integrations pattern-match on this.",
+          "type": "string",
+          "pattern": "^VD[0-9]{3}$"
+        },
+        "severity": { "$ref": "#/$defs/Severity" },
+        "title": { "type": "string" },
+        "detail": { "type": "string" },
+        "facts_evidence": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "recommendation": {
+          "type": ["string", "null"],
+          "pattern": "^VR[0-9]{3}$"
+        }
+      }
+    },
+    "Recommendation": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "description",
+        "commands",
+        "safe_to_run_unattended",
+        "references"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^VR[0-9]{3}$"
+        },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "commands": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "safe_to_run_unattended": { "type": "boolean" },
+        "references": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
+      }
+    },
+    "Anomaly": {
+      "type": "object",
+      "required": ["detector", "reason"],
+      "additionalProperties": false,
+      "properties": {
+        "detector": { "type": "string" },
+        "reason": { "type": "string" }
+      }
+    }
+  }
+}

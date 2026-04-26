@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Maintainer: VietIME Suite contributors <vietime@vietime.io>
+pkgname=vietime-doctor-bin
+pkgver=0.1.0
+pkgrel=1
+pkgdesc="Diagnose Vietnamese input method setup on Linux (pre-built binary)"
+arch=('x86_64' 'aarch64')
+url="https://github.com/vietime/vietime"
+license=('GPL3')
+provides=('vietime-doctor')
+conflicts=('vietime-doctor' 'vietime-doctor-git')
+# Runtime deps are soft — the Doctor reports on them, not against them.
+# Listed as `optdepends` so users can pull whichever framework they use.
+optdepends=(
+    'ibus: detected Vietnamese engines via IBus'
+    'fcitx5: detected Vietnamese engines via Fcitx5'
+)
+source_x86_64=("vietime-doctor-${pkgver}-x86_64.tar.gz::${url}/releases/download/v${pkgver}/vietime-doctor-${pkgver}-x86_64-unknown-linux-gnu.tar.gz")
+source_aarch64=("vietime-doctor-${pkgver}-aarch64.tar.gz::${url}/releases/download/v${pkgver}/vietime-doctor-${pkgver}-aarch64-unknown-linux-gnu.tar.gz")
+# Updated by `updpkgsums` against the real release artifacts. `SKIP` here
+# keeps the PKGBUILD publishable before the first tag; replace before push.
+sha256sums_x86_64=('SKIP')
+sha256sums_aarch64=('SKIP')
+
+package() {
+    cd "${srcdir}"
+    install -Dm755 vietime-doctor "${pkgdir}/usr/bin/vietime-doctor"
+    install -Dm644 README.md     "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+    install -Dm644 CHANGELOG.md  "${pkgdir}/usr/share/doc/${pkgname}/CHANGELOG.md"
+    install -Dm644 LICENSE       "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

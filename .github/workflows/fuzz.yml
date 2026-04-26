@@ -1,0 +1,44 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Nightly + on-demand cargo-fuzz soak for the two hand-rolled parsers in
+# vietime-core. Scoped to 60 s per target so the run completes inside the
+# free-tier GHA budget. Hits are surfaced as workflow failures but do NOT
+# gate PRs — merges go through the `ci.yml` workflow.
+
+name: Fuzz
+
+on:
+  schedule:
+    - cron: "17 4 * * *"   # ~04:17 UTC nightly
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  fuzz:
+    name: cargo-fuzz (${{ matrix.target }})
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        target: [parse_etc_environment, os_release]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@nightly
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: fuzz
+          cache-on-failure: true
+      - run: cargo install cargo-fuzz --locked
+      - name: Fuzz ${{ matrix.target }} for 60 s
+        working-directory: fuzz
+        run: cargo +nightly fuzz run ${{ matrix.target }} -- -max_total_time=60
+      - name: Upload crash artifacts (if any)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: fuzz-artifacts-${{ matrix.target }}
+          path: fuzz/artifacts/${{ matrix.target }}
+          if-no-files-found: ignore

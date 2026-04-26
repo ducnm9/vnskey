@@ -15,14 +15,16 @@ use anyhow::Context;
 use clap::{Parser, Subcommand};
 use tracing::info;
 
+use vietime_core::{redact_report, RedactContext};
+
 use vietime_doctor::checker::Checker;
 use vietime_doctor::checkers::list_all as list_all_checkers;
 use vietime_doctor::detector::{Detector, DetectorContext};
 use vietime_doctor::detectors::{
     DesktopDetector, DistroDetector, ElectronAppDetector, EtcEnvironmentDetector,
     EtcProfileDDetector, Fcitx5ConfigDetector, Fcitx5DaemonDetector, GenericAppDetector,
-    HomeProfileDetector, IbusDaemonDetector, IbusEnginesDetector, PackageEnginesDetector,
-    ProcessEnvDetector, SessionDetector, SystemdEnvDetector,
+    HomeProfileDetector, IbusDaemonDetector, IbusEnginesDetector, LocaleDetector,
+    PackageEnginesDetector, ProcessEnvDetector, SessionDetector, SystemdEnvDetector,
 };
 use vietime_doctor::render::{render, render_json, RenderOptions};
 use vietime_doctor::{Orchestrator, OrchestratorConfig};
@@ -146,7 +148,12 @@ async fn dispatch(cli: Cli) -> ExitCode {
             let orch = build_orchestrator(cli.app.as_deref());
             let mut ctx = DetectorContext::from_current_process();
             ctx.target_app.clone_from(&cli.app);
-            let report = orch.run(&ctx).await;
+            let mut report = orch.run(&ctx).await;
+            // `check` output never prints raw facts, but we still scrub
+            // the report so the 1-line status and any follow-up tooling
+            // that reads stderr see redacted data too. `--no-redact` is
+            // honored consistently across every subcommand.
+            apply_redaction(&mut report, cli.no_redact);
             let status = match report.exit_code() {
                 0 => "ok",
                 1 => "warn",
@@ -166,7 +173,8 @@ async fn dispatch(cli: Cli) -> ExitCode {
             let mut ctx = DetectorContext::from_current_process();
             ctx.target_app.clone_from(&cli.app);
             info!(detectors = orch.detectors().len(), "running detectors");
-            let report = orch.run(&ctx).await;
+            let mut report = orch.run(&ctx).await;
+            apply_redaction(&mut report, cli.no_redact);
 
             let rendered = if cli.json {
                 match render_json(&report).context("serialise report as JSON") {
@@ -205,11 +213,30 @@ async fn dispatch(cli: Cli) -> ExitCode {
     }
 }
 
+/// Apply the PII redactor in place unless the user passed `--no-redact`.
+///
+/// The redact context is sourced from the current process environment
+/// (`$USER` and `hostname(1)`). When `no_redact` is `true` we emit a
+/// stderr warning so the escape-hatch is visible — users who forget the
+/// flag on their terminal still get scrubbed output by default.
+fn apply_redaction(report: &mut vietime_core::Report, no_redact: bool) {
+    if no_redact {
+        eprintln!(
+            "vietime-doctor: warning: --no-redact is set. The report will include your \
+             username, hostname, and raw paths. Only share this with people you trust."
+        );
+        return;
+    }
+    let ctx = RedactContext::from_env();
+    redact_report(report, &ctx);
+}
+
 fn build_orchestrator(target_app: Option<&str>) -> Orchestrator {
     let mut orch = Orchestrator::new(OrchestratorConfig::default());
     let mut detectors: Vec<Arc<dyn Detector>> = vec![
         Arc::new(DistroDetector::new()),
         Arc::new(SessionDetector::new()),
+        Arc::new(LocaleDetector::new()),
         Arc::new(DesktopDetector::new()),
         Arc::new(ProcessEnvDetector::new()),
         Arc::new(EtcEnvironmentDetector::new()),

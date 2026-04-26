@@ -1,0 +1,52 @@
+---
+source: crates/vietime-doctor/tests/render_snapshots.rs
+expression: out
+---
+# VietIME Doctor Report
+Generated: 2026-04-25T10:23:11+00:00
+vietime-doctor v0.1.0
+
+## Environment
+- Distro: Arch Linux
+- Desktop: KDE Plasma 6.0
+- Session: x11
+- Kernel: 6.9.1-arch1-1
+- Shell: fish
+- Locale: en_US.UTF-8
+
+## IM Framework
+- Active: conflict (both IBus and Fcitx5 active)
+- IBus: running, version 1.5.30
+- Fcitx5: running, version 5.1.12
+
+### Engines
+- Bamboo (Ibus)
+- bamboo (Fcitx5)
+
+## Environment Variables
+
+| Var | Value | Source |
+|---|---|---|
+| GTK_IM_MODULE | fcitx | process |
+| QT_IM_MODULE | ibus | /etc/environment |
+| XMODIFIERS | @im=ibus | /etc/environment |
+
+## Checks
+- [error] Both IBus and Fcitx5 daemons are running — Only one IM framework should own the IM socket at a time.
+- [error] IM env vars disagree with the active framework — GTK_IM_MODULE points at fcitx but QT_IM_MODULE / XMODIFIERS point at ibus.
+
+## Recommendations
+
+### VR002: Stop the non-preferred IM daemon [review before running]
+Pick one framework and disable the other.
+
+```
+systemctl --user disable --now ibus
+```
+
+### VR003: Align IM env vars with the active framework [review before running]
+Set GTK/QT/XMODIFIERS/SDL_IM_MODULE to one consistent value.
+
+```
+export GTK_IM_MODULE=fcitx
+```

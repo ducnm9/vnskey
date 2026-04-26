@@ -25,6 +25,7 @@ pub mod engine;
 pub mod env;
 pub mod im_framework;
 pub mod issue;
+pub mod redact;
 pub mod report;
 pub mod session;
 
@@ -34,6 +35,7 @@ pub use engine::{is_vietnamese_engine, AppFacts, AppKind, EngineFact, Fcitx5Fact
 pub use env::{parse_etc_environment, EnvFacts, EnvSource, IM_ENV_KEYS};
 pub use im_framework::ImFramework;
 pub use issue::{Issue, Recommendation, Severity};
+pub use redact::{redact_report, scrub, RedactContext};
 pub use report::{
     ActiveFramework, Anomaly, Facts, ImFacts, Report, SystemFacts, REPORT_SCHEMA_VERSION,
 };

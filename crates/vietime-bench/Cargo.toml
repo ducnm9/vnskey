@@ -24,7 +24,7 @@ path = "src/main.rs"
 
 [dependencies]
 vietime-core = { workspace = true }
-vietime-installer = { path = "../vietime-installer", version = "0.0.1" }
+vietime-installer = { path = "../vietime-installer", version = "0.1.0" }
 anyhow = { workspace = true }
 clap = { workspace = true }
 serde = { workspace = true }

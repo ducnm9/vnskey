@@ -1,0 +1,42 @@
+---
+source: crates/vietime-doctor/tests/render_snapshots.rs
+expression: out
+---
+# VietIME Doctor Report
+Generated: 2026-04-25T10:23:11+00:00
+vietime-doctor v0.1.0
+
+## Environment
+- Distro: openSUSE Tumbleweed
+- Desktop: KDE Plasma 6.0
+- Session: wayland
+- Kernel: 6.9.1-1-default
+- Shell: bash
+- Locale: en_US.UTF-8
+
+## IM Framework
+- Active: Fcitx5
+- Fcitx5: running, version 5.1.12
+
+### Engines
+- bamboo (Fcitx5)
+
+## Environment Variables
+
+| Var | Value | Source |
+|---|---|---|
+| GTK_IM_MODULE | fcitx | process |
+| QT_IM_MODULE | fcitx | process |
+| XMODIFIERS | @im=fcitx | process |
+
+## Checks
+- [warn] SDL_IM_MODULE is not set — Games and SDL-based apps won't route IME events without this variable.
+
+## Recommendations
+
+### VR004: Export SDL_IM_MODULE [safe to run unattended]
+Persist SDL_IM_MODULE alongside the other IM env vars.
+
+```
+export SDL_IM_MODULE=fcitx
+```

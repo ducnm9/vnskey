@@ -1531,7 +1531,7 @@ checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
 
 [[package]]
 name = "vietime-bench"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1552,9 +1552,10 @@ dependencies = [
 
 [[package]]
 name = "vietime-core"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "chrono",
+ "regex",
  "rstest",
  "serde",
  "serde_json",
@@ -1564,7 +1565,7 @@ dependencies = [
 
 [[package]]
 name = "vietime-doctor"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",
@@ -1587,7 +1588,7 @@ dependencies = [
 
 [[package]]
 name = "vietime-installer"
-version = "0.0.1"
+version = "0.1.0"
 dependencies = [
  "anyhow",
  "async-trait",

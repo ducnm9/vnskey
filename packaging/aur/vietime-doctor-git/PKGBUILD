@@ -1,0 +1,46 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# Maintainer: VietIME Suite contributors <vietime@vietime.io>
+pkgname=vietime-doctor-git
+pkgver=0.1.0.r0.g0000000
+pkgrel=1
+pkgdesc="Diagnose Vietnamese input method setup on Linux (git HEAD)"
+arch=('x86_64' 'aarch64')
+url="https://github.com/vietime/vietime"
+license=('GPL3')
+makedepends=('git' 'rust' 'cargo')
+provides=('vietime-doctor')
+conflicts=('vietime-doctor' 'vietime-doctor-bin')
+optdepends=(
+    'ibus: detected Vietnamese engines via IBus'
+    'fcitx5: detected Vietnamese engines via Fcitx5'
+)
+source=("${pkgname}::git+${url}.git")
+sha256sums=('SKIP')
+
+pkgver() {
+    cd "${srcdir}/${pkgname}"
+    # Produce `<last tag>.r<commits since tag>.g<short hash>` per Arch
+    # rules; falls back to `0.0.0` when no tag exists yet.
+    git describe --long --tags 2>/dev/null | sed 's/^v//;s/-/.r/;s/-g/.g/' \
+        || printf '0.0.0.r%s.g%s' "$(git rev-list --count HEAD)" "$(git rev-parse --short HEAD)"
+}
+
+build() {
+    cd "${srcdir}/${pkgname}"
+    cargo build --release --locked -p vietime-doctor
+}
+
+check() {
+    cd "${srcdir}/${pkgname}"
+    cargo test --release --locked -p vietime-doctor
+}
+
+package() {
+    cd "${srcdir}/${pkgname}"
+    install -Dm755 target/release/vietime-doctor      "${pkgdir}/usr/bin/vietime-doctor"
+    install -Dm644 docs/user/en/README.md             "${pkgdir}/usr/share/doc/${pkgname}/README.md"
+    install -Dm644 docs/user/en/CHECKS.md             "${pkgdir}/usr/share/doc/${pkgname}/CHECKS.md"
+    install -Dm644 docs/user/en/GLOSSARY.md           "${pkgdir}/usr/share/doc/${pkgname}/GLOSSARY.md"
+    install -Dm644 CHANGELOG.md                       "${pkgdir}/usr/share/doc/${pkgname}/CHANGELOG.md"
+    install -Dm644 LICENSE                            "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}

@@ -37,3 +37,10 @@ docs/book/
 
 # Scheduled scripts side-effects
 /scripts/*.out
+
+# cargo-fuzz artifacts (crashes / corpus / coverage)
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/
+/fuzz/coverage/
+/fuzz/Cargo.lock

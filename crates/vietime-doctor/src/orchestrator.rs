@@ -104,6 +104,7 @@ impl Orchestrator {
                 session: partial.session,
                 kernel: partial.kernel,
                 shell: partial.shell,
+                locale: partial.locale,
             },
             im: ImFacts {
                 // `active_framework` is derived in a later phase (checker

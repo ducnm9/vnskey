@@ -1,25 +1,32 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 //
-// Static recommendation catalogue — VR001…VR008.
+// Static recommendation catalogue — VR001…VR014 (13 entries, VR012 omitted
+// because VD012 is Info-only).
 //
-// Issues emitted by the Week 5 checkers reference a `VR###` id via
-// `Issue::recommendation`. The orchestrator resolves each unique id once
-// per report by calling `lookup(id)` and populates `Report.recommendations`
-// so the renderer can group "fixes that apply" without duplicating the
-// command text per issue.
+// Issues emitted by the Week 5 / Week 6 checkers reference a `VR###` id
+// via `Issue::recommendation`. The orchestrator resolves each unique id
+// once per report by calling `lookup(id)` and populates
+// `Report.recommendations` so the renderer can group "fixes that apply"
+// without duplicating the command text per issue.
 //
 // Spec ref: `spec/01-phase1-doctor.md` §A.5, §B.4.
 
 use vietime_core::Recommendation;
 
+/// Total entries in the catalogue. Sized as a named constant so the
+/// `catalogue` return type, `all_has_N_entries` test, and the `lookup`
+/// tests all read from a single source of truth — we don't want the type
+/// and the tests to drift when Week 7 adds more.
+pub const CATALOGUE_LEN: usize = 13;
+
 /// Build the full catalogue. Called once on demand by `lookup` — the
 /// recommendations hold `Vec`/`String` fields so a `static` wouldn't be
 /// `const`-friendly without a lot of `&'static str` gymnastics. The cost
-/// (rebuilding 8 structs on each `lookup` call) is negligible; the whole
+/// (rebuilding the entries on each `lookup` call) is negligible; the whole
 /// catalogue is built once per Doctor run.
 #[must_use]
 #[allow(clippy::too_many_lines)]
-fn catalogue() -> [Recommendation; 8] {
+fn catalogue() -> [Recommendation; CATALOGUE_LEN] {
     [
         Recommendation {
             id: "VR001".to_owned(),
@@ -163,6 +170,109 @@ fn catalogue() -> [Recommendation; 8] {
             references: vec!["https://wiki.archlinux.org/title/Chromium#Native_Wayland_support"
                 .to_owned()],
         },
+        Recommendation {
+            id: "VR009".to_owned(),
+            title: "Consolidate IM env vars into a single config file".to_owned(),
+            description: "GTK_IM_MODULE, QT_IM_MODULE and XMODIFIERS are set \
+                 in multiple places (/etc/environment, ~/.profile, \
+                 systemd --user …) with conflicting values. Pick one file \
+                 and define all three keys there, identically."
+                .to_owned(),
+            commands: vec![
+                "# Inspect every source:".to_owned(),
+                "systemctl --user show-environment | grep _IM_MODULE".to_owned(),
+                "grep _IM_MODULE /etc/environment ~/.profile ~/.bash_profile 2>/dev/null"
+                    .to_owned(),
+                "# Then remove the stray entries and keep a single authoritative file.".to_owned(),
+            ],
+            safe_to_run_unattended: false,
+            references: vec![
+                "https://wiki.archlinux.org/title/Environment_variables".to_owned(),
+            ],
+        },
+        Recommendation {
+            id: "VR010".to_owned(),
+            title: "Replace the VSCode Snap with a .deb or Flatpak build".to_owned(),
+            description: "Snap confinement strips IM env vars, which is why \
+                 Vietnamese input works everywhere except the Snap VSCode \
+                 window. Install the `.deb` from code.visualstudio.com or \
+                 the com.visualstudio.code Flatpak — both honour \
+                 GTK_IM_MODULE."
+                .to_owned(),
+            commands: vec![
+                "# Remove the Snap:".to_owned(),
+                "sudo snap remove code".to_owned(),
+                "# Install the .deb (Debian/Ubuntu):".to_owned(),
+                "sudo apt install ./code_<version>_amd64.deb".to_owned(),
+                "# Or Flatpak:".to_owned(),
+                "flatpak install flathub com.visualstudio.code".to_owned(),
+            ],
+            safe_to_run_unattended: false,
+            references: vec![
+                "https://code.visualstudio.com/docs/setup/linux".to_owned(),
+                "https://flathub.org/apps/com.visualstudio.code".to_owned(),
+            ],
+        },
+        Recommendation {
+            id: "VR011".to_owned(),
+            title: "Expose the IM socket to the Flatpak sandbox".to_owned(),
+            description: "The Flatpak'd app can't see ibus-daemon or fcitx5 \
+                 because its sandbox namespace hides the unix socket. Add \
+                 a `flatpak override` to expose it, then relaunch the app."
+                .to_owned(),
+            commands: vec![
+                "# IBus:".to_owned(),
+                "flatpak override --user --socket=session-bus --env=GTK_IM_MODULE=ibus \
+                 --env=QT_IM_MODULE=ibus --env=XMODIFIERS=@im=ibus <app-id>"
+                    .to_owned(),
+                "# Fcitx5:".to_owned(),
+                "flatpak override --user --socket=wayland --socket=session-bus \
+                 --env=GTK_IM_MODULE=fcitx --env=QT_IM_MODULE=fcitx \
+                 --env=XMODIFIERS=@im=fcitx <app-id>"
+                    .to_owned(),
+            ],
+            safe_to_run_unattended: false,
+            references: vec![
+                "https://docs.flatpak.org/en/latest/sandbox-permissions.html".to_owned(),
+            ],
+        },
+        Recommendation {
+            id: "VR013".to_owned(),
+            title: "Enable the missing Fcitx5 session addon".to_owned(),
+            description: "Fcitx5 on Wayland needs the `wayland-im` addon; on \
+                 X11 it needs `xim`. Without the matching addon, keyboard \
+                 events never reach the engine. Open fcitx5-configtool and \
+                 enable it under `Addons`."
+                .to_owned(),
+            commands: vec![
+                "fcitx5-configtool".to_owned(),
+                "# Then `Addons → Wayland` (or `XIM`) → Enable".to_owned(),
+                "# Persist by restarting the daemon:".to_owned(),
+                "pkill -x fcitx5 && fcitx5 -d".to_owned(),
+            ],
+            safe_to_run_unattended: false,
+            references: vec!["https://fcitx-im.org/wiki/Using_Fcitx_5_on_Wayland".to_owned()],
+        },
+        Recommendation {
+            id: "VR014".to_owned(),
+            title: "Switch the active locale to a UTF-8 variant".to_owned(),
+            description: "Vietnamese engines emit UTF-8 commit strings. A \
+                 non-UTF-8 locale (C / POSIX / ISO-8859-*) mangles the \
+                 output at the libc boundary. Generate a UTF-8 locale and \
+                 set it as the default."
+                .to_owned(),
+            commands: vec![
+                "# Debian/Ubuntu:".to_owned(),
+                "sudo locale-gen en_US.UTF-8 vi_VN.UTF-8".to_owned(),
+                "sudo update-locale LANG=en_US.UTF-8".to_owned(),
+                "# Fedora/Arch (systemd):".to_owned(),
+                "sudo localectl set-locale LANG=en_US.UTF-8".to_owned(),
+            ],
+            safe_to_run_unattended: true,
+            references: vec![
+                "https://wiki.archlinux.org/title/Locale".to_owned(),
+            ],
+        },
     ]
 }
 
@@ -186,7 +296,10 @@ mod tests {
 
     #[test]
     fn lookup_finds_each_known_id() {
-        for id in ["VR001", "VR002", "VR003", "VR004", "VR005", "VR006", "VR007", "VR008"] {
+        for id in [
+            "VR001", "VR002", "VR003", "VR004", "VR005", "VR006", "VR007", "VR008", "VR009",
+            "VR010", "VR011", "VR013", "VR014",
+        ] {
             let r = lookup(id).expect("recommendation must exist");
             assert_eq!(r.id, id);
             assert!(!r.title.is_empty());
@@ -201,15 +314,25 @@ mod tests {
     }
 
     #[test]
-    fn all_has_eight_entries() {
-        assert_eq!(all().len(), 8);
+    fn vr012_is_intentionally_absent() {
+        // VD012 is Info-only and has no fix attached — the empty slot
+        // keeps VR ids aligned with VD ids for the entries that DO have
+        // a fix. Asserting here prevents a future copy-paste from
+        // accidentally introducing a VR012 entry.
+        assert!(lookup("VR012").is_none(), "VD012 is Info-only; VR012 must not exist");
+    }
+
+    #[test]
+    fn all_has_thirteen_entries() {
+        assert_eq!(all().len(), CATALOGUE_LEN);
     }
 
     #[test]
     fn unattended_flags_match_spec() {
         // Fixes that require picking between IBus and Fcitx5 (or running
-        // config tools) are NOT safe to run unattended. Env-var tweaks
-        // and Ozone flags ARE.
+        // config tools, editing config files, or removing a Snap) are
+        // NOT safe to run unattended. Pure env-var tweaks and Ozone
+        // flags ARE.
         assert!(!lookup("VR001").expect("VR001").safe_to_run_unattended);
         assert!(!lookup("VR002").expect("VR002").safe_to_run_unattended);
         assert!(!lookup("VR003").expect("VR003").safe_to_run_unattended);
@@ -218,5 +341,10 @@ mod tests {
         assert!(!lookup("VR006").expect("VR006").safe_to_run_unattended);
         assert!(lookup("VR007").expect("VR007").safe_to_run_unattended);
         assert!(lookup("VR008").expect("VR008").safe_to_run_unattended);
+        assert!(!lookup("VR009").expect("VR009").safe_to_run_unattended);
+        assert!(!lookup("VR010").expect("VR010").safe_to_run_unattended);
+        assert!(!lookup("VR011").expect("VR011").safe_to_run_unattended);
+        assert!(!lookup("VR013").expect("VR013").safe_to_run_unattended);
+        assert!(lookup("VR014").expect("VR014").safe_to_run_unattended);
     }
 }

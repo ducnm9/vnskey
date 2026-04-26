@@ -107,6 +107,11 @@ pub struct SystemFacts {
     pub session: Option<SessionType>,
     pub kernel: Option<String>,
     pub shell: Option<String>,
+    /// The effective locale (value of `LC_ALL` if set, else `LC_CTYPE`,
+    /// else `LANG`). `None` when none of the three are set.
+    /// Populated by the Week-6 `LocaleDetector`.
+    #[serde(default)]
+    pub locale: Option<String>,
 }
 
 /// IM-framework facts. `active_framework` is a derived summary; the per-

@@ -38,3 +38,32 @@ zbus = { workspace = true }
 rstest = { workspace = true }
 tokio-test = { workspace = true }
 insta = { workspace = true }
+
+# ─── Packaging ────────────────────────────────────────────────────────────
+
+# cargo-deb metadata. Build with:
+#   cargo install cargo-deb
+#   cargo deb -p vietime-doctor
+# The output lands in target/debian/vietime-doctor_<ver>_<arch>.deb.
+[package.metadata.deb]
+maintainer = "VietIME Suite contributors <vietime@vietime.io>"
+copyright = "2026 VietIME Suite contributors"
+license-file = ["../../LICENSE", "4"]
+extended-description = """\
+vietime-doctor is a diagnostic-only tool that inspects a Linux desktop \
+for the common causes of broken Vietnamese typing: missing IM daemons, \
+mismatched environment variables, Electron apps launched without \
+Ozone/Wayland, and related issues. The Doctor never modifies system \
+state — it only reports, with stable VD###/VR### identifiers so output \
+is safe to cite in bug reports."""
+depends = "$auto"
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/vietime-doctor", "usr/bin/", "755"],
+    ["../../docs/user/en/README.md", "usr/share/doc/vietime-doctor/README.md", "644"],
+    ["../../docs/user/en/CHECKS.md", "usr/share/doc/vietime-doctor/CHECKS.md", "644"],
+    ["../../docs/user/en/GLOSSARY.md", "usr/share/doc/vietime-doctor/GLOSSARY.md", "644"],
+    ["../../docs/user/vi/README.md", "usr/share/doc/vietime-doctor/README.vi.md", "644"],
+    ["../../CHANGELOG.md", "usr/share/doc/vietime-doctor/CHANGELOG.md", "644"],
+]

@@ -29,7 +29,7 @@ vietime-doctor v0.0.1
 
 ## Recommendations
 
-### VR001: Pick one IM framework
+### VR001: Pick one IM framework [review before running]
 Disable whichever framework you are not using.
 
 ```

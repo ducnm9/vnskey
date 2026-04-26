@@ -1,0 +1,35 @@
+---
+source: crates/vietime-doctor/tests/render_snapshots.rs
+expression: out
+---
+# VietIME Doctor Report
+Generated: 2026-04-25T10:23:11+00:00
+vietime-doctor v0.1.0
+
+## Environment
+- Distro: Fedora Linux 40 (Workstation Edition)
+- Desktop: GNOME 46
+- Session: wayland
+- Kernel: 6.8.9-300.fc40.x86_64
+- Shell: bash
+- Locale: en_US.UTF-8
+
+## IM Framework
+- Active: Fcitx5
+- Fcitx5: running, version 5.1.12
+
+### Engines
+- bamboo (Fcitx5)
+
+## Environment Variables
+
+| Var | Value | Source |
+|---|---|---|
+| GTK_IM_MODULE | fcitx | /etc/environment |
+| QT_IM_MODULE | fcitx | /etc/environment |
+| XMODIFIERS | @im=fcitx | /etc/environment |
+| INPUT_METHOD | fcitx | /etc/environment |
+| SDL_IM_MODULE | fcitx | /etc/environment |
+
+## Checks
+- (no issues found)

@@ -17,6 +17,7 @@ pub mod fcitx5_config;
 pub mod fcitx5_daemon;
 pub mod ibus_daemon;
 pub mod ibus_engines;
+pub mod locale;
 pub mod package_engines;
 pub mod session;
 
@@ -33,5 +34,6 @@ pub use fcitx5_config::Fcitx5ConfigDetector;
 pub use fcitx5_daemon::Fcitx5DaemonDetector;
 pub use ibus_daemon::IbusDaemonDetector;
 pub use ibus_engines::IbusEnginesDetector;
+pub use locale::LocaleDetector;
 pub use package_engines::PackageEnginesDetector;
 pub use session::SessionDetector;

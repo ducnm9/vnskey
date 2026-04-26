@@ -148,6 +148,7 @@ mod tests {
             session: Some(SessionType::Wayland),
             kernel: None,
             shell: None,
+            locale: None,
         };
         let im = ImFacts {
             active_framework: ActiveFramework::Ibus,

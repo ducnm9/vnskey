@@ -1,0 +1,43 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# cargo-fuzz harness for the VietIME Doctor env parser.
+#
+# Usage:
+#   rustup install nightly
+#   cargo install cargo-fuzz
+#   cargo +nightly fuzz run parse_etc_environment -- -runs=1000000
+#
+# Kept OUTSIDE of the top-level `[workspace]` because cargo-fuzz
+# requires nightly and injects its own `libfuzzer-sys` build flags
+# that clash with the stable workspace's lint configuration.
+
+[package]
+name = "vietime-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+vietime-core = { path = "../crates/vietime-core" }
+
+[[bin]]
+name = "parse_etc_environment"
+path = "fuzz_targets/parse_etc_environment.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "os_release"
+path = "fuzz_targets/os_release.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]
+# This crate intentionally does NOT inherit from the top-level workspace
+# so cargo-fuzz's build flags stay isolated.

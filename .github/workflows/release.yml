@@ -1,0 +1,179 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# Release pipeline for vietime-doctor.
+#
+# Fires on tags matching `v*` (e.g. `v0.1.0`). Produces:
+#
+#   1. `vietime-doctor-<ver>-x86_64-unknown-linux-gnu.tar.gz`
+#   2. `vietime-doctor-<ver>-aarch64-unknown-linux-gnu.tar.gz`
+#   3. `vietime-doctor_<ver>_amd64.deb`     (cargo-deb)
+#   4. Attached to a GitHub Release with the changelog fragment for that
+#      version auto-extracted from CHANGELOG.md (§[0.1.0]).
+#
+# Each tarball contains: vietime-doctor binary, README.md, CHECKS.md,
+# GLOSSARY.md, CHANGELOG.md, LICENSE. These are what the AUR -bin
+# PKGBUILD consumes.
+
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version string (without leading v)'
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  build-linux:
+    name: build (${{ matrix.target }})
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - target: x86_64-unknown-linux-gnu
+            runner: ubuntu-22.04
+            cross: false
+          - target: aarch64-unknown-linux-gnu
+            runner: ubuntu-22.04
+            cross: true
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Derive version
+        id: ver
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            v="${{ github.event.inputs.version }}"
+          else
+            v="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=${v}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${v}" >> "$GITHUB_OUTPUT"
+
+      - name: Install Rust toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          toolchain: stable
+          targets: ${{ matrix.target }}
+
+      - name: Install cross (aarch64)
+        if: matrix.cross
+        run: cargo install cross --locked
+
+      - name: Build
+        run: |
+          if [[ "${{ matrix.cross }}" == "true" ]]; then
+            cross build --release --locked --target ${{ matrix.target }} -p vietime-doctor
+          else
+            cargo build --release --locked --target ${{ matrix.target }} -p vietime-doctor
+          fi
+
+      - name: Verify binary size (<8 MiB)
+        run: |
+          bin="target/${{ matrix.target }}/release/vietime-doctor"
+          size=$(stat -c%s "$bin")
+          printf 'binary size: %d bytes (%.2f MiB)\n' "$size" "$(echo "$size / 1048576" | bc -l)"
+          if (( size > 8 * 1024 * 1024 )); then
+            echo "::error::binary exceeds 8 MiB budget"; exit 1
+          fi
+
+      - name: Stage tarball
+        run: |
+          stage="vietime-doctor-${{ steps.ver.outputs.version }}-${{ matrix.target }}"
+          mkdir -p "$stage"
+          cp target/${{ matrix.target }}/release/vietime-doctor "$stage/"
+          cp docs/user/en/README.md       "$stage/README.md"
+          cp docs/user/en/CHECKS.md       "$stage/CHECKS.md"
+          cp docs/user/en/GLOSSARY.md     "$stage/GLOSSARY.md"
+          cp CHANGELOG.md                 "$stage/CHANGELOG.md"
+          cp LICENSE                      "$stage/LICENSE"
+          tar -czf "${stage}.tar.gz" "$stage"
+          sha256sum "${stage}.tar.gz" > "${stage}.tar.gz.sha256"
+
+      - name: Upload tarball artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tarball-${{ matrix.target }}
+          path: |
+            vietime-doctor-*.tar.gz
+            vietime-doctor-*.tar.gz.sha256
+
+  build-deb:
+    name: build (.deb, amd64)
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@stable
+      - name: Install cargo-deb
+        run: cargo install cargo-deb --locked
+      - name: Build Debian package
+        run: cargo deb -p vietime-doctor --locked --no-strip
+      - name: Upload .deb artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: debian-amd64
+          path: target/debian/*.deb
+
+  publish:
+    name: publish release
+    needs: [build-linux, build-deb]
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Derive version
+        id: ver
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            v="${{ github.event.inputs.version }}"
+          else
+            v="${GITHUB_REF_NAME#v}"
+          fi
+          echo "version=${v}" >> "$GITHUB_OUTPUT"
+          echo "tag=v${v}" >> "$GITHUB_OUTPUT"
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Flatten artifacts
+        run: |
+          mkdir -p dist
+          find artifacts -type f \( -name '*.tar.gz' -o -name '*.sha256' -o -name '*.deb' \) -exec cp {} dist/ \;
+          ls -lah dist/
+
+      - name: Extract changelog fragment
+        id: changelog
+        run: |
+          v="${{ steps.ver.outputs.version }}"
+          awk -v ver="$v" '
+            $0 ~ "^## \\[" ver "\\]" { on = 1; next }
+            on && /^## \[/          { exit }
+            on                      { print }
+          ' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "## ${v}" > release-notes.md
+            echo "" >> release-notes.md
+            echo "See [CHANGELOG.md](CHANGELOG.md)." >> release-notes.md
+          fi
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.ver.outputs.tag }}
+          name: VietIME Suite ${{ steps.ver.outputs.version }}
+          body_path: release-notes.md
+          draft: false
+          prerelease: false
+          files: |
+            dist/*.tar.gz
+            dist/*.tar.gz.sha256
+            dist/*.deb

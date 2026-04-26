@@ -12,6 +12,7 @@ vietime-doctor v0.0.1
 - Session: wayland
 - Kernel: 6.8.0-45-generic
 - Shell: zsh
+- Locale: en_US.UTF-8
 
 ## IM Framework
 - Active: IBus

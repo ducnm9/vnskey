@@ -18,7 +18,12 @@
       "Bash(INSTA_UPDATE=always cargo test --package vietime-doctor --lib render::)",
       "Bash(awk '{passed+=$4; failed+=$6; ignored+=$8} END {print \"TOTAL: passed=\"passed, \"failed=\"failed, \"ignored=\"ignored}')",
       "Bash(python3 -c \"import json,sys; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d['facts']['apps'], indent=2\\)\\)\")",
-      "Bash(awk '{ok += $4; fail += $6; ign += $8} END {print \"total passed:\", ok, \"failed:\", fail, \"ignored:\", ign}')"
+      "Bash(awk '{ok += $4; fail += $6; ign += $8} END {print \"total passed:\", ok, \"failed:\", fail, \"ignored:\", ign}')",
+      "Bash(INSTA_UPDATE=always cargo test --package vietime-doctor --lib render::tests::snapshot_ubuntu_ibus_clean)",
+      "Bash(INSTA_UPDATE=always cargo test -p vietime-doctor --test render_snapshots)",
+      "Bash(chmod +x scripts/check-binary-size.sh scripts/maintainer-dry-run.sh)",
+      "Bash(bash scripts/maintainer-dry-run.sh --skip-release)",
+      "Bash(bash scripts/maintainer-dry-run.sh --only fmt)"
     ]
   }
 }

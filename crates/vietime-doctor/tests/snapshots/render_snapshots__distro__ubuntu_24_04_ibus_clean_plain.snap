@@ -1,0 +1,35 @@
+---
+source: crates/vietime-doctor/tests/render_snapshots.rs
+expression: out
+---
+VietIME Doctor Report
+Generated: 2026-04-25T10:23:11+00:00
+vietime-doctor v0.1.0
+
+Environment
+- Distro: Ubuntu 24.04 LTS
+- Desktop: GNOME 46
+- Session: wayland
+- Kernel: 6.8.0-45-generic
+- Shell: zsh
+- Locale: en_US.UTF-8
+
+IM Framework
+- Active: IBus
+- IBus: running, version 1.5.29
+
+Engines
+- Bamboo (Ibus)
+
+Environment Variables
+
+| Var | Value | Source |
+|---|---|---|
+| GTK_IM_MODULE | ibus | process |
+| QT_IM_MODULE | ibus | process |
+| XMODIFIERS | @im=ibus | process |
+| INPUT_METHOD | ibus | process |
+| SDL_IM_MODULE | ibus | process |
+
+Checks
+- (no issues found)

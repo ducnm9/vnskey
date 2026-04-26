@@ -96,6 +96,7 @@ struct SystemCtx {
     session: Option<String>,
     kernel: Option<String>,
     shell: Option<String>,
+    locale: Option<String>,
 }
 
 fn build_system(sf: &SystemFacts) -> SystemCtx {
@@ -115,6 +116,7 @@ fn build_system(sf: &SystemFacts) -> SystemCtx {
         session: sf.session.map(|s| s.as_str().to_owned()),
         kernel: sf.kernel.clone(),
         shell: sf.shell.clone(),
+        locale: sf.locale.clone(),
     }
 }
 
@@ -220,6 +222,8 @@ struct RecCtx {
     title: String,
     description: String,
     commands: Vec<String>,
+    safe_to_run_unattended: bool,
+    references: Vec<String>,
 }
 
 fn rec_ctx(r: &Recommendation) -> RecCtx {
@@ -228,6 +232,8 @@ fn rec_ctx(r: &Recommendation) -> RecCtx {
         title: r.title.clone(),
         description: r.description.clone(),
         commands: r.commands.clone(),
+        safe_to_run_unattended: r.safe_to_run_unattended,
+        references: r.references.clone(),
     }
 }
 
@@ -395,6 +401,7 @@ mod tests {
             session: Some(SessionType::Wayland),
             kernel: Some("6.8.0-45-generic".to_owned()),
             shell: Some("zsh".to_owned()),
+            locale: Some("en_US.UTF-8".to_owned()),
         };
         r.facts.im = ImFacts {
             active_framework: ActiveFramework::Ibus,
@@ -431,6 +438,7 @@ mod tests {
             session: Some(SessionType::X11),
             kernel: None,
             shell: None,
+            locale: None,
         };
         r.facts.im = ImFacts {
             active_framework: ActiveFramework::Conflict,

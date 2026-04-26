@@ -64,6 +64,9 @@ pub struct PartialFacts {
     pub session: Option<SessionType>,
     pub kernel: Option<String>,
     pub shell: Option<String>,
+    /// Effective locale string (e.g. `"en_US.UTF-8"`). Populated by the
+    /// Week-6 `LocaleDetector`.
+    pub locale: Option<String>,
     pub ibus: Option<IbusFacts>,
     pub fcitx5: Option<Fcitx5Facts>,
     pub env: Option<EnvFacts>,
