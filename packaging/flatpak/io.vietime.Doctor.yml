@@ -71,6 +71,13 @@ modules:
       - install -Dm644 docs/user/vi/README.md /app/share/doc/vietime-doctor/README.vi.md
       - install -Dm644 CHANGELOG.md /app/share/doc/vietime-doctor/CHANGELOG.md
       - install -Dm644 LICENSE /app/share/licenses/vietime-doctor/LICENSE
+      - install -Dm644 assets/io.vietime.VNSKey.desktop /app/share/applications/io.vietime.VNSKey.desktop
+      - install -Dm644 assets/io.vietime.VNSKey.metainfo.xml /app/share/metainfo/io.vietime.VNSKey.metainfo.xml
+      - |
+        for size in 16 24 32 48 64 128 256 512; do
+          install -Dm644 "assets/icons/hicolor/${size}x${size}/apps/vnskey.png" \
+            "/app/share/icons/hicolor/${size}x${size}/apps/vnskey.png"
+        done
     sources:
       # NOTE: `type: dir` with `path: ../..` is the local-build form.
       # For Flathub publishing this is replaced with a `type: archive`

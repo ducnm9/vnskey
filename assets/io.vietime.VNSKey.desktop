@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Name=VNSKey
+GenericName=Vietnamese Input Method
+GenericName[vi]=Bộ gõ Tiếng Việt
+Comment=Vietnamese input method installer and diagnostics for Linux
+Comment[vi]=Cài đặt và chẩn đoán bộ gõ Tiếng Việt cho Linux
+Exec=vietime-installer
+Icon=vnskey
+Terminal=true
+Categories=Settings;Utility;
+Keywords=vietnamese;input;method;telex;vni;ibus;fcitx5;

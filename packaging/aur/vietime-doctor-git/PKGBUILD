@@ -43,4 +43,10 @@ package() {
     install -Dm644 docs/user/en/GLOSSARY.md           "${pkgdir}/usr/share/doc/${pkgname}/GLOSSARY.md"
     install -Dm644 CHANGELOG.md                       "${pkgdir}/usr/share/doc/${pkgname}/CHANGELOG.md"
     install -Dm644 LICENSE                            "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+
+    # Icons (hicolor theme) — shared with vietime-installer
+    for size in 16 24 32 48 64 128 256 512; do
+        install -Dm644 "assets/icons/hicolor/${size}x${size}/apps/vnskey.png" \
+            "${pkgdir}/usr/share/icons/hicolor/${size}x${size}/apps/vnskey.png"
+    done
 }

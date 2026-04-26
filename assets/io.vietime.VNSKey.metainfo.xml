@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- SPDX-License-Identifier: GPL-3.0-or-later -->
+<component type="desktop-application">
+  <id>io.vietime.VNSKey</id>
+  <metadata_license>GPL-3.0-or-later</metadata_license>
+  <project_license>GPL-3.0-or-later</project_license>
+
+  <name>VNSKey</name>
+  <name xml:lang="vi">VNSKey</name>
+  <summary>Vietnamese input method installer and diagnostics for Linux</summary>
+  <summary xml:lang="vi">Cài đặt và chẩn đoán bộ gõ Tiếng Việt cho Linux</summary>
+
+  <description>
+    <p>
+      VNSKey is a one-click installer and diagnostic tool for Vietnamese input
+      method stacks on Linux. It supports IBus and Fcitx5 frameworks with
+      Bamboo and Unikey engines.
+    </p>
+    <p xml:lang="vi">
+      VNSKey là công cụ cài đặt và chẩn đoán bộ gõ Tiếng Việt cho Linux.
+      Hỗ trợ IBus và Fcitx5 với engine Bamboo và Unikey.
+    </p>
+  </description>
+
+  <launchable type="desktop-id">io.vietime.VNSKey.desktop</launchable>
+
+  <url type="homepage">https://vietime.io</url>
+  <url type="bugtracker">https://github.com/vietime/vietime/issues</url>
+  <url type="vcs-browser">https://github.com/vietime/vietime</url>
+
+  <provides>
+    <binary>vietime-installer</binary>
+    <binary>vietime-doctor</binary>
+  </provides>
+
+  <keywords>
+    <keyword>vietnamese</keyword>
+    <keyword>input method</keyword>
+    <keyword>telex</keyword>
+    <keyword>vni</keyword>
+    <keyword>ibus</keyword>
+    <keyword>fcitx5</keyword>
+  </keywords>
+
+  <content_rating type="oars-1.1" />
+
+  <releases>
+    <release version="0.1.0" date="2026-04-26">
+      <description>
+        <p>Initial release with installer and doctor diagnostic tool.</p>
+      </description>
+    </release>
+  </releases>
+</component>
