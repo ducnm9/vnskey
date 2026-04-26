@@ -15,7 +15,7 @@ use tokio::time::{timeout, Instant};
 
 use crate::session::SessionHandle;
 
-use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
+use super::{xdotool_helper, AppInstance, AppRunner, AppRunnerError};
 
 const ELECTRON_READY_TIMEOUT: Duration = Duration::from_secs(30);
 const ELECTRON_READY_POLL: Duration = Duration::from_millis(500);
@@ -83,32 +83,20 @@ macro_rules! electron_runner {
 
                 tokio::time::sleep(Duration::from_secs(2)).await;
 
-                Ok(AppInstance {
-                    pid,
-                    window_id: Some(window_id),
-                })
+                Ok(AppInstance { pid, window_id: Some(window_id) })
             }
 
-            async fn focus_text_area(
-                &self,
-                inst: &AppInstance,
-            ) -> Result<(), AppRunnerError> {
+            async fn focus_text_area(&self, inst: &AppInstance) -> Result<(), AppRunnerError> {
                 let display = self.display.as_deref().unwrap_or(":99");
                 xdotool_helper::focus_window(display, inst).await
             }
 
-            async fn clear_text_area(
-                &self,
-                inst: &AppInstance,
-            ) -> Result<(), AppRunnerError> {
+            async fn clear_text_area(&self, inst: &AppInstance) -> Result<(), AppRunnerError> {
                 let display = self.display.as_deref().unwrap_or(":99");
                 xdotool_helper::select_all_delete(display, inst).await
             }
 
-            async fn read_text(
-                &self,
-                inst: &AppInstance,
-            ) -> Result<String, AppRunnerError> {
+            async fn read_text(&self, inst: &AppInstance) -> Result<String, AppRunnerError> {
                 let display = self.display.as_deref().unwrap_or(":99");
                 xdotool_helper::copy_and_read_clipboard(display, inst).await
             }

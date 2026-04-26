@@ -148,12 +148,10 @@ impl ImDriver for Fcitx5Driver {
 }
 
 fn dirs_config_fcitx5() -> String {
-    std::env::var("XDG_CONFIG_HOME")
-        .unwrap_or_else(|_| {
-            let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_owned());
-            format!("{home}/.config")
-        })
-        + "/fcitx5"
+    std::env::var("XDG_CONFIG_HOME").unwrap_or_else(|_| {
+        let home = std::env::var("HOME").unwrap_or_else(|_| "/tmp".to_owned());
+        format!("{home}/.config")
+    }) + "/fcitx5"
 }
 
 #[cfg(test)]

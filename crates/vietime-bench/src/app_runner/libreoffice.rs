@@ -14,7 +14,7 @@ use tokio::time::{timeout, Instant};
 
 use crate::session::SessionHandle;
 
-use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
+use super::{xdotool_helper, AppInstance, AppRunner, AppRunnerError};
 
 const LO_READY_TIMEOUT: Duration = Duration::from_secs(20);
 const LO_READY_POLL: Duration = Duration::from_millis(500);
@@ -48,10 +48,7 @@ impl AppRunner for LibreOfficeRunner {
         self.display = Some(session.display.clone());
 
         let mut cmd = Command::new("soffice");
-        cmd.arg("--writer")
-            .arg("--norestore")
-            .env("DISPLAY", &session.display)
-            .kill_on_drop(true);
+        cmd.arg("--writer").arg("--norestore").env("DISPLAY", &session.display).kill_on_drop(true);
 
         let child = cmd.spawn().map_err(|e| match e.kind() {
             std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("soffice"),
@@ -63,9 +60,7 @@ impl AppRunner for LibreOfficeRunner {
         let deadline = Instant::now() + LO_READY_TIMEOUT;
         let window_id;
         loop {
-            if let Ok(wid) =
-                xdotool_helper::search_window(&session.display, "LibreOffice").await
-            {
+            if let Ok(wid) = xdotool_helper::search_window(&session.display, "LibreOffice").await {
                 window_id = wid;
                 break;
             }

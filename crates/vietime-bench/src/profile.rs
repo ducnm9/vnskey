@@ -47,9 +47,7 @@ impl Profile {
                         _ => SessionType::X11,
                     };
                     for mode_str in &self.modes {
-                        let mode = mode_str
-                            .parse::<InputMode>()
-                            .unwrap_or(InputMode::Telex);
+                        let mode = mode_str.parse::<InputMode>().unwrap_or(InputMode::Telex);
                         combos.push(RunCombo {
                             engine: engine.clone(),
                             app_id: app.clone(),
@@ -66,14 +64,10 @@ impl Profile {
 
 /// Load a profile from a TOML file.
 pub fn load_profile(path: &Path) -> Result<Profile, ProfileError> {
-    let content = std::fs::read_to_string(path).map_err(|e| ProfileError::Io {
-        path: path.display().to_string(),
-        source: e,
-    })?;
-    let profile: Profile = toml::from_str(&content).map_err(|e| ProfileError::Parse {
-        path: path.display().to_string(),
-        source: e,
-    })?;
+    let content = std::fs::read_to_string(path)
+        .map_err(|e| ProfileError::Io { path: path.display().to_string(), source: e })?;
+    let profile: Profile = toml::from_str(&content)
+        .map_err(|e| ProfileError::Parse { path: path.display().to_string(), source: e })?;
     Ok(profile)
 }
 

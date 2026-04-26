@@ -32,13 +32,8 @@ impl WestonDriver {
 
     #[must_use]
     pub fn with_display(name: &str) -> Self {
-        let runtime_dir = std::env::var("XDG_RUNTIME_DIR")
-            .unwrap_or_else(|_| "/tmp".to_owned());
-        Self {
-            wayland_display: name.to_owned(),
-            runtime_dir,
-            weston: None,
-        }
+        let runtime_dir = std::env::var("XDG_RUNTIME_DIR").unwrap_or_else(|_| "/tmp".to_owned());
+        Self { wayland_display: name.to_owned(), runtime_dir, weston: None }
     }
 
     #[must_use]
@@ -105,10 +100,7 @@ impl SessionDriver for WestonDriver {
             tokio::time::sleep(WESTON_READY_POLL).await;
         }
 
-        Ok(SessionHandle {
-            display: self.wayland_display.clone(),
-            pids: vec![pid],
-        })
+        Ok(SessionHandle { display: self.wayland_display.clone(), pids: vec![pid] })
     }
 
     async fn stop(&mut self) -> Result<(), SessionError> {
@@ -148,10 +140,7 @@ mod tests {
     #[test]
     fn env_vars_project_wayland() {
         let d = WestonDriver::new();
-        let handle = SessionHandle {
-            display: "wayland-bench-0".to_owned(),
-            pids: vec![1234],
-        };
+        let handle = SessionHandle { display: "wayland-bench-0".to_owned(), pids: vec![1234] };
         let env = d.env_vars(&handle);
         assert!(env.iter().any(|(k, _)| k == "WAYLAND_DISPLAY"));
         assert!(env.iter().any(|(k, _)| k == "XDG_RUNTIME_DIR"));

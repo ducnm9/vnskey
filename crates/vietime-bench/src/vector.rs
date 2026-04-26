@@ -55,24 +55,18 @@ pub enum VectorError {
 
 /// Load a single TOML vector file from disk.
 pub fn load_vector_file(path: &Path) -> Result<VectorFile, VectorError> {
-    let content = std::fs::read_to_string(path).map_err(|e| VectorError::Io {
-        path: path.display().to_string(),
-        source: e,
-    })?;
-    let vf: VectorFile = toml::from_str(&content).map_err(|e| VectorError::Parse {
-        path: path.display().to_string(),
-        source: e,
-    })?;
+    let content = std::fs::read_to_string(path)
+        .map_err(|e| VectorError::Io { path: path.display().to_string(), source: e })?;
+    let vf: VectorFile = toml::from_str(&content)
+        .map_err(|e| VectorError::Parse { path: path.display().to_string(), source: e })?;
     Ok(vf)
 }
 
 /// Load all `*.toml` files from a directory and merge their vectors.
 pub fn load_vectors_from_dir(dir: &Path) -> Result<Vec<TestVector>, VectorError> {
     let mut all = Vec::new();
-    let entries = std::fs::read_dir(dir).map_err(|e| VectorError::Io {
-        path: dir.display().to_string(),
-        source: e,
-    })?;
+    let entries = std::fs::read_dir(dir)
+        .map_err(|e| VectorError::Io { path: dir.display().to_string(), source: e })?;
     let mut paths: Vec<_> = entries
         .filter_map(Result::ok)
         .map(|e| e.path())
@@ -107,10 +101,7 @@ pub fn validate_vectors(vectors: &[TestVector]) -> Result<(), VectorError> {
             messages.push(format!("  {}: expected_output is empty", v.id));
         }
         if !is_nfc(&v.expected_output) {
-            messages.push(format!(
-                "  {}: expected_output is not NFC-normalised",
-                v.id
-            ));
+            messages.push(format!("  {}: expected_output is not NFC-normalised", v.id));
         }
     }
 
@@ -213,10 +204,7 @@ upstream_issue = "https://github.com/example/issue/1"
 
     #[test]
     fn validate_catches_duplicate_ids() {
-        let vecs = vec![
-            vec_with("T001", "aa", "â"),
-            vec_with("T001", "ee", "ê"),
-        ];
+        let vecs = vec![vec_with("T001", "aa", "â"), vec_with("T001", "ee", "ê")];
         let err = validate_vectors(&vecs).unwrap_err();
         let msg = err.to_string();
         assert!(msg.contains("duplicate id"), "{msg}");
@@ -240,10 +228,7 @@ upstream_issue = "https://github.com/example/issue/1"
 
     #[test]
     fn validate_passes_good_vectors() {
-        let vecs = vec![
-            vec_with("T001", "aa", "â"),
-            vec_with("T002", "tieesng", "tiếng"),
-        ];
+        let vecs = vec![vec_with("T001", "aa", "â"), vec_with("T002", "tieesng", "tiếng")];
         validate_vectors(&vecs).unwrap();
     }
 

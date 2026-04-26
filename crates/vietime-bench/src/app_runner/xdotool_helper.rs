@@ -39,9 +39,7 @@ pub async fn search_window(display: &str, name: &str) -> Result<String, AppRunne
             return Ok(first_line.to_owned());
         }
     }
-    Err(AppRunnerError::CaptureFailure(format!(
-        "no window matching '{name}' found"
-    )))
+    Err(AppRunnerError::CaptureFailure(format!("no window matching '{name}' found")))
 }
 
 pub async fn focus_window(display: &str, inst: &AppInstance) -> Result<(), AppRunnerError> {
@@ -75,17 +73,14 @@ pub async fn copy_and_read_clipboard(
     tokio::time::sleep(Duration::from_millis(100)).await;
 
     let mut cmd = Command::new("xclip");
-    cmd.args(["-selection", "clipboard", "-o"])
-        .env("DISPLAY", display);
+    cmd.args(["-selection", "clipboard", "-o"]).env("DISPLAY", display);
     let output = cmd.output().await.map_err(|e| match e.kind() {
         std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("xclip"),
         _ => AppRunnerError::Io(e),
     })?;
 
     if !output.status.success() {
-        if output.stderr.is_empty()
-            || String::from_utf8_lossy(&output.stderr).contains("target")
-        {
+        if output.stderr.is_empty() || String::from_utf8_lossy(&output.stderr).contains("target") {
             return Ok(String::new());
         }
         return Err(AppRunnerError::CaptureFailure(

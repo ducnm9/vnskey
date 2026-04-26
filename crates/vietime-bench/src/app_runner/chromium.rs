@@ -11,7 +11,7 @@ use tokio::time::{timeout, Instant};
 
 use crate::session::SessionHandle;
 
-use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
+use super::{xdotool_helper, AppInstance, AppRunner, AppRunnerError};
 
 const CHROMIUM_READY_TIMEOUT: Duration = Duration::from_secs(20);
 const CHROMIUM_READY_POLL: Duration = Duration::from_millis(500);
@@ -19,12 +19,8 @@ const CHROMIUM_READY_POLL: Duration = Duration::from_millis(500);
 const TEXTAREA_HTML: &str = r#"data:text/html,<html><body><textarea id="t" rows="20" cols="80" autofocus></textarea></body></html>"#;
 
 /// Chromium binary candidates in order of preference.
-const CHROMIUM_BINARIES: &[&str] = &[
-    "chromium-browser",
-    "chromium",
-    "google-chrome-stable",
-    "google-chrome",
-];
+const CHROMIUM_BINARIES: &[&str] =
+    &["chromium-browser", "chromium", "google-chrome-stable", "google-chrome"];
 
 #[derive(Debug)]
 pub struct ChromiumRunner {
@@ -36,11 +32,7 @@ pub struct ChromiumRunner {
 impl ChromiumRunner {
     #[must_use]
     pub fn new() -> Self {
-        Self {
-            display: None,
-            child: None,
-            binary: find_chromium_binary(),
-        }
+        Self { display: None, child: None, binary: find_chromium_binary() }
     }
 }
 

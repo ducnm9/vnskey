@@ -59,9 +59,7 @@ impl ImDriver for IbusDriver {
         self.display = Some(session.display.clone());
 
         let mut cmd = Command::new("ibus-daemon");
-        cmd.arg("--daemonize")
-            .arg("--replace")
-            .arg("--xim");
+        cmd.arg("--daemonize").arg("--replace").arg("--xim");
         for (k, v) in Self::env_for(session) {
             cmd.env(k, v);
         }
@@ -182,10 +180,7 @@ mod tests {
     #[ignore = "requires ibus-daemon on the host"]
     async fn start_stop_round_trip() {
         let mut driver = IbusDriver::new();
-        let session = SessionHandle {
-            display: ":99".to_owned(),
-            pids: vec![],
-        };
+        let session = SessionHandle { display: ":99".to_owned(), pids: vec![] };
         driver.start(&session).await.expect("should start");
         driver.stop().await.expect("should stop");
     }

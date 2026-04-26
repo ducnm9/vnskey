@@ -79,15 +79,10 @@ pub fn aggregate_scores(scores: &[VectorScore]) -> ComboScore {
     let accuracy_pct = f64::from(exact_match_count) / f64::from(vectors_tested) * 100.0;
 
     #[allow(clippy::cast_possible_truncation)]
-    let edit_distance_total =
-        scores.iter().map(|s| s.edit_distance).sum::<usize>() as u32;
+    let edit_distance_total = scores.iter().map(|s| s.edit_distance).sum::<usize>() as u32;
 
-    let weighted_score = 1.0
-        - scores
-            .iter()
-            .map(|s| s.normalised_distance)
-            .sum::<f64>()
-            / f64::from(vectors_tested);
+    let weighted_score =
+        1.0 - scores.iter().map(|s| s.normalised_distance).sum::<f64>() / f64::from(vectors_tested);
 
     ComboScore {
         vectors_tested,
@@ -160,10 +155,7 @@ mod tests {
 
     #[test]
     fn aggregate_mixed_results() {
-        let scores = vec![
-            score_vector("T001", "â", "â"),
-            score_vector("T002", "người", "ngưới"),
-        ];
+        let scores = vec![score_vector("T001", "â", "â"), score_vector("T002", "người", "ngưới")];
         let agg = aggregate_scores(&scores);
         assert_eq!(agg.vectors_tested, 2);
         assert_eq!(agg.exact_match_count, 1);

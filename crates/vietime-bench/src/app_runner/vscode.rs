@@ -11,7 +11,7 @@ use tokio::time::{timeout, Instant};
 
 use crate::session::SessionHandle;
 
-use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
+use super::{xdotool_helper, AppInstance, AppRunner, AppRunnerError};
 
 const VSCODE_READY_TIMEOUT: Duration = Duration::from_secs(30);
 const VSCODE_READY_POLL: Duration = Duration::from_millis(500);
@@ -50,15 +50,10 @@ impl AppRunner for VscodeRunner {
         let _ = std::fs::write(&tmp_file, "");
 
         let mut cmd = Command::new("code");
-        cmd.args([
-            "--no-sandbox",
-            "--disable-gpu",
-            "--disable-extensions",
-            "--new-window",
-        ])
-        .arg(&tmp_file)
-        .env("DISPLAY", &session.display)
-        .kill_on_drop(true);
+        cmd.args(["--no-sandbox", "--disable-gpu", "--disable-extensions", "--new-window"])
+            .arg(&tmp_file)
+            .env("DISPLAY", &session.display)
+            .kill_on_drop(true);
 
         let child = cmd.spawn().map_err(|e| match e.kind() {
             std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("code"),

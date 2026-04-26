@@ -38,4 +38,5 @@ extend-exclude = [
     "**/testdata/**",
     "**/fixtures/**",
     "docs/research/**",
+    "test-vectors/",
 ]

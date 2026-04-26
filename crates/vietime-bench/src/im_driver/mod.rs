@@ -65,6 +65,7 @@ pub fn resolve_im_driver(engine_slug: &str) -> Option<(Box<dyn ImDriver>, String
 }
 
 #[cfg(test)]
+#[allow(clippy::unwrap_used)]
 mod tests {
     use super::*;
 

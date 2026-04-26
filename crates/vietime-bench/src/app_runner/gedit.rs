@@ -11,7 +11,7 @@ use tokio::time::{timeout, Instant};
 
 use crate::session::SessionHandle;
 
-use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
+use super::{xdotool_helper, AppInstance, AppRunner, AppRunnerError};
 
 const GEDIT_READY_TIMEOUT: Duration = Duration::from_secs(10);
 const GEDIT_READY_POLL: Duration = Duration::from_millis(200);
@@ -45,9 +45,7 @@ impl AppRunner for GeditRunner {
         self.display = Some(session.display.clone());
 
         let mut cmd = Command::new("gedit");
-        cmd.arg("--new-document")
-            .env("DISPLAY", &session.display)
-            .kill_on_drop(true);
+        cmd.arg("--new-document").env("DISPLAY", &session.display).kill_on_drop(true);
 
         let child = cmd.spawn().map_err(|e| match e.kind() {
             std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("gedit"),
@@ -120,10 +118,7 @@ mod tests {
     #[tokio::test]
     #[ignore = "requires gedit + xdotool + xclip + a live X server"]
     async fn launch_focus_read_close() {
-        let session = SessionHandle {
-            display: ":99".to_owned(),
-            pids: vec![],
-        };
+        let session = SessionHandle { display: ":99".to_owned(), pids: vec![] };
         let mut runner = GeditRunner::new();
         let inst = runner.launch(&session).await.expect("gedit should launch");
         assert!(inst.window_id.is_some());

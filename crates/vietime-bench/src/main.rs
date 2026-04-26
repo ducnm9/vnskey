@@ -10,7 +10,7 @@
     clippy::single_match_else,
     clippy::uninlined_format_args,
     clippy::format_push_string,
-    clippy::needless_pass_by_value,
+    clippy::needless_pass_by_value
 )]
 
 use std::path::PathBuf;
@@ -64,16 +64,10 @@ fn dispatch(mut cli: Cli) -> ExitCode {
             format.as_deref().unwrap_or("markdown"),
             cli.runs_dir.as_deref(),
         ),
-        Command::Compare { base, head } => dispatch_compare(
-            &base,
-            &head,
-            cli.runs_dir.as_deref(),
-        ),
-        Command::Inspect { run_id, vector_id } => dispatch_inspect(
-            &run_id,
-            &vector_id,
-            cli.runs_dir.as_deref(),
-        ),
+        Command::Compare { base, head } => dispatch_compare(&base, &head, cli.runs_dir.as_deref()),
+        Command::Inspect { run_id, vector_id } => {
+            dispatch_inspect(&run_id, &vector_id, cli.runs_dir.as_deref())
+        }
     }
 }
 
@@ -149,11 +143,7 @@ fn dispatch_run(cli: Cli) -> ExitCode {
     } else {
         vectors
             .into_iter()
-            .filter(|v| {
-                v.tags
-                    .iter()
-                    .any(|t| resolved_profile.vector_tags.contains(t))
-            })
+            .filter(|v| v.tags.iter().any(|t| resolved_profile.vector_tags.contains(t)))
             .collect()
     };
 
@@ -192,39 +182,34 @@ fn dispatch_run(cli: Cli) -> ExitCode {
             );
 
             // Resolve session driver.
-            let mut session_driver =
-                match session::resolve_session(combo.session_type.as_str()) {
-                    Some(d) => d,
-                    None => {
-                        let msg = format!(
-                            "no session driver for {}",
-                            combo.session_type.as_str()
-                        );
-                        eprintln!("  SKIP: {msg}");
-                        run_result.anomalies.push(RunAnomaly {
-                            kind: "SessionSkipped".to_owned(),
-                            detail: msg,
-                            retry_count: 0,
-                        });
-                        continue;
-                    }
-                };
+            let mut session_driver = match session::resolve_session(combo.session_type.as_str()) {
+                Some(d) => d,
+                None => {
+                    let msg = format!("no session driver for {}", combo.session_type.as_str());
+                    eprintln!("  SKIP: {msg}");
+                    run_result.anomalies.push(RunAnomaly {
+                        kind: "SessionSkipped".to_owned(),
+                        detail: msg,
+                        retry_count: 0,
+                    });
+                    continue;
+                }
+            };
 
             // Resolve IM driver.
-            let (mut im_driver, engine_name) =
-                match im_driver::resolve_im_driver(&combo.engine) {
-                    Some(pair) => pair,
-                    None => {
-                        let msg = format!("no IM driver for {}", combo.engine);
-                        eprintln!("  SKIP: {msg}");
-                        run_result.anomalies.push(RunAnomaly {
-                            kind: "ImDriverSkipped".to_owned(),
-                            detail: msg,
-                            retry_count: 0,
-                        });
-                        continue;
-                    }
-                };
+            let (mut im_driver, engine_name) = match im_driver::resolve_im_driver(&combo.engine) {
+                Some(pair) => pair,
+                None => {
+                    let msg = format!("no IM driver for {}", combo.engine);
+                    eprintln!("  SKIP: {msg}");
+                    run_result.anomalies.push(RunAnomaly {
+                        kind: "ImDriverSkipped".to_owned(),
+                        detail: msg,
+                        retry_count: 0,
+                    });
+                    continue;
+                }
+            };
 
             // Resolve app runner.
             let mut app_runner = match app_runner::resolve_app(&combo.app_id) {
@@ -246,9 +231,7 @@ fn dispatch_run(cli: Cli) -> ExitCode {
             run_combo.engine = engine_name;
 
             // Resolve injector based on session type.
-            let display = session_driver
-                .id()
-                .to_owned();
+            let display = session_driver.id().to_owned();
             let injector = injector::resolve_injector(
                 combo.session_type.as_str(),
                 &format!(":{}", 99), // placeholder, real display comes from start()
@@ -353,11 +336,7 @@ fn dispatch_report(
     runs_dir: Option<&std::path::Path>,
 ) -> ExitCode {
     let runs = runs_dir.unwrap_or_else(|| std::path::Path::new("runs"));
-    let run_dir = if let Some(id) = &run_id {
-        runs.join(id)
-    } else {
-        runs.join("latest")
-    };
+    let run_dir = if let Some(id) = &run_id { runs.join(id) } else { runs.join("latest") };
 
     let summary_path = run_dir.join("summary.json");
     if !summary_path.exists() {
@@ -366,10 +345,7 @@ fn dispatch_report(
             .map(|target| runs.join(target).join("summary.json"))
             .unwrap_or(summary_path);
         if !resolved.exists() {
-            eprintln!(
-                "vietime-bench: no run found at {}",
-                run_dir.display()
-            );
+            eprintln!("vietime-bench: no run found at {}", run_dir.display());
             return ExitCode::from(exit::USAGE_ERROR);
         }
         return render_report(&resolved, format);
@@ -394,15 +370,13 @@ fn render_report(summary_path: &std::path::Path, format: &str) -> ExitCode {
     };
 
     match format {
-        "json" => {
-            match serde_json::to_string_pretty(&result) {
-                Ok(j) => println!("{j}"),
-                Err(e) => {
-                    eprintln!("vietime-bench: {e}");
-                    return ExitCode::from(exit::INTERNAL_ERROR);
-                }
+        "json" => match serde_json::to_string_pretty(&result) {
+            Ok(j) => println!("{j}"),
+            Err(e) => {
+                eprintln!("vietime-bench: {e}");
+                return ExitCode::from(exit::INTERNAL_ERROR);
             }
-        }
+        },
         "html" => {
             println!("{}", render_html(&result));
         }
@@ -416,10 +390,7 @@ fn render_report(summary_path: &std::path::Path, format: &str) -> ExitCode {
 fn render_markdown(r: &RunResult) -> String {
     let mut out = String::new();
     out.push_str(&format!("# VietIME Bench — {}\n\n", r.run_id));
-    out.push_str(&format!(
-        "Started: {}  \nFinished: {}\n\n",
-        r.started_at, r.finished_at
-    ));
+    out.push_str(&format!("Started: {}  \nFinished: {}\n\n", r.started_at, r.finished_at));
     out.push_str("| Engine | App | Session | Mode | Accuracy | Exact | Edit Dist | Duration |\n");
     out.push_str("|--------|-----|---------|------|----------|-------|-----------|----------|\n");
     for c in &r.matrix {
@@ -460,10 +431,7 @@ fn render_html(r: &RunResult) -> String {
     out.push_str(".bad { background: #f8d7da; }\n");
     out.push_str("</style>\n</head>\n<body>\n");
     out.push_str(&format!("<h1>VietIME Bench — {}</h1>\n", r.run_id));
-    out.push_str(&format!(
-        "<p>Started: {} | Finished: {}</p>\n",
-        r.started_at, r.finished_at
-    ));
+    out.push_str(&format!("<p>Started: {} | Finished: {}</p>\n", r.started_at, r.finished_at));
     out.push_str("<table>\n<tr><th>Engine</th><th>App</th><th>Session</th><th>Mode</th><th>Accuracy</th><th>Exact</th><th>Edit Dist</th><th>Duration</th></tr>\n");
     for c in &r.matrix {
         let class = if c.score.accuracy_pct >= 95.0 {
@@ -524,12 +492,8 @@ fn dispatch_compare(base: &str, head: &str, runs_dir: Option<&std::path::Path>) 
     };
 
     println!("# Compare: {} vs {}\n", base, head);
-    println!(
-        "| Engine | App | Session | Mode | Base Acc | Head Acc | Delta |"
-    );
-    println!(
-        "|--------|-----|---------|------|----------|----------|-------|"
-    );
+    println!("| Engine | App | Session | Mode | Base Acc | Head Acc | Delta |");
+    println!("|--------|-----|---------|------|----------|----------|-------|");
 
     for hc in &head_result.matrix {
         let base_acc = base_result
@@ -560,11 +524,7 @@ fn dispatch_compare(base: &str, head: &str, runs_dir: Option<&std::path::Path>) 
     ExitCode::from(exit::OK)
 }
 
-fn dispatch_inspect(
-    run_id: &str,
-    vector_id: &str,
-    runs_dir: Option<&std::path::Path>,
-) -> ExitCode {
+fn dispatch_inspect(run_id: &str, vector_id: &str, runs_dir: Option<&std::path::Path>) -> ExitCode {
     let runs = runs_dir.unwrap_or_else(|| std::path::Path::new("runs"));
 
     // Load summary.
@@ -572,10 +532,7 @@ fn dispatch_inspect(
     let content = match std::fs::read_to_string(&summary_path) {
         Ok(c) => c,
         Err(e) => {
-            eprintln!(
-                "vietime-bench: cannot read {}: {e}",
-                summary_path.display()
-            );
+            eprintln!("vietime-bench: cannot read {}: {e}", summary_path.display());
             return ExitCode::from(exit::USAGE_ERROR);
         }
     };
@@ -592,8 +549,13 @@ fn dispatch_inspect(
         for failure in &combo.failures {
             if failure.vector_id == vector_id {
                 println!("Run:       {}", result.run_id);
-                println!("Combo:     {} × {} × {} × {}",
-                    combo.engine, combo.app, combo.session.as_str(), combo.mode.as_str());
+                println!(
+                    "Combo:     {} × {} × {} × {}",
+                    combo.engine,
+                    combo.app,
+                    combo.session.as_str(),
+                    combo.mode.as_str()
+                );
                 println!("Vector:    {}", failure.vector_id);
                 println!("Expected:  {:?}", failure.expected);
                 println!("Actual:    {:?}", failure.actual);
@@ -602,18 +564,20 @@ fn dispatch_inspect(
                     println!("Screenshot: {}", screenshot.display());
                 }
                 println!("\nReproducer:");
-                println!("  vietime-bench run --engine {} --app {} --session {} --mode {}",
-                    combo.engine, combo.app, combo.session.as_str(), combo.mode.as_str());
+                println!(
+                    "  vietime-bench run --engine {} --app {} --session {} --mode {}",
+                    combo.engine,
+                    combo.app,
+                    combo.session.as_str(),
+                    combo.mode.as_str()
+                );
                 return ExitCode::from(exit::OK);
             }
         }
     }
 
     // Also check per-failure JSON files.
-    let failure_path = runs
-        .join(run_id)
-        .join("failures")
-        .join(format!("{vector_id}.json"));
+    let failure_path = runs.join(run_id).join("failures").join(format!("{vector_id}.json"));
     if failure_path.exists() {
         match std::fs::read_to_string(&failure_path) {
             Ok(c) => {
@@ -627,9 +591,7 @@ fn dispatch_inspect(
         }
     }
 
-    eprintln!(
-        "vietime-bench: vector `{vector_id}` not found in run `{run_id}` failures"
-    );
+    eprintln!("vietime-bench: vector `{vector_id}` not found in run `{run_id}` failures");
     ExitCode::from(exit::USAGE_ERROR)
 }
 

@@ -21,9 +21,7 @@ pub struct YdotoolInjector {
 impl YdotoolInjector {
     #[must_use]
     pub fn new(wayland_display: impl Into<String>) -> Self {
-        Self {
-            wayland_display: wayland_display.into(),
-        }
+        Self { wayland_display: wayland_display.into() }
     }
 
     #[must_use]
@@ -65,7 +63,9 @@ impl YdotoolInjector {
         cmd.env("WAYLAND_DISPLAY", &self.wayland_display);
 
         let output = cmd.output().await.map_err(|e| match e.kind() {
-            std::io::ErrorKind::NotFound => InjectorError::BinaryMissing("ydotool (wtype fallback also missing)"),
+            std::io::ErrorKind::NotFound => {
+                InjectorError::BinaryMissing("ydotool (wtype fallback also missing)")
+            }
             _ => InjectorError::Io(e),
         })?;
 
@@ -100,8 +100,6 @@ mod tests {
     #[ignore = "requires ydotool + /dev/uinput + a live Wayland session"]
     async fn ydotool_types_into_wayland() {
         let inj = YdotoolInjector::new("wayland-0");
-        inj.type_raw("aa", 30)
-            .await
-            .expect("ydotool should type cleanly");
+        inj.type_raw("aa", 30).await.expect("ydotool should type cleanly");
     }
 }

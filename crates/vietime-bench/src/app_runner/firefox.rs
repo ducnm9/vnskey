@@ -12,7 +12,7 @@ use tokio::time::{timeout, Instant};
 
 use crate::session::SessionHandle;
 
-use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
+use super::{xdotool_helper, AppInstance, AppRunner, AppRunnerError};
 
 const FIREFOX_READY_TIMEOUT: Duration = Duration::from_secs(20);
 const FIREFOX_READY_POLL: Duration = Duration::from_millis(500);
@@ -65,7 +65,8 @@ impl AppRunner for FirefoxRunner {
         let deadline = Instant::now() + FIREFOX_READY_TIMEOUT;
         let window_id;
         loop {
-            if let Ok(wid) = xdotool_helper::search_window(&session.display, "Mozilla Firefox").await
+            if let Ok(wid) =
+                xdotool_helper::search_window(&session.display, "Mozilla Firefox").await
             {
                 window_id = wid;
                 break;

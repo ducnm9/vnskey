@@ -122,32 +122,22 @@ pub async fn run_combo(
     let start = std::time::Instant::now();
 
     // 1. Start session.
-    let session_handle = session_driver
-        .start()
-        .await
-        .map_err(|e| RunError::Session(e.to_string()))?;
+    let session_handle =
+        session_driver.start().await.map_err(|e| RunError::Session(e.to_string()))?;
 
     // 2. Start IM daemon.
-    im_driver
-        .start(&session_handle)
-        .await
-        .map_err(|e| RunError::ImDriver(e.to_string()))?;
+    im_driver.start(&session_handle).await.map_err(|e| RunError::ImDriver(e.to_string()))?;
 
     // 3. Activate engine + set mode.
     im_driver
         .activate_engine(&combo.engine)
         .await
         .map_err(|e| RunError::ImDriver(e.to_string()))?;
-    im_driver
-        .set_mode(combo.mode)
-        .await
-        .map_err(|e| RunError::ImDriver(e.to_string()))?;
+    im_driver.set_mode(combo.mode).await.map_err(|e| RunError::ImDriver(e.to_string()))?;
 
     // 4. Launch app.
-    let inst = app_runner
-        .launch(&session_handle)
-        .await
-        .map_err(|e| RunError::App(e.to_string()))?;
+    let inst =
+        app_runner.launch(&session_handle).await.map_err(|e| RunError::App(e.to_string()))?;
 
     // 5. Iterate vectors.
     let mut scores = Vec::with_capacity(vectors.len());
@@ -338,9 +328,7 @@ mod tests {
             app: "gedit".to_owned(),
             session: SessionType::X11,
             mode: InputMode::Telex,
-            score: scoring::aggregate_scores(&[
-                scoring::score_vector("T001", "â", "â"),
-            ]),
+            score: scoring::aggregate_scores(&[scoring::score_vector("T001", "â", "â")]),
             failures: vec![],
             duration_ms: 1234,
         });
@@ -367,9 +355,7 @@ mod tests {
             app: "gedit".to_owned(),
             session: SessionType::X11,
             mode: InputMode::Telex,
-            score: scoring::aggregate_scores(&[
-                scoring::score_vector("T001", "người", "ngưới"),
-            ]),
+            score: scoring::aggregate_scores(&[scoring::score_vector("T001", "người", "ngưới")]),
             failures: vec![VectorFailure {
                 vector_id: "T001".to_owned(),
                 expected: "người".to_owned(),
@@ -382,11 +368,7 @@ mod tests {
 
         save_run_result(&result, dir.path()).unwrap();
 
-        let failure_path = dir
-            .path()
-            .join(&result.run_id)
-            .join("failures")
-            .join("T001.json");
+        let failure_path = dir.path().join(&result.run_id).join("failures").join("T001.json");
         assert!(failure_path.exists());
     }
 

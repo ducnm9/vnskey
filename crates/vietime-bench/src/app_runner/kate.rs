@@ -11,7 +11,7 @@ use tokio::time::{timeout, Instant};
 
 use crate::session::SessionHandle;
 
-use super::{AppInstance, AppRunner, AppRunnerError, xdotool_helper};
+use super::{xdotool_helper, AppInstance, AppRunner, AppRunnerError};
 
 const KATE_READY_TIMEOUT: Duration = Duration::from_secs(15);
 const KATE_READY_POLL: Duration = Duration::from_millis(250);
@@ -45,9 +45,7 @@ impl AppRunner for KateRunner {
         self.display = Some(session.display.clone());
 
         let mut cmd = Command::new("kate");
-        cmd.arg("--new")
-            .env("DISPLAY", &session.display)
-            .kill_on_drop(true);
+        cmd.arg("--new").env("DISPLAY", &session.display).kill_on_drop(true);
 
         let child = cmd.spawn().map_err(|e| match e.kind() {
             std::io::ErrorKind::NotFound => AppRunnerError::BinaryMissing("kate"),
