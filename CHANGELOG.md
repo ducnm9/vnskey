@@ -14,7 +14,72 @@ The format follows [Keep a Changelog 1.1.0] and the project adheres to
 
 ## [Unreleased]
 
-_No changes yet after the 0.1.0 tag._
+### Added
+
+#### Bench CLI (`vietime-bench`) — Phase 3
+
+- `run` subcommand: automated compatibility matrix runner across
+  (engine x app x session x mode) combos with profile-driven expansion.
+- `validate` subcommand: loads all test vectors and checks for duplicate
+  IDs, empty fields, and Unicode NFC normalisation.
+- `report` subcommand: renders results as JSON, Markdown tables, or
+  colour-coded HTML dashboard.
+- `compare` subcommand: diffs two runs with regression markers (>5% drop).
+- `inspect` subcommand: shows failure details and reproducer commands.
+- `list` subcommand: enumerates apps, sessions, modes, drivers, profiles.
+
+#### Test vectors
+
+- 500 Telex vectors (T001–T500) covering modifiers, tones, combined
+  diacritics, common words, phrases, sentences, and edge cases.
+- 25 bug regression vectors (BUG-001–BUG-025) with `known_failing_on`
+  annotations referencing upstream issues.
+
+#### Drivers & runners (9 apps, 2 sessions, 2 IM frameworks)
+
+- Session drivers: X11 (Xvfb + openbox), Wayland (Weston headless).
+- Keystroke injectors: xdotool (X11), ydotool/wtype (Wayland).
+- IM drivers: IBus (ibus-daemon lifecycle, engine activation, gsettings
+  mode switch), Fcitx5 (fcitx5 lifecycle, config file mode switch).
+- App runners: gedit, kate, firefox, chromium, vscode, libreoffice,
+  slack, discord, obsidian (Electron macro).
+- Shared xdotool helper for window search, focus, select-all, clipboard
+  capture.
+
+#### Profiles
+
+- Built-in profiles: `smoke` (3 combos), `full` (48 combos),
+  `bugs` (4 combos).
+- TOML-based custom profiles with Cartesian product expansion.
+
+#### Scoring
+
+- Per-vector exact match + Levenshtein edit distance via `strsim`.
+- Aggregate accuracy percentage, weighted score, total edit distance.
+
+#### Reliability
+
+- Injection retry (3x with 200ms backoff).
+- Capture retry (2x with 500ms delay for empty reads).
+- Run result persistence: `runs/<id>/summary.json`, per-failure JSON,
+  `latest` symlink.
+
+#### CI
+
+- Nightly bench workflow (`bench-nightly.yml`): cron 2am UTC +
+  manual dispatch, 4-combo matrix, artifact upload, HTML gh-pages deploy.
+- `validate-vectors` job added to main CI.
+- Auto-label issue bot for component/type/engine classification.
+- Bench result JSON Schema (`schemas/bench-result.v1.json`).
+
+#### Documentation
+
+- `docs/reproduce-locally.md`: prerequisites, quick start, Docker setup.
+- `docs/user/{vi,en}/bench.md`: compatibility matrix user guide.
+- `docs/user/vi/contributing-test-vectors.md`: vector format and ID rules.
+- `docs/user/{vi,en}/troubleshooting.md`: 20-item FAQ for common issues.
+- `docs/dev/bench-poc.md`: PoC design for headless IME testing.
+- `docs/dev/bug-analysis/`: template for upstream bug root cause analysis.
 
 ## [0.1.0] — 2026-04-26
 

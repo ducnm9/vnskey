@@ -162,8 +162,23 @@ jobs:
       - uses: actions/checkout@v6
       - name: Install check-jsonschema
         run: pip3 install check-jsonschema
-      - name: Validate schema self-consistency
+      - name: Validate report schema self-consistency
         run: check-jsonschema --check-metaschema schemas/report.v1.json
+      - name: Validate bench-result schema self-consistency
+        run: check-jsonschema --check-metaschema schemas/bench-result.v1.json
+
+  validate-vectors:
+    name: validate test vectors
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+      - uses: dtolnay/rust-toolchain@stable
+      - uses: Swatinem/rust-cache@v2
+        with:
+          cache-on-failure: true
+      - run: cargo build -p vietime-bench --locked
+      - name: Validate vectors (NFC, unique IDs, no empty fields)
+        run: ./target/debug/vietime-bench validate
 
   deny:
     name: cargo deny

@@ -1,0 +1,58 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+#
+# POL-01 — auto-label issues based on title/body keywords.
+
+name: Auto-label issues
+
+on:
+  issues:
+    types: [opened, edited]
+
+permissions:
+  issues: write
+
+jobs:
+  label:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            const text = `${issue.title} ${issue.body || ''}`.toLowerCase();
+            const labels = [];
+
+            // Component labels.
+            if (text.includes('doctor') || text.includes('vietime-doctor'))
+              labels.push('component:doctor');
+            if (text.includes('installer') || text.includes('vietime-installer'))
+              labels.push('component:installer');
+            if (text.includes('bench') || text.includes('vietime-bench') || text.includes('matrix'))
+              labels.push('component:bench');
+
+            // Type labels.
+            if (text.includes('bug') || text.includes('crash') || text.includes('error') || text.includes('broken'))
+              labels.push('bug');
+            if (text.includes('feature') || text.includes('request') || text.includes('enhancement'))
+              labels.push('enhancement');
+            if (text.includes('compat') || text.includes('compatibility') || text.includes('matrix entry'))
+              labels.push('compat');
+
+            // Engine/framework labels.
+            if (text.includes('ibus'))
+              labels.push('ibus');
+            if (text.includes('fcitx'))
+              labels.push('fcitx5');
+            if (text.includes('wayland'))
+              labels.push('wayland');
+            if (text.includes('electron') || text.includes('vscode') || text.includes('slack') || text.includes('discord'))
+              labels.push('electron');
+
+            if (labels.length > 0) {
+              await github.rest.issues.addLabels({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue.number,
+                labels: labels,
+              });
+            }
