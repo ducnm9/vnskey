@@ -89,7 +89,7 @@ jobs:
       - name: Bootstrap container prerequisites
         run: |
           if command -v zypper >/dev/null 2>&1; then
-            zypper --non-interactive install tar gzip
+            zypper --non-interactive install tar gzip bash
           fi
         shell: sh
       - uses: actions/checkout@v6
