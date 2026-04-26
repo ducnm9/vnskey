@@ -7,10 +7,12 @@
 #
 #   1. `vietime-doctor-<ver>-<target>.tar.gz`       (x86_64 + aarch64)
 #   2. `vietime-installer-<ver>-<target>.tar.gz`    (x86_64 + aarch64)
-#   3. `vietime-doctor_<ver>_amd64.deb`             (cargo-deb)
-#   4. `vietime-installer_<ver>_amd64.deb`          (cargo-deb, INS-71)
-#   5. Attached to a GitHub Release with the changelog fragment for that
-#      version auto-extracted from CHANGELOG.md (§[0.1.0]).
+#   3. `vietime-bench-<ver>-<target>.tar.gz`        (x86_64 + aarch64)
+#   4. `vietime-doctor_<ver>_amd64.deb`             (cargo-deb)
+#   5. `vietime-installer_<ver>_amd64.deb`          (cargo-deb, INS-71)
+#   6. `vietime-bench_<ver>_amd64.deb`              (cargo-deb)
+#   7. Attached to a GitHub Release with the changelog fragment for that
+#      version auto-extracted from CHANGELOG.md.
 #
 # Each doctor tarball contains: vietime-doctor binary, README.md,
 # CHECKS.md, GLOSSARY.md, CHANGELOG.md, LICENSE.
@@ -87,9 +89,17 @@ jobs:
             cargo build --release --locked --target ${{ matrix.target }} -p vietime-installer
           fi
 
+      - name: Build bench
+        run: |
+          if [[ "${{ matrix.cross }}" == "true" ]]; then
+            cross build --release --locked --target ${{ matrix.target }} -p vietime-bench
+          else
+            cargo build --release --locked --target ${{ matrix.target }} -p vietime-bench
+          fi
+
       - name: Verify binary size (<8 MiB each)
         run: |
-          for bin in vietime-doctor vietime-installer; do
+          for bin in vietime-doctor vietime-installer vietime-bench; do
             path="target/${{ matrix.target }}/release/${bin}"
             size=$(stat -c%s "$path")
             printf '%s size: %d bytes (%.2f MiB)\n' "$bin" "$size" "$(echo "$size / 1048576" | bc -l)"
@@ -123,6 +133,18 @@ jobs:
           tar -czf "${stage}.tar.gz" "$stage"
           sha256sum "${stage}.tar.gz" > "${stage}.tar.gz.sha256"
 
+      - name: Stage bench tarball
+        run: |
+          stage="vietime-bench-${{ steps.ver.outputs.version }}-${{ matrix.target }}"
+          mkdir -p "$stage"
+          cp target/${{ matrix.target }}/release/vietime-bench "$stage/"
+          cp docs/user/en/bench.md        "$stage/README.md"
+          cp docs/user/vi/bench.md        "$stage/README.vi.md"
+          cp CHANGELOG.md                 "$stage/CHANGELOG.md"
+          cp LICENSE                      "$stage/LICENSE"
+          tar -czf "${stage}.tar.gz" "$stage"
+          sha256sum "${stage}.tar.gz" > "${stage}.tar.gz.sha256"
+
       - name: Upload tarball artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -132,6 +154,8 @@ jobs:
             vietime-doctor-*.tar.gz.sha256
             vietime-installer-*.tar.gz
             vietime-installer-*.tar.gz.sha256
+            vietime-bench-*.tar.gz
+            vietime-bench-*.tar.gz.sha256
 
   build-deb:
     name: build (.deb, amd64)
@@ -145,6 +169,8 @@ jobs:
         run: cargo deb -p vietime-doctor --locked --no-strip
       - name: Build installer Debian package
         run: cargo deb -p vietime-installer --locked --no-strip
+      - name: Build bench Debian package
+        run: cargo deb -p vietime-bench --locked --no-strip
       - name: Upload .deb artifacts
         uses: actions/upload-artifact@v4
         with:

@@ -24,7 +24,7 @@ path = "src/main.rs"
 
 [dependencies]
 vietime-core = { workspace = true }
-vietime-doctor = { path = "../vietime-doctor", version = "0.1.0" }
+vietime-doctor = { path = "../vietime-doctor", version = "0.2.0" }
 anyhow = { workspace = true }
 clap = { workspace = true }
 serde = { workspace = true }

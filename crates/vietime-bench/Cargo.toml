@@ -24,7 +24,7 @@ path = "src/main.rs"
 
 [dependencies]
 vietime-core = { workspace = true }
-vietime-installer = { path = "../vietime-installer", version = "0.1.0" }
+vietime-installer = { path = "../vietime-installer", version = "0.2.0" }
 anyhow = { workspace = true }
 clap = { workspace = true }
 serde = { workspace = true }
@@ -42,3 +42,23 @@ strsim = { workspace = true }
 [dev-dependencies]
 rstest = { workspace = true }
 tempfile = { workspace = true }
+
+[package.metadata.deb]
+maintainer = "VietIME Suite contributors <vietime@vietime.io>"
+copyright = "2026 VietIME Suite contributors"
+license-file = ["../../LICENSE", "4"]
+extended-description = """\
+vietime-bench is an automated compatibility matrix tool that tests \
+Vietnamese text input across Linux applications. It produces accuracy \
+scores for every (IME engine × application × session × input mode) \
+combination, with 525 test vectors covering Telex input and known \
+regressions."""
+depends = "$auto"
+section = "utils"
+priority = "optional"
+assets = [
+    ["target/release/vietime-bench", "usr/bin/", "755"],
+    ["../../docs/user/en/bench.md", "usr/share/doc/vietime-bench/README.md", "644"],
+    ["../../docs/user/vi/bench.md", "usr/share/doc/vietime-bench/README.vi.md", "644"],
+    ["../../CHANGELOG.md", "usr/share/doc/vietime-bench/CHANGELOG.md", "644"],
+]

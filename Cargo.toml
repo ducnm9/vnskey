@@ -8,7 +8,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 rust-version = "1.75"
 license = "GPL-3.0-or-later"
@@ -21,7 +21,7 @@ categories = ["command-line-utilities", "localization"]
 
 [workspace.dependencies]
 # Internal
-vietime-core = { path = "crates/vietime-core", version = "0.1.0" }
+vietime-core = { path = "crates/vietime-core", version = "0.2.0" }
 
 # Error / logging
 anyhow = "1.0"

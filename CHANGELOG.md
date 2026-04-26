@@ -14,7 +14,28 @@ The format follows [Keep a Changelog 1.1.0] and the project adheres to
 
 ## [Unreleased]
 
+_Nothing yet._
+
+## [0.2.0] — 2026-04-26
+
 ### Added
+
+#### Installer CLI (`vietime-installer`) — Phase 2
+
+- `install` subcommand: one-click installation of Vietnamese IME stacks
+  (fcitx5-bamboo, fcitx5-unikey, ibus-bamboo, ibus-unikey).
+- `rollback` subcommand: atomic rollback to pre-install state using
+  SHA-256-verified snapshot manifests.
+- `snapshots` subcommand: list and manage installation snapshots.
+- `list` subcommand: enumerate available engine combos.
+- `--dry-run` flag: full plan execution without mutations.
+- Pre-state detection: distro, session type, desktop environment.
+- Package manager integration: apt (Debian/Ubuntu), dnf (Fedora),
+  pacman (Arch).
+- Environment variable configuration: `/etc/environment`, `~/.profile`,
+  `~/.config/environment.d/`.
+- im-config integration for default IM framework switching.
+- Snapshot store with `0700` permissions and atomic file writes.
 
 #### Bench CLI (`vietime-bench`) — Phase 3
 
