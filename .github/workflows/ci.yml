@@ -57,6 +57,7 @@ jobs:
       - uses: Swatinem/rust-cache@v2
         with:
           cache-on-failure: true
+          key: ${{ matrix.os }}
       - run: cargo build --workspace --locked
       - run: cargo test --workspace --locked
 
@@ -81,7 +82,7 @@ jobs:
           - container: debian:12
             setup: apt-get update && apt-get -y install build-essential pkg-config libssl-dev python3-pip ibus fcitx5 curl
           - container: opensuse/tumbleweed:latest
-            setup: zypper --non-interactive install gcc14 libopenssl-devel python3-pip ibus fcitx5 curl
+            setup: zypper --non-interactive install bash gcc14 gcc14-c++ libopenssl-devel python3-pip ibus fcitx5 curl tar gzip make && ln -sf /usr/bin/gcc-14 /usr/local/bin/cc && ln -sf /usr/bin/g++-14 /usr/local/bin/c++
     container:
       image: ${{ matrix.container }}
     steps:
